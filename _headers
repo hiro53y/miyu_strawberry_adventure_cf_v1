@@ -1,0 +1,39 @@
+# Cloudflare Pages - HTTP ヘッダー設定
+# ルールは上から順に評価される。同一ヘッダーは後に書いたルールが上書きする。
+
+# ---- Service Worker ----
+# CDN・ブラウザ両方でキャッシュさせない（更新がすぐ反映されるようにする）
+/service-worker.js
+  Cache-Control: no-store
+
+# ---- PWA Manifest ----
+# Content-Type を明示し、キャッシュは短めに
+/manifest.webmanifest
+  Content-Type: application/manifest+json; charset=utf-8
+  Cache-Control: no-cache
+
+# ---- ルート HTML ----
+# Service Worker の更新チェックが機能するよう、HTML 本体はキャッシュしない
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+
+# ---- バージョン付き JS / CSS ----
+# ?v=... でバージョン管理しているため、ファイル自体は長期キャッシュ可
+/game.js
+  Cache-Control: public, max-age=31536000, immutable
+/style.css
+  Cache-Control: public, max-age=31536000, immutable
+
+# ---- 静的アセット（画像・音声・アイコン） ----
+# 変更時はファイル名を変えるため immutable で長期キャッシュ
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+
+# ---- 全パス共通：セキュリティヘッダー ----
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=()

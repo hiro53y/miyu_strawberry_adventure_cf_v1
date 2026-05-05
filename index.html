@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="miyu-game-package" content="miyu-strawberry-adventure-cf-v1">
+    <title>みゆのいちご大冒険</title>
+    <meta name="description" content="みゆちゃんたちがいちご園を駆け抜けるスマホ対応2D横スクロールアクションゲーム。">
+    <meta name="theme-color" content="#f7ecff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="いちご大冒険">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.webmanifest">
+    <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
+    <link rel="stylesheet" href="style.css?v=20260506-cf-v1">
+  </head>
+  <body>
+    <div class="orientation-notice" aria-hidden="true">
+      <div>
+        <strong>横向きで遊んでください</strong>
+        <span>スマホを横向きにすると、操作ボタンとゲーム画面が見やすくなります。</span>
+      </div>
+    </div>
+    <main class="page-shell">
+      <div class="game-shell">
+        <header class="frame-header">
+          <div class="brand-block">
+            <p class="eyebrow">Miyu's Strawberry Adventure</p>
+            <h1>みゆのいちご大冒険</h1>
+          </div>
+          <div class="header-actions">
+            <button id="hudTitleButton" class="ghost-button" type="button">タイトル</button>
+            <button id="hudBgmToggle" class="ghost-button" type="button" aria-pressed="false">BGM OFF</button>
+          </div>
+        </header>
+
+        <section class="game-frame">
+          <canvas id="gameCanvas" width="960" height="540" aria-label="ゲーム画面"></canvas>
+          <div class="frame-glow" aria-hidden="true"></div>
+
+          <div id="hud" class="hud">
+            <div class="hud-card"><span class="hud-label">HP</span><strong id="hudHp">3</strong></div>
+            <div class="hud-card"><span class="hud-label">SCORE</span><strong id="hudScore">0</strong></div>
+            <div class="hud-card"><span class="hud-label">BEST</span><strong id="hudBest">0</strong></div>
+            <div class="hud-card"><span class="hud-label">COMBO</span><strong id="hudCombo">x1</strong></div>
+            <div class="hud-card"><span class="hud-label">STRAWBERRY</span><strong id="hudBerry">0 / 0</strong></div>
+            <div class="hud-card"><span class="hud-label">BGM</span><strong id="hudBgm">OFF</strong></div>
+          </div>
+
+          <div id="sceneOverlay" class="scene-overlay">
+            <section id="titleScreen" class="panel title-panel">
+              <p class="eyebrow">Strawberry Greenhouse Side Runner</p>
+              <h2>みゆのいちご大冒険</h2>
+              <p class="lead">
+                いちごを集めて、虫や水たまりをよけながらトレイを満たし、
+                3つの温室ステージとボスを突破するスマホ対応アクションです。
+              </p>
+              <div class="character-select" aria-label="キャラクター選択">
+                <button class="character-card selected" type="button" data-character="miyu" aria-pressed="true">
+                  <span>みゆちゃん</span>
+                  <small>バランス型</small>
+                </button>
+                <button class="character-card" type="button" data-character="kazuki" aria-pressed="false">
+                  <span>かずきくん</span>
+                  <small>すばやい走り</small>
+                </button>
+                <button class="character-card" type="button" data-character="itsuki" aria-pressed="false">
+                  <span>いつきくん</span>
+                  <small>元気なジャンプ</small>
+                </button>
+              </div>
+              <div class="mode-section">
+                <div class="mode-section-header">
+                  <span class="mode-kicker">MODE SELECT</span>
+                  <strong>遊び方を選んでスタート</strong>
+                </div>
+                <div class="mode-select" aria-label="モード選択">
+                  <button class="mode-card mode-card-campaign selected" type="button" data-mode="campaign" aria-pressed="true">
+                    <span class="mode-card-top">
+                      <span class="mode-icon">🍓</span>
+                      <span class="mode-badge">通常</span>
+                    </span>
+                    <span class="mode-title">3ステージ冒険</span>
+                    <small class="mode-desc">ボスを倒して、3つの温室をクリアするストーリーモード。</small>
+                    <span class="mode-meta">
+                      <span>全3面</span>
+                      <span>チェックポイントあり</span>
+                      <span>ボス必須</span>
+                    </span>
+                  </button>
+                  <button class="mode-card mode-card-rush" type="button" data-mode="scoreAttack" aria-pressed="false">
+                    <span class="mode-card-top">
+                      <span class="mode-icon">⭐</span>
+                      <span class="mode-badge">新モード</span>
+                    </span>
+                    <span class="mode-title">いちごラッシュ</span>
+                    <small class="mode-desc">ランダムな畑を走り続け、上位5位のスコアを狙うエンドレスモード。</small>
+                    <span class="mode-meta">
+                      <span>エンドレス</span>
+                      <span>ランダム生成</span>
+                      <span>ランキング保存</span>
+                    </span>
+                  </button>
+                </div>
+                <p id="scoreAttackBestLine" class="mode-note">いちごラッシュ BEST: 0 点</p>
+              </div>
+              <div class="button-row">
+                <button id="startButton" class="primary-button" type="button">START</button>
+                <button id="howToButton" class="secondary-button" type="button">操作説明</button>
+                <button id="titleBgmToggle" class="ghost-button" type="button" aria-pressed="false">BGM ON</button>
+              </div>
+              <ul class="feature-list">
+                <li>滑らかな横スクロールと 3 層パララックス</li>
+                <li>3人のキャラクター選択、回復ラーメン、無敵スター</li>
+                <li>各ステージのボス、投擲攻撃、踏みつけ</li>
+              </ul>
+            </section>
+
+            <section id="howToScreen" class="panel howto-panel hidden">
+              <div class="panel-header">
+                <p class="eyebrow">How To Play</p>
+                <button id="closeHowToButton" class="ghost-button small-button" type="button">閉じる</button>
+              </div>
+              <h2>操作説明</h2>
+              <div class="info-grid">
+                <div>
+                  <h3>移動</h3>
+                  <p>画面左下の ← / →</p>
+                </div>
+                <div>
+                  <h3>ジャンプ</h3>
+                  <p>右下の JUMP</p>
+                </div>
+                <div>
+                  <h3>ダッシュ</h3>
+                  <p>右下の DASH</p>
+                </div>
+                <div>
+                  <h3>アクション採取</h3>
+                  <p>右下の ACTION</p>
+                </div>
+                <div>
+                  <h3>ストロベリーショット</h3>
+                  <p>右下の SHOT</p>
+                </div>
+                <div>
+                  <h3>BGM ON / OFF</h3>
+                  <p>上部ボタン または BGM</p>
+                </div>
+                <div>
+                  <h3>一時停止 / リスタート</h3>
+                  <p>右上の PAUSE / RETRY</p>
+                </div>
+                <div>
+                  <h3>タイトルへ戻る</h3>
+                  <p>TITLE ボタン</p>
+                </div>
+              </div>
+              <p class="lead compact">
+                ふつうのいちごは触れるだけで獲得できます。茂みにあるいちごは近くでアクションを押すと採取できます。
+                いちごラッシュでは、Fで投げるたびに手持ちいちごを1個消費します。
+              </p>
+            </section>
+
+            <section id="messageScreen" class="panel message-panel hidden">
+              <p id="messageEyebrow" class="eyebrow">Stage Message</p>
+              <h2 id="messageTitle">CLEAR!</h2>
+              <p id="messageBody" class="lead compact"></p>
+            </section>
+
+            <section id="resultScreen" class="panel result-panel hidden">
+              <p id="resultEyebrow" class="eyebrow">RESULT</p>
+              <h2 id="resultTitle">ステージクリア</h2>
+              <div class="result-grid">
+                <div class="result-card"><span>獲得スコア</span><strong id="resultScore">0</strong></div>
+                <div class="result-card"><span>ベストスコア</span><strong id="resultBest">0</strong></div>
+                <div class="result-card"><span>いちご数</span><strong id="resultBerry">0 / 0</strong></div>
+                <div class="result-card"><span>最大コンボ</span><strong id="resultCombo">x1</strong></div>
+                <div class="result-card"><span>残り HP</span><strong id="resultHp">0</strong></div>
+                <div class="result-card"><span>クリアタイム</span><strong id="resultTime">0.0 秒</strong></div>
+              </div>
+              <p id="resultSummary" class="lead compact"></p>
+              <ol id="scoreAttackRanking" class="ranking-list hidden" aria-label="いちごラッシュランキング"></ol>
+              <div class="button-row">
+                <button id="retryButton" class="primary-button" type="button">RETRY</button>
+                <button id="backToTitleButton" class="secondary-button" type="button">TITLE</button>
+              </div>
+            </section>
+          </div>
+
+          <div id="pauseBadge" class="pause-badge hidden">PAUSE</div>
+          <div id="touchControls" class="touch-controls" aria-label="スマホ操作">
+            <div class="touch-cluster touch-left">
+              <button class="touch-button touch-move" type="button" data-touch-action="left" aria-label="左へ移動">←</button>
+              <button class="touch-button touch-move" type="button" data-touch-action="right" aria-label="右へ移動">→</button>
+            </div>
+            <div class="touch-cluster touch-right">
+              <button class="touch-button touch-small" type="button" data-touch-action="dash" aria-label="ダッシュ">DASH</button>
+              <button class="touch-button touch-jump" type="button" data-touch-action="jump" aria-label="ジャンプ">JUMP</button>
+              <button class="touch-button touch-small" type="button" data-touch-action="action" aria-label="アクション採取">ACTION</button>
+              <button class="touch-button touch-small shot" type="button" data-touch-action="attack" aria-label="いちごを投げる">SHOT</button>
+            </div>
+            <div class="touch-cluster touch-system">
+              <button class="touch-button touch-mini" type="button" data-touch-action="pause" aria-label="一時停止">PAUSE</button>
+              <button class="touch-button touch-mini" type="button" data-touch-action="restart" aria-label="リトライ">RETRY</button>
+              <button class="touch-button touch-mini" type="button" data-touch-action="back" aria-label="タイトルへ戻る">TITLE</button>
+            </div>
+          </div>
+        </section>
+
+        <footer class="footer-strip">
+          <span>Touch Move</span>
+          <span>Jump</span>
+          <span>Dash</span>
+          <span>Action</span>
+          <span>Berry Shot</span>
+          <span>Pause</span>
+          <span>Title</span>
+        </footer>
+      </div>
+    </main>
+
+  <script src="game.js?v=20260506-cf-v1"></script>
+  </body>
+</html>
