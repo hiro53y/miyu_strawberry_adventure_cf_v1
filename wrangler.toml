@@ -1,0 +1,6 @@
+name = "miyu-strawberry-adventure-cf-v1"
+compatibility_date = "2026-05-06"
+
+[assets]
+directory = "./"
+not_found_handling = "single-page-application"
