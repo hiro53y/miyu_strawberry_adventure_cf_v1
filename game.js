@@ -24,6 +24,7 @@ const CONFIG = {
   bombExplosionRadius: 420,
   bombScoreAttackBerryBurst: 30,
   bombCutinDuration: 2.3,
+  bombStarBonusSeconds: 10,
   clearDelay: 1.7,
   gameOverDelay: 1.9,
   cameraLead: 158,
@@ -2584,6 +2585,18 @@ class GameApp {
       return;
     }
     if (item.type === "star") {
+      if (run.bombTimer > 0) {
+        run.bombTimer += CONFIG.bombStarBonusSeconds;
+        run.player.powerTimer = Math.max(run.player.powerTimer, run.bombTimer);
+        run.player.invulnerable = Math.max(run.player.invulnerable, 0.35);
+        run.score += CONFIG.powerScore;
+        this.spawnBombExplosion(item.x, item.y, CONFIG.bombExplosionRadius * 0.44);
+        this.spawnBerryBurst(item.x, item.y, true, run.player.facing);
+        this.startShake(0.28, 8);
+        this.showPrompt(`スターでBOMB +${CONFIG.bombStarBonusSeconds}秒！`, 1.8);
+        this.audio.playSe("power");
+        return;
+      }
       run.player.powerTimer = CONFIG.powerDuration;
       run.player.invulnerable = Math.max(run.player.invulnerable, 0.35);
       run.score += CONFIG.powerScore;
