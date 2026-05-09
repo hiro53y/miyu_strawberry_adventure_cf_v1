@@ -4,8 +4,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <meta name="miyu-game-package" content="miyu-strawberry-adventure-cf-v1">
-    <title>みゆのいちご大冒険</title>
-    <meta name="description" content="みゆちゃんたちがいちご園を駆け抜けるスマホ対応2D横スクロールアクションゲーム。">
+    <title>みんなのいちご大冒険</title>
+    <meta name="description" content="みんなでいちご園を駆け抜けるスマホ対応2D横スクロールアクションゲーム。">
     <meta name="theme-color" content="#f7ecff">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-title" content="いちご大冒険">
@@ -13,7 +13,7 @@
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
-    <link rel="stylesheet" href="style.css?v=20260506-cf-v1">
+    <link rel="stylesheet" href="style.css?v=20260509-cf-bomb-v1">
   </head>
   <body>
     <div class="orientation-notice" aria-hidden="true">
@@ -26,8 +26,8 @@
       <div class="game-shell">
         <header class="frame-header">
           <div class="brand-block">
-            <p class="eyebrow">Miyu's Strawberry Adventure</p>
-            <h1>みゆのいちご大冒険</h1>
+            <p class="eyebrow">Everyone's Strawberry Adventure</p>
+            <h1>みんなのいちご大冒険</h1>
           </div>
           <div class="header-actions">
             <button id="hudTitleButton" class="ghost-button" type="button">タイトル</button>
@@ -45,16 +45,17 @@
             <div class="hud-card"><span class="hud-label">BEST</span><strong id="hudBest">0</strong></div>
             <div class="hud-card"><span class="hud-label">COMBO</span><strong id="hudCombo">x1</strong></div>
             <div class="hud-card"><span class="hud-label">STRAWBERRY</span><strong id="hudBerry">0 / 0</strong></div>
+            <div class="hud-card hud-bomb"><span class="hud-label">BOMB</span><strong id="hudBomb">READY</strong></div>
             <div class="hud-card"><span class="hud-label">BGM</span><strong id="hudBgm">OFF</strong></div>
           </div>
 
           <div id="sceneOverlay" class="scene-overlay">
             <section id="titleScreen" class="panel title-panel">
               <p class="eyebrow">Strawberry Greenhouse Side Runner</p>
-              <h2>みゆのいちご大冒険</h2>
+              <h2>みんなのいちご大冒険</h2>
               <p class="lead">
                 いちごを集めて、虫や水たまりをよけながらトレイを満たし、
-                3つの温室ステージとボスを突破するスマホ対応アクションです。
+                5つの温室ステージとボスを突破するスマホ対応アクションです。
               </p>
               <div class="character-select" aria-label="キャラクター選択">
                 <button class="character-card selected" type="button" data-character="miyu" aria-pressed="true">
@@ -81,11 +82,12 @@
                       <span class="mode-icon">🍓</span>
                       <span class="mode-badge">通常</span>
                     </span>
-                    <span class="mode-title">3ステージ冒険</span>
-                    <small class="mode-desc">ボスを倒して、3つの温室をクリアするストーリーモード。</small>
+                    <span class="mode-title">5ステージ冒険</span>
+                    <small class="mode-desc">ボスを倒して、5つの温室をクリアするストーリーモード。</small>
                     <span class="mode-meta">
-                      <span>全3面</span>
+                      <span>全5面</span>
                       <span>チェックポイントあり</span>
+                      <span>BOMBあり</span>
                       <span>ボス必須</span>
                     </span>
                   </button>
@@ -113,7 +115,8 @@
               <ul class="feature-list">
                 <li>滑らかな横スクロールと 3 層パララックス</li>
                 <li>3人のキャラクター選択、回復ラーメン、無敵スター</li>
-                <li>各ステージのボス、投擲攻撃、踏みつけ</li>
+                <li>各ステージ1回のBOMB、投擲攻撃、踏みつけ</li>
+                <li>全5ステージのボスと新しい敵</li>
               </ul>
             </section>
 
@@ -145,6 +148,10 @@
                   <p>右下の SHOT</p>
                 </div>
                 <div>
+                  <h3>BOMB</h3>
+                  <p>右下の BOMB / キーボード B</p>
+                </div>
+                <div>
                   <h3>BGM ON / OFF</h3>
                   <p>上部ボタン または BGM</p>
                 </div>
@@ -159,7 +166,8 @@
               </div>
               <p class="lead compact">
                 ふつうのいちごは触れるだけで獲得できます。茂みにあるいちごは近くでアクションを押すと採取できます。
-                いちごラッシュでは、Fで投げるたびに手持ちいちごを1個消費します。
+                BOMBは各ステージ1回だけ使えます。発動中は無敵、飛行、速度アップ、爆発ショットが有効です。
+                いちごラッシュでは、BOMB発動時に追加のいちごが大量に出現します。
               </p>
             </section>
 
@@ -200,6 +208,7 @@
               <button class="touch-button touch-jump" type="button" data-touch-action="jump" aria-label="ジャンプ">JUMP</button>
               <button class="touch-button touch-small" type="button" data-touch-action="action" aria-label="アクション採取">ACTION</button>
               <button class="touch-button touch-small shot" type="button" data-touch-action="attack" aria-label="いちごを投げる">SHOT</button>
+              <button class="touch-button touch-small bomb" type="button" data-touch-action="bomb" aria-label="ボムを使う">BOMB</button>
             </div>
             <div class="touch-cluster touch-system">
               <button class="touch-button touch-mini" type="button" data-touch-action="pause" aria-label="一時停止">PAUSE</button>
@@ -215,12 +224,13 @@
           <span>Dash</span>
           <span>Action</span>
           <span>Berry Shot</span>
+          <span>Bomb</span>
           <span>Pause</span>
           <span>Title</span>
         </footer>
       </div>
     </main>
 
-  <script src="game.js?v=20260506-cf-v1"></script>
+  <script src="game.js?v=20260509-cf-bomb-v1"></script>
   </body>
 </html>

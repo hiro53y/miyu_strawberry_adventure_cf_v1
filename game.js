@@ -16,6 +16,12 @@ const CONFIG = {
   invulnerableSeconds: 1.2,
   maxHp: 3,
   powerDuration: 6.8,
+  bombDuration: 7.5,
+  bombSpeedMultiplier: 1.45,
+  bombFlightAccel: 980,
+  bombHoverGravityScale: 0.18,
+  bombExplosionRadius: 138,
+  bombScoreAttackBerryBurst: 30,
   clearDelay: 1.7,
   gameOverDelay: 1.9,
   cameraLead: 158,
@@ -74,6 +80,8 @@ const ASSET_MANIFEST = {
     stage1: "assets/audio/bgm.mp3",
     stage2: "assets/audio/bgm_options/bgm_04.mp3",
     stage3: "assets/audio/bgm_options/bgm_03.mp3",
+    stage4: "assets/audio/bgm_options/bgm_01.mp3",
+    stage5: "assets/audio/bgm_options/bgm_04.mp3",
     scoreAttack: "assets/audio/bgm_options/bgm_01.mp3",
   },
 };
@@ -228,8 +236,8 @@ const CHARACTERS = [
 const GAME_MODES = {
   campaign: {
     id: "campaign",
-    label: "3ステージ冒険",
-    title: "みゆのいちご大冒険",
+    label: "5ステージ冒険",
+    title: "みんなのいちご大冒険",
   },
   scoreAttack: {
     id: "scoreAttack",
@@ -291,6 +299,7 @@ const BASE_OBSTACLES = [
 ];
 
 const NON_COLLIDING_OBSTACLE_TYPES = new Set(["leafpile"]);
+const DEFEATABLE_OBSTACLE_TYPES = new Set(["bug", "bee", "drone"]);
 
 const STAGE_CONFIGS = [
   {
@@ -362,6 +371,52 @@ const STAGE_CONFIGS = [
     ],
     labels: ["FINAL", "Gold Row", "Star Lane", "BOSS"],
   },
+  {
+    title: "Stage 4",
+    name: "Moonlit Honey House",
+    jpName: "月あかりハニートンネル",
+    bgm: ASSET_MANIFEST.audio.stage4,
+    theme: {
+      skyTop: "#263a72",
+      skyMid: "#6a75a9",
+      skyBottom: "#ffe0bd",
+      greenhouse: "rgba(188, 202, 240, 0.72)",
+      greenhouseTrim: "rgba(126, 151, 221, 0.86)",
+      field: "rgba(95, 84, 145, 0.28)",
+      ground: "#57405a",
+      grass: "#8bbd64",
+      grassDark: "#679548",
+    },
+    boss: { type: "moth", hp: 6, x: 5205, y: 306, w: 154, h: 108, movement: "swoop", attack: "spores" },
+    powerups: [
+      { id: "ramen-4", type: "ramen", x: 1720, y: 378 },
+      { id: "star-4", type: "star", x: 3450, y: 270 },
+    ],
+    labels: ["STAGE 4", "Honey Bend", "Moon Row", "BOSS"],
+  },
+  {
+    title: "Stage 5",
+    name: "Rainbow Cloud Garden",
+    jpName: "にじ雲スカイガーデン",
+    bgm: ASSET_MANIFEST.audio.stage5,
+    theme: {
+      skyTop: "#94d9ff",
+      skyMid: "#fff6fb",
+      skyBottom: "#f8ffd0",
+      greenhouse: "rgba(220, 245, 255, 0.64)",
+      greenhouseTrim: "rgba(255, 177, 210, 0.78)",
+      field: "rgba(116, 190, 210, 0.22)",
+      ground: "#66506f",
+      grass: "#9acc5d",
+      grassDark: "#73a94d",
+    },
+    boss: { type: "dragonfly", hp: 7, x: 5190, y: 292, w: 174, h: 104, movement: "zigzag", attack: "laser" },
+    powerups: [
+      { id: "ramen-5", type: "ramen", x: 2340, y: 334 },
+      { id: "star-5", type: "star", x: 4380, y: 254 },
+    ],
+    labels: ["FINAL", "Cloud Row", "Rainbow Lane", "BOSS"],
+  },
 ];
 
 const SCORE_ATTACK_THEMES = [
@@ -404,21 +459,37 @@ const SCORE_ATTACK_BOSS_POOL = [
   { type: "ladybug", imageKey: "bossLadybug", hp: 3, w: 128, h: 92, movement: "hover" },
   { type: "frog", imageKey: "bossFrog", hp: 4, w: 138, h: 96, movement: "hop" },
   { type: "beetle", imageKey: "bossBeetle", hp: 5, w: 156, h: 104, movement: "guard" },
+  { type: "moth", hp: 6, w: 154, h: 108, movement: "swoop", attack: "spores" },
+  { type: "dragonfly", hp: 7, w: 174, h: 104, movement: "zigzag", attack: "laser" },
 ];
 
 function createLevelData(stageIndex = 0) {
   const stage = STAGE_CONFIGS[stageIndex] ?? STAGE_CONFIGS[0];
   const stageNo = stageIndex + 1;
-  const yShift = stageIndex === 1 ? -6 : stageIndex === 2 ? 4 : 0;
+  const yShift = stageIndex === 1 ? -6 : stageIndex === 2 ? 4 : stageIndex === 3 ? -24 : stageIndex === 4 ? -36 : 0;
   const platforms = BASE_PLATFORMS.map((platform, index) => ({
     ...platform,
-    y: platform.y + (stageIndex === 2 && index % 2 === 0 ? -16 : yShift),
+    y: platform.y + (stageIndex === 2 && index % 2 === 0 ? -16 : yShift) + (stageIndex >= 3 ? (index % 2 === 0 ? -18 : 14) : 0),
   }));
+  if (stageIndex === 3) {
+    platforms.push(
+      { x: 1180, y: 284, w: 136, h: 18 },
+      { x: 2500, y: 300, w: 128, h: 18 },
+      { x: 3810, y: 276, w: 150, h: 18 }
+    );
+  } else if (stageIndex === 4) {
+    platforms.push(
+      { x: 1080, y: 286, w: 126, h: 18 },
+      { x: 2060, y: 254, w: 146, h: 18 },
+      { x: 3300, y: 292, w: 160, h: 18 },
+      { x: 4550, y: 246, w: 138, h: 18 }
+    );
+  }
   const collectibles = [
     ...BASE_TOUCH_BERRIES.map(([x, y], index) => ({
       id: `s${stageNo}-b${String(index + 1).padStart(2, "0")}`,
       x: x + stageIndex * 18,
-      y: y + (index % 3 === 0 ? -stageIndex * 10 : stageIndex * 4),
+      y: y + (index % 3 === 0 ? -stageIndex * 10 : stageIndex * 4) + (stageIndex >= 3 && index % 4 === 0 ? -46 : 0),
       type: "touch",
     })),
     ...BASE_ACTION_BERRIES.map(([x, y], index) => ({
@@ -445,6 +516,24 @@ function createLevelData(stageIndex = 0) {
       { x: 1120, y: 397, w: 46, h: 28, type: "bug", damage: 1, movement: "sine", amplitude: 48, speed: 2.4 },
       { x: 2860, y: 408, w: 50, h: 18, type: "rock", damage: 1 },
       { x: 4380, y: 404, w: 58, h: 18, type: "mud", damage: 1 }
+    );
+  } else if (stageIndex === 3) {
+    stageObstacles.push(
+      { x: 1040, y: 356, w: 46, h: 32, type: "bee", damage: 1, movement: "sine", amplitude: 64, speed: 2.6 },
+      { x: 1540, y: 407, w: 62, h: 24, type: "thorn", damage: 1 },
+      { x: 2320, y: 338, w: 48, h: 32, type: "bee", damage: 1, movement: "vertical", amplitude: 50, speed: 2.1 },
+      { x: 3080, y: 408, w: 70, h: 20, type: "honey", damage: 1 },
+      { x: 3860, y: 330, w: 48, h: 32, type: "bee", damage: 1, movement: "sine", amplitude: 72, speed: 3.0 },
+      { x: 4660, y: 407, w: 64, h: 24, type: "thorn", damage: 1 }
+    );
+  } else if (stageIndex === 4) {
+    stageObstacles.push(
+      { x: 980, y: 318, w: 52, h: 34, type: "drone", damage: 1, movement: "vertical", amplitude: 72, speed: 2.4 },
+      { x: 1660, y: 407, w: 64, h: 24, type: "crystal", damage: 1 },
+      { x: 2440, y: 300, w: 52, h: 34, type: "drone", damage: 1, movement: "sine", amplitude: 84, speed: 2.7 },
+      { x: 3180, y: 407, w: 68, h: 24, type: "crystal", damage: 1 },
+      { x: 4020, y: 286, w: 52, h: 34, type: "drone", damage: 1, movement: "vertical", amplitude: 88, speed: 3.0 },
+      { x: 4900, y: 318, w: 52, h: 34, type: "drone", damage: 1, movement: "sine", amplitude: 90, speed: 3.2 }
     );
   }
   return {
@@ -655,7 +744,7 @@ function createScoreAttackBoss(level, x) {
     hp: base.hp + hpBoost,
     maxHp: base.hp + hpBoost,
     x,
-    y: base.type === "beetle" ? 352 : 356,
+    y: base.type === "dragonfly" ? 292 : base.type === "moth" ? 306 : base.type === "beetle" ? 352 : 356,
     phase: rng() * 3,
     defeated: false,
     hurtCooldown: 0,
@@ -805,6 +894,7 @@ class InputManager {
       Enter: "action",
       KeyF: "attack",
       ControlLeft: "attack",
+      KeyB: "bomb",
       KeyM: "bgm",
       KeyP: "pause",
       KeyR: "restart",
@@ -1012,6 +1102,7 @@ class AudioManager {
       berry: 0.18,
       combo: 0.2,
       throw: 0.12,
+      bomb: 0.5,
       stomp: 0.16,
       hit: 0.18,
       heal: 0.22,
@@ -1060,6 +1151,14 @@ class AudioManager {
         osc.frequency.setValueAtTime(540, now);
         osc.frequency.linearRampToValueAtTime(760, now + 0.08);
         gain.gain.exponentialRampToValueAtTime(0.05, now + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, now + stopTime);
+        break;
+      case "bomb":
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(220, now);
+        osc.frequency.linearRampToValueAtTime(760, now + 0.16);
+        osc.frequency.linearRampToValueAtTime(1320, now + 0.34);
+        gain.gain.exponentialRampToValueAtTime(0.09, now + 0.02);
         gain.gain.exponentialRampToValueAtTime(0.0001, now + stopTime);
         break;
       case "stomp":
@@ -1172,6 +1271,7 @@ class GameApp {
       hudBest: document.getElementById("hudBest"),
       hudCombo: document.getElementById("hudCombo"),
       hudBerry: document.getElementById("hudBerry"),
+      hudBomb: document.getElementById("hudBomb"),
       hudBgm: document.getElementById("hudBgm"),
       hudBgmToggle: document.getElementById("hudBgmToggle"),
       hudTitleButton: document.getElementById("hudTitleButton"),
@@ -1490,6 +1590,11 @@ class GameApp {
       particles: [],
       afterimages: [],
       projectiles: [],
+      bossProjectiles: [],
+      bombReady: carry?.bombReady ?? true,
+      bombTimer: carry?.bombTimer ?? 0,
+      bombCutinTimer: 0,
+      bombFlashTimer: 0,
       landingWasAirborne: false,
       nearestAction: null,
       bonuses: null,
@@ -1572,6 +1677,11 @@ class GameApp {
       particles: [],
       afterimages: [],
       projectiles: [],
+      bossProjectiles: [],
+      bombReady: true,
+      bombTimer: 0,
+      bombCutinTimer: 0,
+      bombFlashTimer: 0,
       landingWasAirborne: false,
       nearestAction: null,
       bonuses: null,
@@ -1626,6 +1736,8 @@ class GameApp {
       checkpointLabel: run.checkpoint?.label ?? "スタート",
       hp: run.player.hp,
       powerTimer: run.player.powerTimer,
+      bombReady: run.bombReady,
+      bombTimer: run.bombTimer,
       score: run.score,
       strawberries: run.strawberries,
       harvestedStrawberries: run.harvestedStrawberries,
@@ -1830,6 +1942,9 @@ class GameApp {
     player.dashBurstTimer = Math.max(0, player.dashBurstTimer - delta);
     player.attackCooldown = Math.max(0, player.attackCooldown - delta);
     player.throwPoseTimer = Math.max(0, player.throwPoseTimer - delta);
+    run.bombTimer = Math.max(0, (run.bombTimer ?? 0) - delta);
+    run.bombCutinTimer = Math.max(0, (run.bombCutinTimer ?? 0) - delta);
+    run.bombFlashTimer = Math.max(0, (run.bombFlashTimer ?? 0) - delta);
     run.comboTimer = Math.max(0, run.comboTimer - delta * 1000);
     run.comboFlash = Math.max(0, run.comboFlash - delta);
     run.checkpointNoticeTimer = Math.max(0, run.checkpointNoticeTimer - delta);
@@ -1846,9 +1961,11 @@ class GameApp {
     const wantsDash = this.input.isDown("dash") && moveAxis !== 0;
     const pStats = run.playerStats;
     const accel = player.onGround ? CONFIG.moveAccelGround : CONFIG.moveAccelAir;
-    const targetMax = wantsDash ? pStats.maxDashSpeed : pStats.maxRunSpeed;
+    const bombActive = run.bombTimer > 0;
+    const speedMultiplier = bombActive ? CONFIG.bombSpeedMultiplier : 1;
+    const targetMax = (wantsDash ? pStats.maxDashSpeed : pStats.maxRunSpeed) * speedMultiplier;
     const desiredVelocity = moveAxis * targetMax;
-    const boost = wantsDash ? pStats.dashAccelBonus : 0;
+    const boost = (wantsDash ? pStats.dashAccelBonus : 0) + (bombActive ? CONFIG.bombFlightAccel * 0.45 : 0);
 
     if (moveAxis !== 0) {
       player.facing = moveAxis;
@@ -1876,10 +1993,26 @@ class GameApp {
       this.spawnDustBurst(player.x, player.y - 4, 8, "lift");
     }
 
+    if (this.input.wasPressed("bomb")) {
+      this.activateBomb();
+    }
+
     this.updateObstacles(delta);
     this.updateBoss(delta);
+    this.updateBossProjectiles(delta);
 
-    player.vy += CONFIG.gravity * delta;
+    if (bombActive) {
+      const flyAxis = (this.input.isDown("jump") ? -1 : 0) + (this.input.isDown("action") ? 1 : 0);
+      player.vy += CONFIG.gravity * CONFIG.bombHoverGravityScale * delta;
+      if (flyAxis !== 0) {
+        player.vy += flyAxis * CONFIG.bombFlightAccel * delta;
+      } else {
+        player.vy = lerp(player.vy, 0, delta * 2.8);
+      }
+      player.vy = clamp(player.vy, -390, 360);
+    } else {
+      player.vy += CONFIG.gravity * delta;
+    }
     const previousY = player.y;
     player.x = clamp(player.x + player.vx * delta, 12, this.level.stageLength - 16);
     player.y += player.vy * delta;
@@ -1931,6 +2064,7 @@ class GameApp {
     this.updateProjectiles(delta);
     this.checkBossHits(player);
     this.checkObstacleHits(player);
+    this.checkBossProjectileHits(player);
     this.updateParticlesAndAfterimages(delta);
 
     if (wantsDash && Math.abs(player.vx) > pStats.maxRunSpeed * 0.84 && this.afterImageCooldown <= 0) {
@@ -1989,6 +2123,52 @@ class GameApp {
     }
   }
 
+  activateBomb() {
+    const run = this.runState;
+    const player = run?.player;
+    if (!run || !player || this.scene !== "playing") {
+      return;
+    }
+    if (!run.bombReady) {
+      this.showPrompt("BOMBはこのステージではもう使えません", 1.3);
+      this.audio.playSe("hit");
+      return;
+    }
+    run.bombReady = false;
+    run.bombTimer = CONFIG.bombDuration;
+    run.bombCutinTimer = 1.15;
+    run.bombFlashTimer = 0.65;
+    player.powerTimer = Math.max(player.powerTimer, CONFIG.bombDuration);
+    player.invulnerable = Math.max(player.invulnerable, 0.35);
+    player.vy = Math.min(player.vy, -220);
+    this.spawnDustBurst(player.x, player.y - 42, 30, "clear");
+    this.spawnBerryBurst(player.x, player.y - 48, true, player.facing);
+    this.startShake(0.58, 12);
+    this.showPrompt("BOMB発動！飛行・無敵・爆発ショット", 2.2);
+    this.audio.playSe("bomb");
+    if (run.mode === GAME_MODES.scoreAttack.id) {
+      this.spawnScoreAttackBombBerries();
+    }
+  }
+
+  spawnScoreAttackBombBerries() {
+    const run = this.runState;
+    const player = run?.player;
+    if (!run || !player || run.mode !== GAME_MODES.scoreAttack.id) {
+      return;
+    }
+    for (let index = 0; index < CONFIG.bombScoreAttackBerryBurst; index += 1) {
+      const row = index % 5;
+      const col = Math.floor(index / 5);
+      this.level.collectibles.push({
+        id: `rush-bomb-${Date.now()}-${index}`,
+        x: Math.round(player.x + 260 + col * 112 + (row % 2) * 38),
+        y: 238 + row * 31 + Math.sin(index) * 8,
+        type: "touch",
+      });
+    }
+  }
+
   updateObstacles(delta) {
     this.level.obstacles.forEach((obstacle, index) => {
       if (obstacle.defeated) {
@@ -1998,12 +2178,15 @@ class GameApp {
       obstacle.phase = (obstacle.phase || index * 0.9) + delta;
       obstacle.renderX = obstacle.x;
       obstacle.renderY = obstacle.y;
-      if (obstacle.type === "bug" && obstacle.movement === "sine") {
+      if (DEFEATABLE_OBSTACLE_TYPES.has(obstacle.type) && obstacle.movement === "sine") {
         obstacle.renderX = obstacle.x + Math.sin(obstacle.phase * obstacle.speed) * obstacle.amplitude;
         obstacle.renderY = obstacle.y + Math.sin(obstacle.phase * obstacle.speed * 1.7) * 3;
-      } else if (obstacle.type === "bug" && obstacle.movement === "hop") {
+      } else if (DEFEATABLE_OBSTACLE_TYPES.has(obstacle.type) && obstacle.movement === "hop") {
         obstacle.renderX = obstacle.x + Math.sin(obstacle.phase * obstacle.speed) * obstacle.amplitude;
         obstacle.renderY = obstacle.y - Math.abs(Math.sin(obstacle.phase * obstacle.speed)) * 14;
+      } else if (DEFEATABLE_OBSTACLE_TYPES.has(obstacle.type) && obstacle.movement === "vertical") {
+        obstacle.renderY = obstacle.y + Math.sin(obstacle.phase * obstacle.speed) * obstacle.amplitude;
+        obstacle.renderX = obstacle.x + Math.sin(obstacle.phase * obstacle.speed * 0.55) * 18;
       }
     });
   }
@@ -2031,6 +2214,55 @@ class GameApp {
     } else if (boss.movement === "guard") {
       boss.renderY = boss.y + Math.sin(boss.phase * 1.5) * 5;
       boss.renderX = boss.x + Math.sin(boss.phase * 0.8) * 10;
+    } else if (boss.movement === "swoop") {
+      boss.renderX = boss.x + Math.sin(boss.phase * 1.8) * 74;
+      boss.renderY = boss.y + Math.sin(boss.phase * 3.0) * 42;
+      this.updateBossAttack(boss, delta, "spore");
+    } else if (boss.movement === "zigzag") {
+      boss.renderX = boss.x + Math.sin(boss.phase * 3.0) * 88;
+      boss.renderY = boss.y + Math.sin(boss.phase * 2.1) * 56;
+      this.updateBossAttack(boss, delta, "laser");
+    }
+  }
+
+  updateBossAttack(boss, delta, kind) {
+    const run = this.runState;
+    if (!run || run.mode === GAME_MODES.scoreAttack.id) {
+      return;
+    }
+    boss.attackCooldown = Math.max(0, (boss.attackCooldown ?? (kind === "laser" ? 1.15 : 1.6)) - delta);
+    if (boss.attackCooldown > 0) {
+      return;
+    }
+    const player = run.player;
+    const fromX = boss.renderX ?? boss.x;
+    const fromY = (boss.renderY ?? boss.y) - 18;
+    if (kind === "laser") {
+      run.bossProjectiles.push({
+        type: "laser",
+        x: fromX - 82,
+        y: fromY + Math.sin(boss.phase * 4) * 18,
+        vx: -420,
+        vy: clamp((player.y - fromY) * 1.05, -180, 180),
+        w: 58,
+        h: 12,
+        life: 2.4,
+      });
+      boss.attackCooldown = 1.05;
+    } else {
+      for (let index = 0; index < 3; index += 1) {
+        run.bossProjectiles.push({
+          type: "spore",
+          x: fromX - 46 - index * 8,
+          y: fromY + index * 16,
+          vx: -210 - index * 34,
+          vy: -70 + index * 72,
+          w: 24,
+          h: 24,
+          life: 2.8,
+        });
+      }
+      boss.attackCooldown = 1.65;
     }
   }
 
@@ -2061,6 +2293,7 @@ class GameApp {
       rotation: 0,
       spin: 0,
       life: 1.3,
+      explosive: run.bombTimer > 0,
     });
     this.audio.playSe("throw");
   }
@@ -2078,29 +2311,112 @@ class GameApp {
       projectile.rotation = Math.atan2(projectile.vy, projectile.vx) * 0.12;
 
       if (projectile.life <= 0 || projectile.x < -60 || projectile.x > this.level.stageLength + 60 || projectile.y > CONFIG.height + 80) {
+        if (projectile.explosive && projectile.life <= 0) {
+          this.explodeProjectile(projectile.x, projectile.y);
+        }
         return false;
       }
 
       for (const obstacle of this.level.obstacles) {
-        if (obstacle.defeated || obstacle.type !== "bug") {
+        if (obstacle.defeated || !DEFEATABLE_OBSTACLE_TYPES.has(obstacle.type)) {
           continue;
         }
         const obstacleRect = this.getObstacleHitbox(obstacle);
         const shotRect = { x: projectile.x - 18, y: projectile.y - 12, w: 36, h: 24 };
         if (rectsOverlap(shotRect, obstacleRect)) {
-          this.defeatBug(obstacle, "projectile");
+          if (projectile.explosive) {
+            this.explodeProjectile(projectile.x, projectile.y);
+          } else {
+            this.defeatBug(obstacle, "projectile");
+          }
           return false;
         }
       }
 
       const boss = this.level.boss;
       if (boss && !boss.defeated && rectsOverlap({ x: projectile.x - 18, y: projectile.y - 12, w: 36, h: 24 }, this.getBossHitbox())) {
-        this.damageBoss(1, "projectile");
+        if (projectile.explosive) {
+          this.explodeProjectile(projectile.x, projectile.y);
+        } else {
+          this.damageBoss(1, "projectile");
+        }
         return false;
       }
 
       return true;
     });
+  }
+
+  explodeProjectile(x, y) {
+    const run = this.runState;
+    if (!run) {
+      return;
+    }
+    const radius = CONFIG.bombExplosionRadius;
+    this.spawnDustBurst(x, y, 24, "clear");
+    this.spawnBerryBurst(x, y, true, run.player.facing);
+    this.startShake(0.28, 7.5);
+    this.audio.playSe("bomb");
+    for (const obstacle of this.level.obstacles) {
+      if (obstacle.defeated || !DEFEATABLE_OBSTACLE_TYPES.has(obstacle.type)) {
+        continue;
+      }
+      const cx = obstacle.renderX ?? obstacle.x;
+      const cy = obstacle.renderY ?? obstacle.y;
+      if (Math.hypot(cx - x, cy - y) <= radius) {
+        this.defeatBug(obstacle, "projectile");
+      }
+    }
+    const boss = this.level.boss;
+    if (boss && !boss.defeated) {
+      const bx = boss.renderX ?? boss.x;
+      const by = boss.renderY ?? boss.y;
+      if (Math.hypot(bx - x, by - y) <= radius + boss.w * 0.35) {
+        this.damageBoss(2, "projectile");
+      }
+    }
+  }
+
+  updateBossProjectiles(delta) {
+    const run = this.runState;
+    if (!run?.bossProjectiles) {
+      return;
+    }
+    run.bossProjectiles = run.bossProjectiles.filter((shot) => {
+      shot.life -= delta;
+      shot.x += shot.vx * delta;
+      shot.y += shot.vy * delta;
+      if (shot.type === "spore") {
+        shot.vy += 180 * delta;
+      }
+      return shot.life > 0 && shot.x > this.cameraX - 180 && shot.y < CONFIG.height + 120;
+    });
+  }
+
+  checkBossProjectileHits(player) {
+    const run = this.runState;
+    if (!run?.bossProjectiles || player.powerTimer > 0 || player.invulnerable > 0) {
+      return;
+    }
+    const playerRect = this.getPlayerHitbox();
+    for (const shot of run.bossProjectiles) {
+      const rect = { x: shot.x - shot.w / 2, y: shot.y - shot.h / 2, w: shot.w, h: shot.h };
+      if (!rectsOverlap(playerRect, rect)) {
+        continue;
+      }
+      shot.life = 0;
+      player.hp = Math.max(0, player.hp - 1);
+      player.invulnerable = CONFIG.invulnerableSeconds;
+      player.hurtTimer = 0.36;
+      player.vx = -player.facing * 180;
+      player.vy = -230;
+      run.damageTaken += 1;
+      run.stageDamageTaken += 1;
+      this.startShake(0.36, 9);
+      this.spawnDustBurst(player.x, player.y - 18, 12, "damage");
+      this.audio.playSe("damage");
+      break;
+    }
   }
 
   defeatBug(obstacle, source) {
@@ -2324,7 +2640,7 @@ class GameApp {
       const obstacleRect = this.getObstacleHitbox(obstacle);
       if (rectsOverlap(playerRect, obstacleRect)) {
         if (player.powerTimer > 0) {
-          if (obstacle.type === "bug") {
+          if (DEFEATABLE_OBSTACLE_TYPES.has(obstacle.type)) {
             this.defeatBug(obstacle, "power");
           }
           continue;
@@ -2332,7 +2648,7 @@ class GameApp {
         const playerBottom = playerRect.y + playerRect.h;
         const stompLine = obstacleRect.y + obstacleRect.h * 0.48;
         const fallingFastEnough = player.vy > 120;
-        if (obstacle.type === "bug" && fallingFastEnough && playerBottom <= stompLine + 12) {
+        if (DEFEATABLE_OBSTACLE_TYPES.has(obstacle.type) && fallingFastEnough && playerBottom <= stompLine + 12) {
           player.vy = CONFIG.stompBounceVelocity;
           player.onGround = false;
           this.defeatBug(obstacle, "stomp");
@@ -2399,7 +2715,7 @@ class GameApp {
       this.audio.playSe("clear");
       this.spawnDustBurst(run.player.x, run.player.y - 36, 22, "clear");
       this.els.messageEyebrow.textContent = `${this.level.title} Clear`;
-      this.els.messageTitle.textContent = run.stageIndex < STAGE_CONFIGS.length - 1 ? "次の温室へ進もう！" : "3ステージクリア！";
+      this.els.messageTitle.textContent = run.stageIndex < STAGE_CONFIGS.length - 1 ? "次の温室へ進もう！" : "5ステージクリア！";
       this.els.messageBody.textContent =
         run.stageIndex < STAGE_CONFIGS.length - 1
           ? `${this.level.jpName} を突破しました。応援メンバーと合流して次のステージへ進みます。`
@@ -2515,7 +2831,7 @@ class GameApp {
     };
     const isScoreAttack = this.resultData.mode === GAME_MODES.scoreAttack.id;
     this.els.resultEyebrow.textContent = isScoreAttack ? "Strawberry Rush Result" : run.finishKind === "clear" ? "Clear Result" : "Retry Result";
-    this.els.resultTitle.textContent = isScoreAttack ? "いちごラッシュ結果" : run.finishKind === "clear" ? "全3ステージクリア" : "ゲームオーバー";
+    this.els.resultTitle.textContent = isScoreAttack ? "いちごラッシュ結果" : run.finishKind === "clear" ? "全5ステージクリア" : "ゲームオーバー";
     this.els.resultScore.textContent = `${formatNumber(this.resultData.score)} 点`;
     this.els.resultBest.textContent = `${formatNumber(this.resultData.best)} 点`;
     this.els.resultBerry.textContent = isScoreAttack
@@ -2781,6 +3097,9 @@ class GameApp {
       this.els.hudScore.textContent = "0";
       this.els.hudCombo.textContent = "x1";
       this.els.hudBerry.textContent = "0 / 0";
+      if (this.els.hudBomb) {
+        this.els.hudBomb.textContent = "READY";
+      }
       shell.classList.remove("combo-boost");
       return;
     }
@@ -2790,7 +3109,12 @@ class GameApp {
     this.els.hudCombo.textContent = run.combo >= 2 ? `x${run.combo} HOT` : "x1";
     this.els.hudBerry.textContent = run.mode === GAME_MODES.scoreAttack.id
       ? `${formatNumber(run.strawberries)}個 / 収穫${formatNumber(run.harvestedStrawberries ?? 0)}`
-      : `${run.strawberries} / ${run.totalBerries}  S${run.stageNumber}/3`;
+      : `${run.strawberries} / ${run.totalBerries}  S${run.stageNumber}/${STAGE_CONFIGS.length}`;
+    if (this.els.hudBomb) {
+      this.els.hudBomb.textContent = run.bombTimer > 0
+        ? `${Math.ceil(run.bombTimer)}s`
+        : run.bombReady ? "READY" : "USED";
+    }
     shell.classList.toggle("combo-boost", run.comboFlash > 0.05);
   }
 
@@ -2816,6 +3140,7 @@ class GameApp {
       this.drawPrompt();
       this.drawCheckpointNotice();
       this.drawSceneTint();
+      this.drawBombCutin();
     }
   }
 
@@ -2981,6 +3306,7 @@ class GameApp {
     this.drawPowerups();
     this.drawObstacles();
     this.drawBoss();
+    this.drawBossProjectiles();
     this.drawProjectiles();
     if (this.level.goal) {
       this.drawGoal(this.level.goal.x, this.level.goal.y);
@@ -3183,6 +3509,21 @@ class GameApp {
         case "bug":
           this.drawBugEnemy(x, y + 1, 0.115, fade, obstacle.defeated ? 0.5 : 0);
           break;
+        case "bee":
+          this.drawBeeEnemy(x, y, 1, fade, obstacle.defeated ? 0.45 : 0);
+          break;
+        case "drone":
+          this.drawDroneEnemy(x, y, 1, fade, obstacle.defeated ? 0.45 : 0);
+          break;
+        case "thorn":
+          this.drawThornPatch(x, y, obstacle.w, obstacle.h, fade);
+          break;
+        case "honey":
+          this.drawHoneyPatch(x, y, obstacle.w, obstacle.h, fade);
+          break;
+        case "crystal":
+          this.drawCrystalHazard(x, y, obstacle.w, obstacle.h, fade);
+          break;
         default:
           break;
       }
@@ -3202,7 +3543,9 @@ class GameApp {
     const alpha = boss.defeated ? clamp((boss.deadTimer ?? 0) / 0.55, 0, 1) : 1;
     const scale = boss.type === "beetle" ? 0.34 : boss.type === "frog" ? 0.31 : 0.33;
     const jitter = boss.hitFlash > 0 ? Math.sin(this.time * 80) * 3 : 0;
-    if (!this.drawImageAsset(boss.imageKey, x + jitter, y, scale, { anchorX: 0.5, anchorY: 0.72, alpha, shadow: true })) {
+    if (boss.type === "moth" || boss.type === "dragonfly") {
+      this.drawSpecialBoss(boss, x + jitter, y, alpha);
+    } else if (!this.drawImageAsset(boss.imageKey, x + jitter, y, scale, { anchorX: 0.5, anchorY: 0.72, alpha, shadow: true })) {
       this.drawBugEnemy(x + jitter, y, 0.24, alpha, boss.hitFlash > 0 ? 0.2 : 0);
     }
     if (!boss.defeated) {
@@ -3238,7 +3581,38 @@ class GameApp {
       return;
     }
     run.projectiles.forEach((projectile) => {
-      this.drawProjectileSprite(projectile.x, projectile.y, projectile.facing, projectile.rotation);
+      this.drawProjectileSprite(projectile.x, projectile.y, projectile.facing, projectile.rotation, projectile.explosive);
+    });
+  }
+
+  drawBossProjectiles() {
+    const run = this.runState;
+    if (!run?.bossProjectiles) {
+      return;
+    }
+    const ctx = this.ctx;
+    run.bossProjectiles.forEach((shot) => {
+      ctx.save();
+      ctx.translate(shot.x, shot.y);
+      if (shot.type === "laser") {
+        const glow = ctx.createLinearGradient(-shot.w / 2, 0, shot.w / 2, 0);
+        glow.addColorStop(0, "rgba(116, 235, 255, 0)");
+        glow.addColorStop(0.5, "rgba(255, 98, 172, 0.92)");
+        glow.addColorStop(1, "rgba(255, 234, 111, 0.9)");
+        ctx.fillStyle = glow;
+        pathRoundedRect(ctx, -shot.w / 2, -shot.h / 2, shot.w, shot.h, shot.h / 2);
+        ctx.fill();
+      } else {
+        ctx.fillStyle = "rgba(255, 220, 92, 0.86)";
+        ctx.beginPath();
+        ctx.arc(0, 0, 12, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255,255,255,0.62)";
+        ctx.beginPath();
+        ctx.arc(-4, -5, 4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.restore();
     });
   }
 
@@ -3487,6 +3861,11 @@ class GameApp {
 
   drawSceneTint() {
     const ctx = this.ctx;
+    const run = this.runState;
+    if (run?.bombFlashTimer > 0) {
+      ctx.fillStyle = `rgba(255, 231, 92, ${clamp(run.bombFlashTimer, 0, 0.5)})`;
+      ctx.fillRect(0, 0, CONFIG.width, CONFIG.height);
+    }
     if (this.scene === "gameover") {
       ctx.fillStyle = "rgba(32, 22, 44, 0.35)";
       ctx.fillRect(0, 0, CONFIG.width, CONFIG.height);
@@ -3495,6 +3874,33 @@ class GameApp {
       ctx.fillStyle = `rgba(255, 255, 255, ${flash})`;
       ctx.fillRect(0, 0, CONFIG.width, CONFIG.height);
     }
+  }
+
+  drawBombCutin() {
+    const run = this.runState;
+    if (!run || run.bombCutinTimer <= 0) {
+      return;
+    }
+    const ctx = this.ctx;
+    const alpha = clamp(run.bombCutinTimer / 1.15, 0, 1);
+    const character = this.getCharacter(run.selectedCharacterId);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "rgba(48, 32, 84, 0.78)";
+    ctx.fillRect(0, 148, CONFIG.width, 160);
+    ctx.fillStyle = "rgba(255, 225, 92, 0.94)";
+    ctx.fillRect(0, 142, CONFIG.width, 6);
+    ctx.fillRect(0, 306, CONFIG.width, 6);
+    ctx.fillStyle = "#fff";
+    ctx.font = '900 44px "Trebuchet MS", "Yu Gothic UI", sans-serif';
+    ctx.textAlign = "left";
+    ctx.fillText("STRAWBERRY BOMB!", 270, 220);
+    ctx.font = 'bold 20px "Trebuchet MS", "Yu Gothic UI", sans-serif';
+    ctx.fillText(`${character.name}のスペシャル発動`, 272, 256);
+    this.drawPlayerSprite(170, 310, "point", 0, 1, CONFIG.titlePlayerScale * character.titleScaleFactor * 0.72, alpha, false, {
+      characterId: character.id,
+    });
+    ctx.restore();
   }
 
   drawCloud(x, y, scale, color) {
@@ -3548,8 +3954,18 @@ class GameApp {
     this.drawStrawberryIcon(x, y, scale * 8.2, alpha);
   }
 
-  drawProjectileSprite(x, y, facing, rotation = 0) {
-    if (this.drawImageAsset("strawberryProjectile", x, y, 0.11, { anchorX: facing >= 0 ? 0.38 : 0.62, anchorY: 0.56, flipX: facing < 0, rotation, shadow: false })) {
+  drawProjectileSprite(x, y, facing, rotation = 0, explosive = false) {
+    if (explosive) {
+      const ctx = this.ctx;
+      ctx.save();
+      ctx.globalAlpha = 0.62 + Math.sin(this.time * 24) * 0.18;
+      ctx.fillStyle = "rgba(255, 221, 82, 0.46)";
+      ctx.beginPath();
+      ctx.arc(x, y, 22, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    if (this.drawImageAsset("strawberryProjectile", x, y, explosive ? 0.14 : 0.11, { anchorX: facing >= 0 ? 0.38 : 0.62, anchorY: 0.56, flipX: facing < 0, rotation, shadow: explosive })) {
       return;
     }
     this.drawStrawberryIcon(x, y, 0.62, 1);
@@ -3578,6 +3994,171 @@ class GameApp {
     ctx.ellipse(x - 10, y - 3, 6, 4, -0.3, 0, Math.PI * 2);
     ctx.ellipse(x + 10, y - 3, 6, 4, 0.3, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
+  }
+
+  drawBeeEnemy(x, y, scale, alpha, squash = 0) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+    ctx.fillStyle = "rgba(77, 43, 94, 0.16)";
+    ctx.beginPath();
+    ctx.ellipse(0, 20, 24, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.72)";
+    ctx.beginPath();
+    ctx.ellipse(-12, -10, 12, 7, -0.45, 0, Math.PI * 2);
+    ctx.ellipse(12, -10, 12, 7, 0.45, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ffd65c";
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 21, 13 - squash * 4, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#4b375d";
+    ctx.fillRect(-12, -11, 5, 22);
+    ctx.fillRect(1, -13, 5, 26);
+    ctx.fillStyle = "#fff";
+    ctx.beginPath();
+    ctx.arc(15, -4, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#4b375d";
+    ctx.beginPath();
+    ctx.moveTo(-24, 0);
+    ctx.lineTo(-36, -5);
+    ctx.lineTo(-27, 7);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
+
+  drawDroneEnemy(x, y, scale, alpha, squash = 0) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+    ctx.fillStyle = "rgba(77, 43, 94, 0.16)";
+    ctx.beginPath();
+    ctx.ellipse(0, 22, 25, 7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.82)";
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.ellipse(-17, -12, 15, 5, 0, 0, Math.PI * 2);
+    ctx.ellipse(17, -12, 15, 5, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    const body = ctx.createLinearGradient(0, -18, 0, 16);
+    body.addColorStop(0, "#82e6ff");
+    body.addColorStop(1, "#8d78e8");
+    ctx.fillStyle = body;
+    pathRoundedRect(ctx, -20, -13, 40, 26 - squash * 6, 13);
+    ctx.fill();
+    ctx.fillStyle = "#fff6a4";
+    ctx.beginPath();
+    ctx.arc(8, -2, 5, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  drawThornPatch(x, y, w, h, alpha) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "#4e8b48";
+    ctx.fillRect(x - w / 2, y + h / 3, w, 5);
+    ctx.fillStyle = "#d8f19d";
+    for (let i = 0; i < 5; i += 1) {
+      const px = x - w / 2 + 8 + i * (w / 5);
+      ctx.beginPath();
+      ctx.moveTo(px, y + 8);
+      ctx.lineTo(px + 8, y - h / 2);
+      ctx.lineTo(px + 15, y + 8);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  drawHoneyPatch(x, y, w, h, alpha) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const honey = ctx.createRadialGradient(x - 8, y, 4, x, y + 4, w * 0.6);
+    honey.addColorStop(0, "rgba(255,255,255,0.86)");
+    honey.addColorStop(0.3, "rgba(255, 216, 93, 0.96)");
+    honey.addColorStop(1, "rgba(211, 137, 44, 0.72)");
+    ctx.fillStyle = honey;
+    ctx.beginPath();
+    ctx.ellipse(x, y + 4, w / 2, h / 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  drawCrystalHazard(x, y, w, h, alpha) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const colors = ["#bff4ff", "#f9c8ff", "#fff29a"];
+    for (let i = 0; i < 4; i += 1) {
+      const px = x - w / 2 + 10 + i * (w / 4);
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.beginPath();
+      ctx.moveTo(px, y + h / 2);
+      ctx.lineTo(px + 8, y - h / 2 - (i % 2) * 8);
+      ctx.lineTo(px + 18, y + h / 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = "rgba(91, 72, 139, 0.28)";
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  drawSpecialBoss(boss, x, y, alpha) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(x, y);
+    const flash = boss.hitFlash > 0 ? 1 : 0;
+    if (boss.type === "dragonfly") {
+      ctx.fillStyle = "rgba(255,255,255,0.58)";
+      ctx.beginPath();
+      ctx.ellipse(-36, -20, 42, 13, -0.3, 0, Math.PI * 2);
+      ctx.ellipse(36, -20, 42, 13, 0.3, 0, Math.PI * 2);
+      ctx.ellipse(-34, 12, 38, 12, 0.25, 0, Math.PI * 2);
+      ctx.ellipse(34, 12, 38, 12, -0.25, 0, Math.PI * 2);
+      ctx.fill();
+      const body = ctx.createLinearGradient(0, -48, 0, 48);
+      body.addColorStop(0, flash ? "#fff" : "#76e8ff");
+      body.addColorStop(1, "#7e6ee8");
+      ctx.fillStyle = body;
+      pathRoundedRect(ctx, -18, -48, 36, 96, 18);
+      ctx.fill();
+      ctx.fillStyle = "#fff5a8";
+      ctx.beginPath();
+      ctx.arc(10, -38, 5, 0, Math.PI * 2);
+      ctx.fill();
+    } else {
+      ctx.fillStyle = "rgba(255,255,255,0.62)";
+      ctx.beginPath();
+      ctx.ellipse(-42, -6, 48, 30, -0.25, 0, Math.PI * 2);
+      ctx.ellipse(42, -6, 48, 30, 0.25, 0, Math.PI * 2);
+      ctx.fill();
+      const body = ctx.createLinearGradient(0, -42, 0, 42);
+      body.addColorStop(0, flash ? "#fff" : "#ffd987");
+      body.addColorStop(1, "#9d65cc");
+      ctx.fillStyle = body;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, 30, 42, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#4a315d";
+      ctx.beginPath();
+      ctx.arc(-9, -18, 4, 0, Math.PI * 2);
+      ctx.arc(9, -18, 4, 0, Math.PI * 2);
+      ctx.fill();
+    }
     ctx.restore();
   }
 
