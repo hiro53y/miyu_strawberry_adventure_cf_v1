@@ -1,10 +1,10 @@
-const CACHE_NAME = "miyu-strawberry-cf-v1-20260509-bomb-v5";
+const CACHE_NAME = "miyu-strawberry-cf-v1-20260509-bomb-v6";
 
 const CORE_ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=20260509-cf-bomb-v5",
-  "./game.js?v=20260509-cf-bomb-v5",
+  "./style.css?v=20260509-cf-bomb-v6",
+  "./game.js?v=20260509-cf-bomb-v6",
   "./manifest.webmanifest",
   "./assets/icons/icon.svg",
   "./assets/icons/icon-192.png",

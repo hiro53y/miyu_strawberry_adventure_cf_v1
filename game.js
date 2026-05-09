@@ -25,6 +25,8 @@ const CONFIG = {
   bombScoreAttackBerryBurst: 30,
   bombCutinDuration: 2.3,
   bombStarBonusSeconds: 10,
+  bombFlightTopMargin: 12,
+  stageClearBerryRate: 0.5,
   clearDelay: 1.7,
   gameOverDelay: 1.9,
   cameraLead: 158,
@@ -2038,6 +2040,13 @@ class GameApp {
     const previousY = player.y;
     player.x = clamp(player.x + player.vx * delta, 12, this.level.stageLength - 16);
     player.y += player.vy * delta;
+    if (bombActive) {
+      const topLimit = player.height + CONFIG.bombFlightTopMargin;
+      if (player.y < topLimit) {
+        player.y = topLimit;
+        player.vy = Math.max(0, player.vy);
+      }
+    }
 
     let standingY = CONFIG.groundY;
     for (const platform of this.level.platforms) {
@@ -2097,11 +2106,12 @@ class GameApp {
     const goalRect = this.getGoalRect();
     const playerRect = this.getPlayerHitbox();
     if (goalRect && rectsOverlap(playerRect, goalRect)) {
-      if (!this.level.boss || this.level.boss.defeated) {
+      const clearStatus = this.getCampaignClearStatus();
+      if (clearStatus.canClear) {
         this.finishRun("clear");
         return;
       }
-        this.showPrompt("ボスを倒すとゲートが開く", 1.8);
+      this.showPrompt(clearStatus.message, 2.2);
     }
 
     if (player.hp <= 0) {
@@ -2303,7 +2313,7 @@ class GameApp {
     if (!run || !player || player.attackCooldown > 0 || this.scene !== "playing") {
       return;
     }
-    if (run.mode === GAME_MODES.scoreAttack.id) {
+    if (run.bombTimer <= 0) {
       if (run.strawberries <= 0) {
         player.attackCooldown = 0.16;
         this.showPrompt("手持ちいちごがないと投げられない", 1.4);
@@ -2327,6 +2337,32 @@ class GameApp {
       explosive: run.bombTimer > 0,
     });
     this.audio.playSe("throw");
+  }
+
+  getCampaignClearStatus() {
+    const run = this.runState;
+    if (!run || run.mode === GAME_MODES.scoreAttack.id) {
+      return { canClear: false, message: "" };
+    }
+    const bossCleared = !this.level.boss || this.level.boss.defeated;
+    const requiredBerries = Math.ceil((run.stageTotalBerries ?? 0) * CONFIG.stageClearBerryRate);
+    const enoughBerries = (run.stageStrawberries ?? 0) >= requiredBerries;
+    if (bossCleared && enoughBerries) {
+      return { canClear: true, message: "" };
+    }
+    if (!bossCleared && !enoughBerries) {
+      return {
+        canClear: false,
+        message: `ボスを倒して、いちごをあと${formatNumber(Math.max(0, requiredBerries - (run.stageStrawberries ?? 0)))}個集めないとクリアできないよ`,
+      };
+    }
+    if (!bossCleared) {
+      return { canClear: false, message: "ボスを倒さないとクリアできないよ" };
+    }
+    return {
+      canClear: false,
+      message: `いちごをあと${formatNumber(Math.max(0, requiredBerries - (run.stageStrawberries ?? 0)))}個集めないとクリアできないよ`,
+    };
   }
 
   updateProjectiles(delta) {
@@ -2882,7 +2918,7 @@ class GameApp {
     this.els.resultBest.textContent = `${formatNumber(this.resultData.best)} 点`;
     this.els.resultBerry.textContent = isScoreAttack
       ? `収穫 ${formatNumber(this.resultData.harvestedStrawberries)} / 手持ち ${formatNumber(this.resultData.berries)}`
-      : `${this.resultData.berries} / ${this.resultData.totalBerries}`;
+      : `収穫 ${formatNumber(this.resultData.harvestedStrawberries)} / 手持ち ${formatNumber(this.resultData.berries)}`;
     this.els.resultCombo.textContent = `x${this.resultData.maxCombo}`;
     this.els.resultHp.textContent = String(this.resultData.hp);
     this.els.resultTime.textContent = formatSeconds(this.resultData.time);
@@ -3221,7 +3257,7 @@ class GameApp {
     this.els.hudCombo.textContent = run.combo >= 2 ? `x${run.combo} HOT` : "x1";
     this.els.hudBerry.textContent = run.mode === GAME_MODES.scoreAttack.id
       ? `${formatNumber(run.strawberries)}個 / 収穫${formatNumber(run.harvestedStrawberries ?? 0)}`
-      : `${run.strawberries} / ${run.totalBerries}  S${run.stageNumber}/${STAGE_CONFIGS.length}`;
+      : `手持ち${formatNumber(run.strawberries)} / 収穫${formatNumber(run.harvestedStrawberries ?? 0)}  S${run.stageNumber}/${STAGE_CONFIGS.length}`;
     if (this.els.hudBomb) {
       this.els.hudBomb.textContent = run.bombTimer > 0
         ? `${Math.ceil(run.bombTimer)}s`

@@ -13,7 +13,7 @@
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
-    <link rel="stylesheet" href="style.css?v=20260509-cf-bomb-v5">
+    <link rel="stylesheet" href="style.css?v=20260509-cf-bomb-v6">
   </head>
   <body>
     <div class="orientation-notice" aria-hidden="true">
@@ -89,6 +89,7 @@
                       <span>チェックポイントあり</span>
                       <span>BOMBあり</span>
                       <span>ボス必須</span>
+                      <span>いちご50%以上</span>
                     </span>
                   </button>
                   <button class="mode-card mode-card-rush" type="button" data-mode="scoreAttack" aria-pressed="false">
@@ -145,7 +146,7 @@
                 </div>
                 <div>
                   <h3>ストロベリーショット</h3>
-                  <p>右下の SHOT</p>
+                  <p>右下の SHOT。通常時は手持ちいちごを1個使います</p>
                 </div>
                 <div>
                   <h3>BOMB</h3>
@@ -166,8 +167,10 @@
               </div>
               <p class="lead compact">
                 ふつうのいちごは触れるだけで獲得できます。茂みにあるいちごは近くでアクションを押すと採取できます。
+                通常ステージは、そのステージのいちごを50%以上集め、ボスを倒すとクリアできます。
+                通常時のストロベリーショットは手持ちいちごを1個使いますが、クリア条件は投げる前の収穫数で判定します。
                 BOMBは各ステージ1回だけ使えます。発動中は3人チームになり、ゆっくり落ちながら飛行、無敵、速度アップ、爆発ショット、BGMスピードアップが有効です。BOMB中にスターを取ると残り時間が10秒増えます。
-                いちごラッシュでは、BOMB発動時に追加のいちごが大量に出現します。
+                BOMB中は手持ちいちごがなくても投げ放題です。いちごラッシュでは、BOMB発動時に追加のいちごが大量に出現します。
               </p>
             </section>
 
@@ -231,6 +234,6 @@
       </div>
     </main>
 
-  <script src="game.js?v=20260509-cf-bomb-v5"></script>
+  <script src="game.js?v=20260509-cf-bomb-v6"></script>
   </body>
 </html>
