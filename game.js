@@ -1267,6 +1267,8 @@ class GameApp {
     this.shakePower = 0;
     this.pendingPrompt = "";
     this.promptTimer = 0;
+    this.goalNoticeMessage = "";
+    this.goalNoticeTimer = 0;
     this.previewPhase = 0;
     this.afterImageCooldown = 0;
     this.images = {};
@@ -1831,6 +1833,12 @@ class GameApp {
     this.promptTimer = Math.max(this.promptTimer, duration);
   }
 
+  showGoalNotice(message, duration = 2.8) {
+    this.goalNoticeMessage = message;
+    this.goalNoticeTimer = Math.max(this.goalNoticeTimer, duration);
+    this.showPrompt(message, duration);
+  }
+
   updateBgmButtons() {
     const label = this.audio.bgmEnabled && this.audio.bgmAvailable ? "BGM ON" : "BGM OFF";
     const pressed = String(this.audio.bgmEnabled && this.audio.bgmAvailable);
@@ -2074,8 +2082,12 @@ class GameApp {
     const actionTarget = this.findNearestActionBerry(player);
     run.nearestAction = actionTarget;
     this.promptTimer = Math.max(0, this.promptTimer - delta);
+    this.goalNoticeTimer = Math.max(0, this.goalNoticeTimer - delta);
     if (this.promptTimer <= 0) {
       this.pendingPrompt = actionTarget ? "ACTIONでいちごをとる" : "";
+    }
+    if (this.goalNoticeTimer <= 0) {
+      this.goalNoticeMessage = "";
     }
 
     if (this.input.wasPressed("action")) {
@@ -2114,7 +2126,7 @@ class GameApp {
         player.x = gateX;
         player.vx = Math.min(0, player.vx);
         if (run.goalPromptCooldown <= 0) {
-          this.showPrompt(clearStatus.message, 2.6);
+          this.showGoalNotice(clearStatus.message, 2.8);
           run.goalPromptCooldown = 0.75;
         }
       }
@@ -2126,7 +2138,7 @@ class GameApp {
         return;
       }
       if ((run.goalPromptCooldown ?? 0) <= 0) {
-        this.showPrompt(clearStatus.message, 2.6);
+        this.showGoalNotice(clearStatus.message, 2.8);
         run.goalPromptCooldown = 0.75;
       }
     }
@@ -3303,6 +3315,7 @@ class GameApp {
       ctx.restore();
       this.drawComboBanner();
       this.drawPrompt();
+      this.drawGoalNotice();
       this.drawCheckpointNotice();
       this.drawSceneTint();
       this.drawBombCutin();
@@ -4095,6 +4108,56 @@ class GameApp {
     ctx.textAlign = "center";
     ctx.fillText(this.pendingPrompt, screenX, screenY + 2);
     ctx.restore();
+  }
+
+  drawGoalNotice() {
+    if (!this.goalNoticeMessage || this.goalNoticeTimer <= 0 || this.scene !== "playing") {
+      return;
+    }
+    const ctx = this.ctx;
+    const alpha = clamp(this.goalNoticeTimer / 0.35, 0, 1);
+    const isMobileLayout = document.body.classList.contains("is-coarse-pointer") || window.innerWidth <= 820;
+    const maxChars = isMobileLayout ? 18 : 26;
+    const lines = this.wrapNoticeLines(this.goalNoticeMessage, maxChars).slice(0, 3);
+    const width = isMobileLayout ? 520 : 680;
+    const height = 58 + lines.length * 28;
+    const y = isMobileLayout ? 134 : 142;
+
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(CONFIG.width / 2, y);
+    ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
+    ctx.strokeStyle = "rgba(226, 74, 108, 0.92)";
+    ctx.lineWidth = 3;
+    pathRoundedRect(ctx, -width / 2, -height / 2, width, height, 18);
+    ctx.fill();
+    ctx.stroke();
+    ctx.fillStyle = "#d94b68";
+    ctx.font = `bold ${isMobileLayout ? 16 : 18}px "Trebuchet MS", "Yu Gothic UI", sans-serif`;
+    ctx.textAlign = "center";
+    ctx.fillText("まだクリアできないよ", 0, -height / 2 + 28);
+    ctx.fillStyle = "#4f3a62";
+    ctx.font = `bold ${isMobileLayout ? 17 : 20}px "Trebuchet MS", "Yu Gothic UI", sans-serif`;
+    lines.forEach((line, index) => {
+      ctx.fillText(line, 0, -height / 2 + 60 + index * 28);
+    });
+    ctx.restore();
+  }
+
+  wrapNoticeLines(message, maxChars) {
+    const normalized = String(message).replace(/、/g, "、\n").replace(/。/g, "。\n");
+    const lines = [];
+    for (const segment of normalized.split("\n")) {
+      let rest = segment.trim();
+      while (rest.length > maxChars) {
+        lines.push(rest.slice(0, maxChars));
+        rest = rest.slice(maxChars);
+      }
+      if (rest) {
+        lines.push(rest);
+      }
+    }
+    return lines.length > 0 ? lines : [String(message)];
   }
 
   drawSceneTint() {
