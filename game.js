@@ -1613,6 +1613,7 @@ class GameApp {
       bombAllyClock: 0,
       bombCutinTimer: 0,
       bombFlashTimer: 0,
+      goalPromptCooldown: 0,
       landingWasAirborne: false,
       nearestAction: null,
       bonuses: null,
@@ -1968,6 +1969,7 @@ class GameApp {
     run.bombAllyClock = (run.bombAllyClock ?? 0) + delta;
     run.bombCutinTimer = Math.max(0, (run.bombCutinTimer ?? 0) - delta);
     run.bombFlashTimer = Math.max(0, (run.bombFlashTimer ?? 0) - delta);
+    run.goalPromptCooldown = Math.max(0, (run.goalPromptCooldown ?? 0) - delta);
     run.comboTimer = Math.max(0, run.comboTimer - delta * 1000);
     run.comboFlash = Math.max(0, run.comboFlash - delta);
     run.checkpointNoticeTimer = Math.max(0, run.checkpointNoticeTimer - delta);
@@ -2105,13 +2107,28 @@ class GameApp {
 
     const goalRect = this.getGoalRect();
     const playerRect = this.getPlayerHitbox();
+    if (goalRect && run.mode !== GAME_MODES.scoreAttack.id) {
+      const clearStatus = this.getCampaignClearStatus();
+      const gateX = goalRect.x + goalRect.w * 0.42;
+      if (!clearStatus.canClear && player.x >= gateX) {
+        player.x = gateX;
+        player.vx = Math.min(0, player.vx);
+        if (run.goalPromptCooldown <= 0) {
+          this.showPrompt(clearStatus.message, 2.6);
+          run.goalPromptCooldown = 0.75;
+        }
+      }
+    }
     if (goalRect && rectsOverlap(playerRect, goalRect)) {
       const clearStatus = this.getCampaignClearStatus();
       if (clearStatus.canClear) {
         this.finishRun("clear");
         return;
       }
-      this.showPrompt(clearStatus.message, 2.2);
+      if ((run.goalPromptCooldown ?? 0) <= 0) {
+        this.showPrompt(clearStatus.message, 2.6);
+        run.goalPromptCooldown = 0.75;
+      }
     }
 
     if (player.hp <= 0) {
