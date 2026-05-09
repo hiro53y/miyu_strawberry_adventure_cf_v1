@@ -130,6 +130,8 @@ button {
 }
 
 #gameCanvas {
+  position: relative;
+  z-index: 1;
   display: block;
   width: 100%;
   height: auto;
@@ -141,6 +143,7 @@ button {
 .frame-glow {
   position: absolute;
   inset: 0;
+  z-index: 2;
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.12), transparent 20%, transparent 80%, rgba(57, 34, 97, 0.08)),
     radial-gradient(circle at top center, rgba(255, 255, 255, 0.44), transparent 40%);
@@ -159,6 +162,7 @@ button {
 
 .hud {
   position: absolute;
+  z-index: 4;
   top: 14px;
   left: 14px;
   right: 14px;
@@ -166,6 +170,14 @@ button {
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 10px;
   pointer-events: none;
+}
+
+.game-shell.canvas-pop-active #gameCanvas {
+  z-index: 40;
+}
+
+.game-shell.canvas-pop-active .hud {
+  z-index: 3;
 }
 
 .hud-card {

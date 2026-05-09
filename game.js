@@ -3268,6 +3268,17 @@ class GameApp {
     this.updateBgmButtons();
     const shell = document.querySelector(".game-shell");
     shell?.classList.toggle("bomb-active", Boolean(run?.bombTimer > 0));
+    const hasCanvasPop = Boolean(
+      this.scene === "playing" && (
+        this.promptTimer > 0 ||
+        this.goalNoticeTimer > 0 ||
+        (run?.comboFlash ?? 0) > 0.05 ||
+        (run?.checkpointNoticeTimer ?? 0) > 0 ||
+        (run?.bombCutinTimer ?? 0) > 0 ||
+        (run?.bombFlashTimer ?? 0) > 0
+      )
+    );
+    shell?.classList.toggle("canvas-pop-active", hasCanvasPop);
 
     if (!run) {
       this.els.hudHp.textContent = String(CONFIG.maxHp);
@@ -3278,6 +3289,7 @@ class GameApp {
         this.els.hudBomb.textContent = "READY";
       }
       shell.classList.remove("combo-boost");
+      shell?.classList.remove("canvas-pop-active");
       return;
     }
 
