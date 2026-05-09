@@ -19,6 +19,7 @@ const CONFIG = {
   bombDuration: 20,
   bombSpeedMultiplier: 1.45,
   bombFlightAccel: 980,
+  bombHoverGravityScale: 0.18,
   bombMusicRate: 1.22,
   bombExplosionRadius: 420,
   bombScoreAttackBerryBurst: 30,
@@ -1605,6 +1606,8 @@ class GameApp {
       bossProjectiles: [],
       bombReady: carry?.bombReady ?? true,
       bombTimer: carry?.bombTimer ?? 0,
+      bombAllies: [],
+      bombAllyClock: 0,
       bombCutinTimer: 0,
       bombFlashTimer: 0,
       landingWasAirborne: false,
@@ -1693,6 +1696,8 @@ class GameApp {
       bossProjectiles: [],
       bombReady: true,
       bombTimer: 0,
+      bombAllies: [],
+      bombAllyClock: 0,
       bombCutinTimer: 0,
       bombFlashTimer: 0,
       landingWasAirborne: false,
@@ -1750,7 +1755,7 @@ class GameApp {
       hp: run.player.hp,
       powerTimer: run.player.powerTimer,
       bombReady: run.bombReady,
-      bombTimer: run.bombTimer,
+      bombTimer: 0,
       score: run.score,
       strawberries: run.strawberries,
       harvestedStrawberries: run.harvestedStrawberries,
@@ -1957,6 +1962,7 @@ class GameApp {
     player.attackCooldown = Math.max(0, player.attackCooldown - delta);
     player.throwPoseTimer = Math.max(0, player.throwPoseTimer - delta);
     run.bombTimer = Math.max(0, (run.bombTimer ?? 0) - delta);
+    run.bombAllyClock = (run.bombAllyClock ?? 0) + delta;
     run.bombCutinTimer = Math.max(0, (run.bombCutinTimer ?? 0) - delta);
     run.bombFlashTimer = Math.max(0, (run.bombFlashTimer ?? 0) - delta);
     run.comboTimer = Math.max(0, run.comboTimer - delta * 1000);
@@ -2018,10 +2024,11 @@ class GameApp {
 
     if (bombActive) {
       const flyAxis = (this.input.isDown("jump") ? -1 : 0) + (this.input.isDown("action") ? 1 : 0);
+      player.vy += CONFIG.gravity * CONFIG.bombHoverGravityScale * delta;
       if (flyAxis !== 0) {
         player.vy += flyAxis * CONFIG.bombFlightAccel * delta;
       } else {
-        player.vy = 0;
+        player.vy = lerp(player.vy, 0, delta * 2.8);
       }
       player.vy = clamp(player.vy, -390, 360);
     } else {
@@ -2150,6 +2157,14 @@ class GameApp {
     }
     run.bombReady = false;
     run.bombTimer = CONFIG.bombDuration;
+    run.bombAllyClock = 0;
+    run.bombAllies = CHARACTERS
+      .filter((character) => character.id !== run.selectedCharacterId)
+      .map((character, index) => ({
+        characterId: character.id,
+        side: index === 0 ? -1 : 1,
+        delay: index * 0.18,
+      }));
     run.bombCutinTimer = CONFIG.bombCutinDuration;
     run.bombFlashTimer = 0.65;
     player.powerTimer = Math.max(player.powerTimer, CONFIG.bombDuration);
@@ -2159,7 +2174,7 @@ class GameApp {
     this.spawnDustBurst(player.x, player.y - 42, 30, "clear");
     this.spawnBerryBurst(player.x, player.y - 48, true, player.facing);
     this.startShake(0.58, 12);
-    this.showPrompt("BOMB発動！飛行・無敵・爆発ショット", 2.2);
+    this.showPrompt("BOMB発動！3人チームで大冒険", 2.2);
     this.audio.playSe("bomb");
     if (run.mode === GAME_MODES.scoreAttack.id) {
       this.spawnScoreAttackBombBerries();
@@ -3804,6 +3819,7 @@ class GameApp {
     const character = this.getCharacter(this.runState.selectedCharacterId);
     if (this.runState.bombTimer > 0) {
       this.drawBombAura(player.x, player.y - 48, this.runState.bombTimer);
+      this.drawBombAllies(animation);
     }
     if (player.powerTimer > 0) {
       this.drawPowerAura(player.x, player.y - 48, player.powerTimer);
@@ -3819,6 +3835,41 @@ class GameApp {
       false,
       { ...animation, characterId: character.id }
     );
+  }
+
+  drawBombAllies(animation) {
+    const run = this.runState;
+    const player = run?.player;
+    if (!run || !player || run.bombTimer <= 0 || !Array.isArray(run.bombAllies)) {
+      return;
+    }
+    const phase = run.bombAllyClock ?? 0;
+    run.bombAllies.forEach((ally) => {
+      const character = this.getCharacter(ally.characterId);
+      const arrive = clamp((phase - ally.delay) / 0.9, 0, 1);
+      const leave = run.bombTimer < 1.15 ? 1 - run.bombTimer / 1.15 : 0;
+      const dropOffset = -240 * (1 - smoothstep(arrive));
+      const leaveOffset = -260 * smoothstep(leave);
+      const sideOffset = ally.side * (42 + 8 * Math.sin(this.time * 5 + ally.side));
+      const yOffset = dropOffset + leaveOffset + Math.sin(this.time * 9 + ally.side) * 2.5;
+      const allyAnim = {
+        ...animation,
+        characterId: character.id,
+        yOffset: 0,
+        rotation: (animation.rotation ?? 0) + ally.side * 0.025,
+      };
+      this.drawPlayerSprite(
+        player.x + sideOffset,
+        player.y + yOffset,
+        allyAnim.name,
+        allyAnim.index,
+        player.facing,
+        CONFIG.playerScale * character.scaleFactor * 0.88,
+        clamp(arrive, 0, 1),
+        false,
+        allyAnim
+      );
+    });
   }
 
   drawPlayerSprite(x, y, animationName, frameIndex, facing, scale = 1.55, alpha = 1, tintTrail = false, options = null) {
