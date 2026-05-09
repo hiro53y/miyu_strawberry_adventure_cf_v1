@@ -4121,7 +4121,7 @@ class GameApp {
     const lines = this.wrapNoticeLines(this.goalNoticeMessage, maxChars).slice(0, 3);
     const width = isMobileLayout ? 520 : 680;
     const height = 58 + lines.length * 28;
-    const y = isMobileLayout ? 134 : 142;
+    const y = isMobileLayout ? 214 : 220;
 
     ctx.save();
     ctx.globalAlpha = alpha;
