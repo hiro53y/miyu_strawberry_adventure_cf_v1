@@ -16,11 +16,11 @@ const CONFIG = {
   invulnerableSeconds: 1.2,
   maxHp: 3,
   powerDuration: 6.8,
-  bombDuration: 22.5,
+  bombDuration: 20,
   bombSpeedMultiplier: 1.45,
   bombFlightAccel: 980,
   bombMusicRate: 1.22,
-  bombExplosionRadius: 280,
+  bombExplosionRadius: 420,
   bombScoreAttackBerryBurst: 30,
   bombCutinDuration: 2.3,
   clearDelay: 1.7,
@@ -2369,9 +2369,9 @@ class GameApp {
     }
     const radius = CONFIG.bombExplosionRadius;
     this.spawnBombExplosion(x, y, radius);
-    this.spawnDustBurst(x, y, 56, "clear");
+    this.spawnDustBurst(x, y, 90, "clear");
     this.spawnBerryBurst(x, y, true, run.player.facing);
-    this.startShake(0.52, 15);
+    this.startShake(0.68, 22);
     this.audio.playSe("bomb");
     for (const obstacle of this.level.obstacles) {
       if (obstacle.defeated || !DEFEATABLE_OBSTACLE_TYPES.has(obstacle.type)) {
@@ -2387,8 +2387,8 @@ class GameApp {
     if (boss && !boss.defeated) {
       const bx = boss.renderX ?? boss.x;
       const by = boss.renderY ?? boss.y;
-      if (Math.hypot(bx - x, by - y) <= radius + boss.w * 0.35) {
-        this.damageBoss(2, "projectile");
+      if (Math.hypot(bx - x, by - y) <= radius + boss.w * 0.5) {
+        this.damageBoss(3, "projectile");
       }
     }
   }
@@ -2962,9 +2962,9 @@ class GameApp {
       rotation: 0,
       spin: 0,
       size: radius,
-      color: "rgba(255, 219, 74, 0.38)",
+      color: "rgba(255, 231, 66, 0.52)",
       ring: true,
-      totalLife: 0.62,
+      totalLife: 0.74,
     });
     run.particles.push({
       x,
@@ -2972,28 +2972,42 @@ class GameApp {
       vx: 0,
       vy: 0,
       gravity: 0,
-      life: 0.46,
+      life: 0.6,
       rotation: 0,
       spin: 0,
-      size: radius * 0.58,
-      color: "rgba(255, 91, 123, 0.42)",
+      size: radius * 0.74,
+      color: "rgba(255, 78, 126, 0.52)",
       ring: true,
-      totalLife: 0.46,
+      totalLife: 0.6,
     });
-    for (let index = 0; index < 34; index += 1) {
-      const angle = (Math.PI * 2 * index) / 34;
-      const speed = 150 + Math.random() * 270;
+    run.particles.push({
+      x,
+      y,
+      vx: 0,
+      vy: 0,
+      gravity: 0,
+      life: 0.52,
+      rotation: 0,
+      spin: 0,
+      size: radius * 0.46,
+      color: "rgba(255, 255, 255, 0.68)",
+      ring: true,
+      totalLife: 0.52,
+    });
+    for (let index = 0; index < 64; index += 1) {
+      const angle = (Math.PI * 2 * index) / 64;
+      const speed = 220 + Math.random() * 430;
       run.particles.push({
         x,
         y,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
         gravity: 80,
-        life: 0.72 + Math.random() * 0.28,
+        life: 0.86 + Math.random() * 0.34,
         rotation: Math.random() * Math.PI,
         spin: (Math.random() - 0.5) * 12,
-        size: 5 + Math.random() * 6,
-        color: ["rgba(255, 245, 142, 0.9)", "rgba(255, 95, 125, 0.78)", "rgba(255,255,255,0.88)"][index % 3],
+        size: 6 + Math.random() * 8,
+        color: ["rgba(255, 245, 142, 0.95)", "rgba(255, 72, 124, 0.86)", "rgba(255,255,255,0.94)", "rgba(255, 167, 64, 0.82)"][index % 4],
       });
     }
   }
@@ -3160,6 +3174,7 @@ class GameApp {
     this.els.hudBgm.textContent = this.audio.bgmEnabled && this.audio.bgmAvailable ? "ON" : "OFF";
     this.updateBgmButtons();
     const shell = document.querySelector(".game-shell");
+    shell?.classList.toggle("bomb-active", Boolean(run?.bombTimer > 0));
 
     if (!run) {
       this.els.hudHp.textContent = String(CONFIG.maxHp);
