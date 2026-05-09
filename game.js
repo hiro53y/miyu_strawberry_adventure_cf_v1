@@ -16,12 +16,13 @@ const CONFIG = {
   invulnerableSeconds: 1.2,
   maxHp: 3,
   powerDuration: 6.8,
-  bombDuration: 7.5,
+  bombDuration: 22.5,
   bombSpeedMultiplier: 1.45,
   bombFlightAccel: 980,
-  bombHoverGravityScale: 0.18,
-  bombExplosionRadius: 138,
+  bombMusicRate: 1.22,
+  bombExplosionRadius: 280,
   bombScoreAttackBerryBurst: 30,
+  bombCutinDuration: 2.3,
   clearDelay: 1.7,
   gameOverDelay: 1.9,
   cameraLead: 158,
@@ -998,6 +999,7 @@ class AudioManager {
     this.currentBgmSrc = src;
     this.bgm.loop = true;
     this.bgm.volume = 0.32;
+    this.bgm.playbackRate = 1;
     this.bgm.preload = "auto";
     this.bgmAvailable = true;
     this.bgmEnabled = false;
@@ -1055,10 +1057,19 @@ class AudioManager {
     this.bgm.src = src;
     this.bgm.loop = true;
     this.bgm.volume = 0.32;
+    this.bgm.playbackRate = 1;
     this.bgm.load();
     if (shouldResume) {
       this.syncBgm();
     }
+  }
+
+  setPlaybackRate(rate = 1) {
+    const nextRate = clamp(rate, 0.5, 1.8);
+    if (Math.abs(this.bgm.playbackRate - nextRate) < 0.01) {
+      return;
+    }
+    this.bgm.playbackRate = nextRate;
   }
 
   syncBgm() {
@@ -1540,6 +1551,7 @@ class GameApp {
     this.updateModeButtons();
     this.level = createLevelData(stageIndex);
     this.audio.setBgmSource(this.level.bgm);
+    this.audio.setPlaybackRate(1);
     const totalBerries = this.level.collectibles.length;
     const startX = carry?.startX ?? 120;
     const startSigns = this.level.decorations.signPosts;
@@ -1633,6 +1645,7 @@ class GameApp {
     this.updateModeButtons();
     this.level = createScoreAttackLevelData(Date.now());
     this.audio.setBgmSource(this.level.bgm);
+    this.audio.setPlaybackRate(1);
     const character = this.getCharacter(this.selectedCharacterId);
     this.runState = {
       mode: GAME_MODES.scoreAttack.id,
@@ -1760,6 +1773,7 @@ class GameApp {
     this.promptTimer = 0;
     this.level = createLevelData(0);
     this.audio.setBgmSource(ASSET_MANIFEST.audio.stage1);
+    this.audio.setPlaybackRate(1);
     this.runState = null;
     this.resultData = null;
     this.setScene("title");
@@ -1962,6 +1976,7 @@ class GameApp {
     const pStats = run.playerStats;
     const accel = player.onGround ? CONFIG.moveAccelGround : CONFIG.moveAccelAir;
     const bombActive = run.bombTimer > 0;
+    this.audio.setPlaybackRate(bombActive ? CONFIG.bombMusicRate : 1);
     const speedMultiplier = bombActive ? CONFIG.bombSpeedMultiplier : 1;
     const targetMax = (wantsDash ? pStats.maxDashSpeed : pStats.maxRunSpeed) * speedMultiplier;
     const desiredVelocity = moveAxis * targetMax;
@@ -2003,11 +2018,10 @@ class GameApp {
 
     if (bombActive) {
       const flyAxis = (this.input.isDown("jump") ? -1 : 0) + (this.input.isDown("action") ? 1 : 0);
-      player.vy += CONFIG.gravity * CONFIG.bombHoverGravityScale * delta;
       if (flyAxis !== 0) {
         player.vy += flyAxis * CONFIG.bombFlightAccel * delta;
       } else {
-        player.vy = lerp(player.vy, 0, delta * 2.8);
+        player.vy = 0;
       }
       player.vy = clamp(player.vy, -390, 360);
     } else {
@@ -2136,11 +2150,12 @@ class GameApp {
     }
     run.bombReady = false;
     run.bombTimer = CONFIG.bombDuration;
-    run.bombCutinTimer = 1.15;
+    run.bombCutinTimer = CONFIG.bombCutinDuration;
     run.bombFlashTimer = 0.65;
     player.powerTimer = Math.max(player.powerTimer, CONFIG.bombDuration);
     player.invulnerable = Math.max(player.invulnerable, 0.35);
-    player.vy = Math.min(player.vy, -220);
+    player.vy = 0;
+    this.audio.setPlaybackRate(CONFIG.bombMusicRate);
     this.spawnDustBurst(player.x, player.y - 42, 30, "clear");
     this.spawnBerryBurst(player.x, player.y - 48, true, player.facing);
     this.startShake(0.58, 12);
@@ -2353,9 +2368,10 @@ class GameApp {
       return;
     }
     const radius = CONFIG.bombExplosionRadius;
-    this.spawnDustBurst(x, y, 24, "clear");
+    this.spawnBombExplosion(x, y, radius);
+    this.spawnDustBurst(x, y, 56, "clear");
     this.spawnBerryBurst(x, y, true, run.player.facing);
-    this.startShake(0.28, 7.5);
+    this.startShake(0.52, 15);
     this.audio.playSe("bomb");
     for (const obstacle of this.level.obstacles) {
       if (obstacle.defeated || !DEFEATABLE_OBSTACLE_TYPES.has(obstacle.type)) {
@@ -2678,6 +2694,7 @@ class GameApp {
       this.finishScoreAttack();
       return;
     }
+    this.audio.setPlaybackRate(1);
     run.finishKind = kind;
     const hpBonus = run.player.hp * 250;
     const noDamageBonus = kind === "clear" && run.stageDamageTaken === 0 ? 500 : 0;
@@ -2743,6 +2760,7 @@ class GameApp {
     if (!run) {
       return;
     }
+    this.audio.setPlaybackRate(1);
     run.finishKind = "gameover";
     run.bonuses = { hpBonus: 0, noDamageBonus: 0, timeBonus: 0, clearBonus: 0 };
     const ranking = this.recordScoreAttackScore(run);
@@ -2926,6 +2944,57 @@ class GameApp {
           trail: true,
         });
       }
+    }
+  }
+
+  spawnBombExplosion(x, y, radius) {
+    const run = this.runState;
+    if (!run) {
+      return;
+    }
+    run.particles.push({
+      x,
+      y,
+      vx: 0,
+      vy: 0,
+      gravity: 0,
+      life: 0.62,
+      rotation: 0,
+      spin: 0,
+      size: radius,
+      color: "rgba(255, 219, 74, 0.38)",
+      ring: true,
+      totalLife: 0.62,
+    });
+    run.particles.push({
+      x,
+      y,
+      vx: 0,
+      vy: 0,
+      gravity: 0,
+      life: 0.46,
+      rotation: 0,
+      spin: 0,
+      size: radius * 0.58,
+      color: "rgba(255, 91, 123, 0.42)",
+      ring: true,
+      totalLife: 0.46,
+    });
+    for (let index = 0; index < 34; index += 1) {
+      const angle = (Math.PI * 2 * index) / 34;
+      const speed = 150 + Math.random() * 270;
+      run.particles.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        gravity: 80,
+        life: 0.72 + Math.random() * 0.28,
+        rotation: Math.random() * Math.PI,
+        spin: (Math.random() - 0.5) * 12,
+        size: 5 + Math.random() * 6,
+        color: ["rgba(255, 245, 142, 0.9)", "rgba(255, 95, 125, 0.78)", "rgba(255,255,255,0.88)"][index % 3],
+      });
     }
   }
 
@@ -3678,13 +3747,21 @@ class GameApp {
         return;
       }
       ctx.save();
-      ctx.globalAlpha = clamp(particle.life / (particle.trail ? 0.72 : 0.9), 0, 1);
+      ctx.globalAlpha = clamp(particle.life / (particle.totalLife ?? (particle.trail ? 0.72 : 0.9)), 0, 1);
       ctx.translate(particle.x, particle.y);
       ctx.rotate(particle.rotation);
-      ctx.fillStyle = particle.color;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, particle.size, particle.size * 0.7, 0, 0, Math.PI * 2);
-      ctx.fill();
+      if (particle.ring) {
+        ctx.strokeStyle = particle.color;
+        ctx.lineWidth = 8;
+        ctx.beginPath();
+        ctx.arc(0, 0, particle.size * (1 - particle.life / particle.totalLife), 0, Math.PI * 2);
+        ctx.stroke();
+      } else {
+        ctx.fillStyle = particle.color;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, particle.size, particle.size * 0.7, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
       ctx.restore();
     });
   }
@@ -3705,11 +3782,14 @@ class GameApp {
 
   drawPlayer() {
     const player = this.runState.player;
-    if (player.invulnerable > 0 && Math.floor(player.invulnerable * 16) % 2 === 0) {
+    if (player.invulnerable > 0 && player.powerTimer <= 0 && Math.floor(player.invulnerable * 16) % 2 === 0) {
       return;
     }
     const animation = this.getPlayerAnimation();
     const character = this.getCharacter(this.runState.selectedCharacterId);
+    if (this.runState.bombTimer > 0) {
+      this.drawBombAura(player.x, player.y - 48, this.runState.bombTimer);
+    }
     if (player.powerTimer > 0) {
       this.drawPowerAura(player.x, player.y - 48, player.powerTimer);
     }
@@ -3786,6 +3866,32 @@ class GameApp {
     for (let index = 0; index < 5; index += 1) {
       const angle = this.time * 4 + index * ((Math.PI * 2) / 5);
       this.drawStarShape(Math.cos(angle) * 46, Math.sin(angle) * 28, 7, "rgba(255, 238, 110, 0.9)");
+    }
+    ctx.restore();
+  }
+
+  drawBombAura(x, y, timer) {
+    const ctx = this.ctx;
+    const pulse = 1 + Math.sin(this.time * 18) * 0.16;
+    const fade = clamp(timer / CONFIG.bombDuration, 0.28, 1);
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.globalAlpha = 0.86 * fade;
+    ctx.translate(x, y);
+    ctx.scale(pulse, pulse);
+    const aura = ctx.createRadialGradient(0, 0, 10, 0, 0, 98);
+    aura.addColorStop(0, "rgba(255, 255, 255, 0.82)");
+    aura.addColorStop(0.24, "rgba(255, 232, 89, 0.68)");
+    aura.addColorStop(0.56, "rgba(255, 89, 128, 0.34)");
+    aura.addColorStop(1, "rgba(140, 105, 255, 0)");
+    ctx.fillStyle = aura;
+    ctx.beginPath();
+    ctx.arc(0, 0, 105, 0, Math.PI * 2);
+    ctx.fill();
+    for (let index = 0; index < 10; index += 1) {
+      const angle = -this.time * 6 + index * ((Math.PI * 2) / 10);
+      const distance = 48 + Math.sin(this.time * 8 + index) * 18;
+      this.drawStarShape(Math.cos(angle) * distance, Math.sin(angle) * distance * 0.62, 8 + (index % 3), index % 2 ? "rgba(255, 96, 136, 0.95)" : "rgba(255, 245, 126, 0.95)");
     }
     ctx.restore();
   }
@@ -3882,7 +3988,7 @@ class GameApp {
       return;
     }
     const ctx = this.ctx;
-    const alpha = clamp(run.bombCutinTimer / 1.15, 0, 1);
+    const alpha = clamp(run.bombCutinTimer / CONFIG.bombCutinDuration, 0, 1);
     const character = this.getCharacter(run.selectedCharacterId);
     ctx.save();
     ctx.globalAlpha = alpha;
