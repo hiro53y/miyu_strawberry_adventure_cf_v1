@@ -217,6 +217,7 @@ button {
 .scene-overlay {
   position: absolute;
   inset: 0;
+  z-index: 5;
   display: grid;
   place-items: center;
   padding: 76px 22px 18px;
@@ -680,6 +681,7 @@ button {
   position: fixed;
   inset: 0;
   z-index: 80;
+  pointer-events: none;
   align-items: center;
   justify-content: center;
   padding: max(20px, env(safe-area-inset-top)) max(20px, env(safe-area-inset-right)) max(20px, env(safe-area-inset-bottom)) max(20px, env(safe-area-inset-left));
@@ -1089,6 +1091,35 @@ button {
     display: none;
   }
 
+  /* タイトルパネルのリード文を非表示（縦スペース確保） */
+  .title-panel .lead {
+    display: none;
+  }
+
+  /* モード選択カードをコンパクト化 */
+  .mode-card {
+    min-height: 76px;
+    padding: 10px 12px;
+  }
+
+  /* モードベストスコア行を非表示 */
+  .mode-note {
+    display: none;
+  }
+
+  /* STARTボタン行を常に画面下部に固定表示 */
+  .title-panel .button-row {
+    position: sticky;
+    bottom: 0;
+    margin-top: 8px;
+    padding-top: 10px;
+    padding-bottom: 2px;
+    background: linear-gradient(to bottom, transparent, rgba(250, 245, 255, 0.97) 26%);
+    -webkit-backdrop-filter: blur(4px);
+    backdrop-filter: blur(4px);
+    z-index: 1;
+  }
+
   .button-row {
     gap: 8px;
     margin-top: 12px;
@@ -1111,6 +1142,104 @@ button {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 8px;
   }
+
+  .result-card {
+    padding: 12px;
+    min-height: 74px;
+  }
+
+  .ranking-list {
+    max-height: 72px;
+  }
+
+  .footer-strip {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) and (orientation: portrait) and (max-width: 900px) {
+  .orientation-notice {
+    display: flex;
+  }
+}
+
+@media (max-height: 430px) and (orientation: landscape) {
+  .brand-block h1 {
+    font-size: clamp(0.98rem, 4vmin, 1.45rem);
+  }
+
+  .header-actions .ghost-button {
+    padding: 6px 10px;
+  }
+
+  .hud {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+
+  .touch-system {
+    top: max(58px, env(safe-area-inset-top));
+  }
+
+  .touch-button {
+    min-width: 42px;
+    min-height: 42px;
+  }
+
+  .touch-move,
+  .touch-jump {
+    min-width: 50px;
+    min-height: 50px;
+  }
+}
+
+  .result-card {
+    padding: 12px;
+    min-height: 74px;
+  }
+
+  .ranking-list {
+    max-height: 72px;
+  }
+
+  .footer-strip {
+    display: none;
+  }
+}
+
+@media (pointer: coarse) and (orientation: portrait) and (max-width: 900px) {
+  .orientation-notice {
+    display: flex;
+  }
+}
+
+@media (max-height: 430px) and (orientation: landscape) {
+  .brand-block h1 {
+    font-size: clamp(0.98rem, 4vmin, 1.45rem);
+  }
+
+  .header-actions .ghost-button {
+    padding: 6px 10px;
+  }
+
+  .hud {
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+  }
+
+  .touch-system {
+    top: max(58px, env(safe-area-inset-top));
+  }
+
+  .touch-button {
+    min-width: 42px;
+    min-height: 42px;
+  }
+
+  .touch-move,
+  .touch-jump {
+    min-width: 50px;
+    min-height: 50px;
+  }
+}
 
   .result-card {
     padding: 12px;
