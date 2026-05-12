@@ -170,6 +170,8 @@ button {
   grid-template-columns: repeat(7, minmax(0, 1fr));
   gap: 10px;
   pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .game-shell.canvas-pop-active #gameCanvas {
@@ -717,7 +719,7 @@ button {
   display: none;
   position: absolute;
   inset: 0;
-  z-index: 30;
+  z-index: 45;
   pointer-events: none;
   touch-action: none;
 }

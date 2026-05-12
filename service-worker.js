@@ -1,10 +1,10 @@
-const CACHE_NAME = "miyu-strawberry-cf-v1-20260511-fix-mobile";
+const CACHE_NAME = "miyu-strawberry-cf-v1-20260512-fix-zindex";
 
 const CORE_ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=20260511-fix-mobile",
-  "./game.js?v=20260511-fix-mobile",
+  "./style.css?v=20260512-fix-zindex",
+  "./game.js?v=20260512-fix-zindex",
   "./manifest.webmanifest",
   "./assets/icons/icon.svg",
   "./assets/icons/icon-192.png",
