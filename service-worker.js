@@ -1,10 +1,10 @@
-const CACHE_NAME = "miyu-strawberry-cf-v1-20260513-ui-improve";
+const CACHE_NAME = "miyu-strawberry-cf-v1-20260514-enemy-art-v1";
 
 const CORE_ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=20260513-ui-improve",
-  "./game.js?v=20260513-ui-improve",
+  "./style.css?v=20260514-enemy-art-v1",
+  "./game.js?v=20260514-enemy-art-v1",
   "./manifest.webmanifest",
   "./assets/icons/icon.svg",
   "./assets/icons/icon-192.png",
@@ -18,11 +18,15 @@ const CORE_ASSETS = [
   "./assets/images/strawberry_collectible_v2.png",
   "./assets/images/strawberry_projectile_v2.png",
   "./assets/images/bug_enemy_v2.png",
+  "./assets/images/stage4_bee_enemy_v1.png",
+  "./assets/images/stage5_drone_enemy_v1.png",
   "./assets/images/ramen_item_v1.png",
   "./assets/images/invincible_star_v1.png",
   "./assets/images/boss_ladybug_v1.png",
   "./assets/images/boss_frog_v1.png",
   "./assets/images/boss_beetle_v1.png",
+  "./assets/images/boss_moth_v1.png",
+  "./assets/images/boss_dragonfly_v1.png",
   "./assets/generated/background_far.png",
   "./assets/generated/background_mid.png",
   "./assets/generated/ground_tiles.png",

@@ -70,11 +70,15 @@ const ASSET_MANIFEST = {
     strawberryCollectible: "assets/images/strawberry_collectible_v2.png",
     strawberryProjectile: "assets/images/strawberry_projectile_v2.png",
     bugEnemy: "assets/images/bug_enemy_v2.png",
+    stage4BeeEnemy: "assets/images/stage4_bee_enemy_v1.png",
+    stage5DroneEnemy: "assets/images/stage5_drone_enemy_v1.png",
     ramenItem: "assets/images/ramen_item_v1.png",
     starItem: "assets/images/invincible_star_v1.png",
     bossLadybug: "assets/images/boss_ladybug_v1.png",
     bossFrog: "assets/images/boss_frog_v1.png",
     bossBeetle: "assets/images/boss_beetle_v1.png",
+    bossMoth: "assets/images/boss_moth_v1.png",
+    bossDragonfly: "assets/images/boss_dragonfly_v1.png",
     backgroundFar: "assets/generated/background_far.png",
     backgroundMid: "assets/generated/background_mid.png",
     groundTiles: "assets/generated/ground_tiles.png",
@@ -3746,10 +3750,15 @@ class GameApp {
     const alpha = boss.defeated ? clamp((boss.deadTimer ?? 0) / 0.55, 0, 1) : 1;
     const scale = boss.type === "beetle" ? 0.34 : boss.type === "frog" ? 0.31 : 0.33;
     const jitter = boss.hitFlash > 0 ? Math.sin(this.time * 80) * 3 : 0;
-    if (boss.type === "moth" || boss.type === "dragonfly") {
-      this.drawSpecialBoss(boss, x + jitter, y, alpha);
-    } else if (!this.drawImageAsset(boss.imageKey, x + jitter, y, scale, { anchorX: 0.5, anchorY: 0.72, alpha, shadow: true })) {
-      this.drawBugEnemy(x + jitter, y, 0.24, alpha, boss.hitFlash > 0 ? 0.2 : 0);
+    const drewSpecialBossAsset =
+      (boss.type === "moth" && this.drawImageAsset("bossMoth", x + jitter, y, 0.13, { anchorX: 0.5, anchorY: 0.58, alpha, shadow: true }))
+      || (boss.type === "dragonfly" && this.drawImageAsset("bossDragonfly", x + jitter, y, 0.135, { anchorX: 0.5, anchorY: 0.58, alpha, shadow: true }));
+    if (!drewSpecialBossAsset) {
+      if (boss.type === "moth" || boss.type === "dragonfly") {
+        this.drawSpecialBoss(boss, x + jitter, y, alpha);
+      } else if (!this.drawImageAsset(boss.imageKey, x + jitter, y, scale, { anchorX: 0.5, anchorY: 0.72, alpha, shadow: true })) {
+        this.drawBugEnemy(x + jitter, y, 0.24, alpha, boss.hitFlash > 0 ? 0.2 : 0);
+      }
     }
     if (!boss.defeated) {
       this.drawBossHpBar(x, y - boss.h * 0.72, boss);
@@ -4346,6 +4355,9 @@ class GameApp {
   }
 
   drawBeeEnemy(x, y, scale, alpha, squash = 0) {
+    if (this.drawImageAsset("stage4BeeEnemy", x, y, 0.06 * scale, { anchorX: 0.5, anchorY: 0.62, alpha, shadow: false })) {
+      return;
+    }
     const ctx = this.ctx;
     ctx.save();
     ctx.globalAlpha = alpha;
@@ -4382,6 +4394,9 @@ class GameApp {
   }
 
   drawDroneEnemy(x, y, scale, alpha, squash = 0) {
+    if (this.drawImageAsset("stage5DroneEnemy", x, y, 0.055 * scale, { anchorX: 0.5, anchorY: 0.58, alpha, shadow: false })) {
+      return;
+    }
     const ctx = this.ctx;
     ctx.save();
     ctx.globalAlpha = alpha;
