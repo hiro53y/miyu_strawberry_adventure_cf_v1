@@ -160,6 +160,26 @@ button {
   animation: bombGlowSweep 1.1s ease-in-out infinite alternate;
 }
 
+.game-shell.boss-zone .frame-glow {
+  box-shadow:
+    inset 0 0 60px 12px rgba(220, 50, 80, 0.25),
+    inset 0 0 20px 4px rgba(255, 100, 130, 0.18);
+  animation: bossFramePulse 1.4s ease-in-out infinite alternate;
+}
+
+@keyframes bossFramePulse {
+  from {
+    box-shadow:
+      inset 0 0 50px 8px rgba(220, 50, 80, 0.18),
+      inset 0 0 16px 3px rgba(255, 100, 130, 0.12);
+  }
+  to {
+    box-shadow:
+      inset 0 0 80px 20px rgba(230, 60, 90, 0.38),
+      inset 0 0 30px 8px rgba(255, 140, 160, 0.28);
+  }
+}
+
 .hud {
   position: absolute;
   z-index: 4;
@@ -185,14 +205,14 @@ button {
 .hud-card {
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding: 10px 12px;
-  border-radius: 16px;
+  gap: 1px;
+  padding: 6px 8px;
+  border-radius: 12px;
   border: 2px solid rgba(127, 105, 193, 0.35);
   background:
     linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(247, 241, 255, 0.88)),
     url("assets/generated/ui_panel.png") center / cover no-repeat;
-  box-shadow: 0 10px 22px rgba(96, 73, 141, 0.14);
+  box-shadow: 0 6px 16px rgba(96, 73, 141, 0.14);
 }
 
 .game-shell.combo-boost .hud-card {
@@ -203,17 +223,40 @@ button {
 }
 
 .hud-card strong {
-  font-size: clamp(0.95rem, 1.5vw, 1.18rem);
+  font-size: clamp(0.82rem, 1.3vw, 1.04rem);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .hud-label {
-  font-size: 0.74rem;
-  letter-spacing: 0.1em;
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
   color: var(--text-soft);
 }
 
 .hud-bomb strong {
   color: #d54c60;
+}
+
+/* HP ハート表示 */
+.hud-hp strong {
+  font-size: clamp(0.88rem, 1.5vw, 1.1rem);
+  color: #e04060;
+  letter-spacing: 0.04em;
+}
+
+/* ゲーム中はBESTとBGMカードを隠す */
+.game-shell.scene-playing .hud-best {
+  display: none;
+}
+
+.game-shell.scene-playing .hud-bgm-card {
+  display: none;
+}
+
+.game-shell.scene-playing .hud {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
 }
 
 .scene-overlay {
@@ -728,7 +771,7 @@ button {
   position: absolute;
   display: flex;
   align-items: center;
-  gap: clamp(8px, 1.8vmin, 14px);
+  gap: clamp(10px, 2.4vmin, 18px);
   pointer-events: auto;
 }
 
@@ -757,51 +800,59 @@ button {
   place-items: center;
   min-width: 50px;
   min-height: 50px;
-  border: 1px solid rgba(255, 255, 255, 0.38);
+  border: 2px solid rgba(255, 255, 255, 0.62);
   border-radius: 999px;
   background:
-    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.58), rgba(255, 255, 255, 0.16) 42%, rgba(126, 103, 194, 0.18)),
-    rgba(74, 57, 120, 0.12);
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.28) 42%, rgba(126, 103, 194, 0.38)),
+    rgba(74, 57, 120, 0.38);
   color: #fff;
   font-weight: 900;
   font-size: clamp(0.62rem, 1.45vmin, 0.84rem);
   letter-spacing: 0.08em;
-  opacity: 0.46;
-  text-shadow: 0 1px 6px rgba(45, 31, 77, 0.36);
+  opacity: 0.82;
+  text-shadow: 0 1px 6px rgba(45, 31, 77, 0.55);
   box-shadow:
-    0 6px 16px rgba(43, 31, 72, 0.12),
-    inset 0 0 0 1px rgba(127, 105, 193, 0.18);
-  backdrop-filter: blur(5px);
+    0 4px 14px rgba(43, 31, 72, 0.28),
+    inset 0 0 0 1px rgba(127, 105, 193, 0.32);
+  backdrop-filter: blur(6px);
   touch-action: none;
+  transition: transform 0.08s ease, opacity 0.08s ease, box-shadow 0.08s ease;
 }
 
 .touch-button.is-held,
 .touch-button:active {
-  transform: translateY(2px) scale(0.97);
-  opacity: 0.82;
+  transform: scale(1.12);
+  opacity: 1;
   background:
-    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.86), rgba(255, 221, 143, 0.46) 42%, rgba(240, 100, 104, 0.48)),
-    rgba(240, 100, 104, 0.34);
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.96), rgba(255, 221, 143, 0.62) 42%, rgba(240, 100, 104, 0.68)),
+    rgba(240, 100, 104, 0.52);
   box-shadow:
-    0 4px 12px rgba(43, 31, 72, 0.16),
-    0 0 18px rgba(255, 181, 95, 0.26);
+    0 4px 18px rgba(240, 80, 100, 0.38),
+    0 0 28px rgba(255, 200, 100, 0.55),
+    inset 0 0 0 2px rgba(255, 240, 180, 0.8);
+  border-color: rgba(255, 240, 140, 0.95);
 }
 
-.touch-move,
-.touch-jump {
-  min-width: clamp(58px, 10.2vmin, 76px);
-  min-height: clamp(58px, 10.2vmin, 76px);
-  font-size: clamp(0.9rem, 2.25vmin, 1.18rem);
+.touch-move {
+  min-width: clamp(54px, 9.6vmin, 70px);
+  min-height: clamp(54px, 9.6vmin, 70px);
+  font-size: clamp(0.9rem, 2.2vmin, 1.15rem);
 }
 
 .touch-jump {
   grid-area: jump;
-  border-color: rgba(255, 232, 155, 0.9);
+  min-width: clamp(66px, 12vmin, 88px);
+  min-height: clamp(66px, 12vmin, 88px);
+  font-size: clamp(1rem, 2.5vmin, 1.28rem);
+  border-color: rgba(255, 232, 100, 0.95);
+  background:
+    radial-gradient(circle at 35% 25%, rgba(255, 255, 255, 0.82), rgba(255, 240, 140, 0.38) 42%, rgba(126, 103, 194, 0.48)),
+    rgba(90, 70, 150, 0.44);
 }
 
 .touch-small {
-  min-width: clamp(48px, 8.4vmin, 64px);
-  min-height: clamp(38px, 6.8vmin, 50px);
+  min-width: clamp(44px, 7.8vmin, 58px);
+  min-height: clamp(36px, 6.4vmin, 48px);
 }
 
 .touch-small[data-touch-action="dash"] {

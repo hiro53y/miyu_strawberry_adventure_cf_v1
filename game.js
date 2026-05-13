@@ -1836,7 +1836,8 @@ class GameApp {
   showGoalNotice(message, duration = 2.8) {
     this.goalNoticeMessage = message;
     this.goalNoticeTimer = Math.max(this.goalNoticeTimer, duration);
-    this.showPrompt(message, duration);
+    // プロンプトバブルには1行目だけ渡す（複数行メッセージ対応）
+    this.showPrompt(message.split("\n")[0], duration);
   }
 
   updateBgmButtons() {
@@ -2379,19 +2380,17 @@ class GameApp {
     if (bossCleared && enoughBerries) {
       return { canClear: true, message: "" };
     }
-    if (!bossCleared && !enoughBerries) {
-      return {
-        canClear: false,
-        message: `ボスを倒して、いちごをあと${formatNumber(Math.max(0, requiredBerries - (run.stageStrawberries ?? 0)))}個集めないとクリアできないよ`,
-      };
+    const remaining = Math.max(0, requiredBerries - (run.stageStrawberries ?? 0));
+    const bossLine = bossCleared ? "✅ ボスをたおした！" : "⬜ ボスをたおす";
+    const berryLine = enoughBerries ? "✅ いちご OK！" : `⬜ いちごをあと${remaining}こ集める`;
+    const hasBoss = Boolean(this.level.boss);
+    if (hasBoss && !bossCleared && !enoughBerries) {
+      return { canClear: false, message: `まだクリアできないよ！\n${bossLine}\n${berryLine}` };
     }
-    if (!bossCleared) {
-      return { canClear: false, message: "ボスを倒さないとクリアできないよ" };
+    if (hasBoss && !bossCleared) {
+      return { canClear: false, message: `まだクリアできないよ！\n${bossLine}` };
     }
-    return {
-      canClear: false,
-      message: `いちごをあと${formatNumber(Math.max(0, requiredBerries - (run.stageStrawberries ?? 0)))}個集めないとクリアできないよ`,
-    };
+    return { canClear: false, message: `まだクリアできないよ！\n${berryLine}` };
   }
 
   updateProjectiles(delta) {
@@ -2691,7 +2690,7 @@ class GameApp {
       this.spawnDustBurst(boss.renderX ?? boss.x, boss.renderY ?? boss.y, 28, "clear");
       this.spawnBerryBurst(boss.renderX ?? boss.x, (boss.renderY ?? boss.y) - 24, true, run.player.facing);
       this.audio.playSe("clear");
-    this.showPrompt(run.mode === GAME_MODES.scoreAttack.id ? "ボス撃破！スコア大量獲得" : "ゴールゲートが開いた！", 1.9);
+    this.showPrompt(run.mode === GAME_MODES.scoreAttack.id ? "ボス撃破！スコア大量獲得" : "ボスをたおした！ゴールゲートが開いた！", 2.2);
     }
     return true;
   }
@@ -3280,8 +3279,13 @@ class GameApp {
     );
     shell?.classList.toggle("canvas-pop-active", hasCanvasPop);
 
+    // ボスゾーン枠光：ボスが画面内または近傍にいる場合
+    const boss = this.level?.boss;
+    const bossNearby = run && boss && !boss.defeated && (boss.x - this.cameraX < CONFIG.width + 300);
+    shell?.classList.toggle("boss-zone", Boolean(bossNearby));
+
     if (!run) {
-      this.els.hudHp.textContent = String(CONFIG.maxHp);
+      this.els.hudHp.textContent = "♥".repeat(CONFIG.maxHp);
       this.els.hudScore.textContent = "0";
       this.els.hudCombo.textContent = "x1";
       this.els.hudBerry.textContent = "0 / 0";
@@ -3290,15 +3294,24 @@ class GameApp {
       }
       shell.classList.remove("combo-boost");
       shell?.classList.remove("canvas-pop-active");
+      shell?.classList.remove("boss-zone");
       return;
     }
 
-    this.els.hudHp.textContent = run.player.powerTimer > 0 ? `${run.player.hp} ★` : String(run.player.hp);
+    const hp = run.player.hp;
+    const maxHp = CONFIG.maxHp;
+    this.els.hudHp.textContent = run.player.powerTimer > 0
+      ? "★".repeat(hp)
+      : "♥".repeat(hp) + "♡".repeat(Math.max(0, maxHp - hp));
     this.els.hudScore.textContent = formatNumber(run.score);
-    this.els.hudCombo.textContent = run.combo >= 2 ? `x${run.combo} HOT` : "x1";
-    this.els.hudBerry.textContent = run.mode === GAME_MODES.scoreAttack.id
-      ? `${formatNumber(run.strawberries)}個 / 収穫${formatNumber(run.harvestedStrawberries ?? 0)}`
-      : `手持ち${formatNumber(run.strawberries)} / 収穫${formatNumber(run.harvestedStrawberries ?? 0)}  S${run.stageNumber}/${STAGE_CONFIGS.length}`;
+    this.els.hudCombo.textContent = run.combo >= 2 ? `x${run.combo}🔥` : "x1";
+    if (run.mode === GAME_MODES.scoreAttack.id) {
+      this.els.hudBerry.textContent = formatNumber(run.harvestedStrawberries ?? 0);
+    } else {
+      const stageHarvested = run.stageStrawberries ?? 0;
+      const stageTotal = run.stageTotalBerries ?? 0;
+      this.els.hudBerry.textContent = `${stageHarvested}/${stageTotal}`;
+    }
     if (this.els.hudBomb) {
       this.els.hudBomb.textContent = run.bombTimer > 0
         ? `${Math.ceil(run.bombTimer)}s`
@@ -4129,30 +4142,46 @@ class GameApp {
     const ctx = this.ctx;
     const alpha = clamp(this.goalNoticeTimer / 0.35, 0, 1);
     const isMobileLayout = document.body.classList.contains("is-coarse-pointer") || window.innerWidth <= 820;
-    const maxChars = isMobileLayout ? 18 : 26;
-    const lines = this.wrapNoticeLines(this.goalNoticeMessage, maxChars).slice(0, 3);
-    const width = isMobileLayout ? 520 : 680;
-    const height = 58 + lines.length * 28;
-    const y = isMobileLayout ? 214 : 220;
+
+    // \n 区切りでチェックリスト行を分割（先頭行がタイトル）
+    const allLines = this.goalNoticeMessage.split("\n").slice(0, 4);
+    const [title, ...items] = allLines;
+
+    const lineH = isMobileLayout ? 26 : 28;
+    const width = isMobileLayout ? 310 : 400;
+    const titleH = 36;
+    const height = titleH + items.length * lineH + 14;
+    const y = isMobileLayout ? 188 : 200;
 
     ctx.save();
     ctx.globalAlpha = alpha;
     ctx.translate(CONFIG.width / 2, y);
-    ctx.fillStyle = "rgba(255, 255, 255, 0.96)";
-    ctx.strokeStyle = "rgba(226, 74, 108, 0.92)";
-    ctx.lineWidth = 3;
-    pathRoundedRect(ctx, -width / 2, -height / 2, width, height, 18);
+
+    // 半透明パネル（薄め）
+    ctx.fillStyle = "rgba(255, 248, 250, 0.84)";
+    ctx.strokeStyle = "rgba(220, 70, 100, 0.80)";
+    ctx.lineWidth = 2;
+    pathRoundedRect(ctx, -width / 2, -height / 2, width, height, 12);
     ctx.fill();
     ctx.stroke();
-    ctx.fillStyle = "#d94b68";
-    ctx.font = `bold ${isMobileLayout ? 16 : 18}px "Trebuchet MS", "Yu Gothic UI", sans-serif`;
+
+    // タイトル行
+    const titleSize = isMobileLayout ? 13 : 14;
+    ctx.fillStyle = "#cc3a5a";
+    ctx.font = `bold ${titleSize}px "Trebuchet MS", "Yu Gothic UI", sans-serif`;
     ctx.textAlign = "center";
-    ctx.fillText("まだクリアできないよ", 0, -height / 2 + 28);
-    ctx.fillStyle = "#4f3a62";
-    ctx.font = `bold ${isMobileLayout ? 17 : 20}px "Trebuchet MS", "Yu Gothic UI", sans-serif`;
-    lines.forEach((line, index) => {
-      ctx.fillText(line, 0, -height / 2 + 60 + index * 28);
+    ctx.fillText(title, 0, -height / 2 + 22);
+
+    // チェックリスト項目
+    const itemSize = isMobileLayout ? 14 : 16;
+    ctx.font = `bold ${itemSize}px "Trebuchet MS", "Yu Gothic UI", sans-serif`;
+    ctx.textAlign = "left";
+    items.forEach((line, i) => {
+      const isDone = line.startsWith("✅");
+      ctx.fillStyle = isDone ? "#4a9640" : "#3f2d5a";
+      ctx.fillText(line, -width / 2 + 14, -height / 2 + titleH + i * lineH + 4);
     });
+
     ctx.restore();
   }
 
@@ -4261,7 +4290,13 @@ class GameApp {
   }
 
   drawStrawberryCollectible(x, y, scale, alpha) {
-    if (this.drawImageAsset("strawberryCollectible", x, y, scale, { anchorX: 0.5, anchorY: 0.78, alpha, shadow: true })) {
+    // 白いグローで背景から浮かせる
+    if (this.drawImageAsset("strawberryCollectible", x, y, scale, {
+      anchorX: 0.5, anchorY: 0.78, alpha, shadow: true,
+      shadowColor: "rgba(255, 255, 255, 0.95)",
+      shadowBlur: 10,
+      shadowOffsetY: 0,
+    })) {
       return;
     }
     this.drawStrawberryIcon(x, y, scale * 8.2, alpha);

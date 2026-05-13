@@ -13,7 +13,7 @@
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
-    <link rel="stylesheet" href="style.css?v=20260512-fix-zindex">
+    <link rel="stylesheet" href="style.css?v=20260513-ui-improve">
   </head>
   <body>
     <div class="orientation-notice" aria-hidden="true">
@@ -40,13 +40,13 @@
           <div class="frame-glow" aria-hidden="true"></div>
 
           <div id="hud" class="hud">
-            <div class="hud-card"><span class="hud-label">HP</span><strong id="hudHp">3</strong></div>
+            <div class="hud-card hud-hp"><span class="hud-label">HP</span><strong id="hudHp">♥♥♥</strong></div>
             <div class="hud-card"><span class="hud-label">SCORE</span><strong id="hudScore">0</strong></div>
-            <div class="hud-card"><span class="hud-label">BEST</span><strong id="hudBest">0</strong></div>
+            <div class="hud-card hud-best"><span class="hud-label">BEST</span><strong id="hudBest">0</strong></div>
             <div class="hud-card"><span class="hud-label">COMBO</span><strong id="hudCombo">x1</strong></div>
-            <div class="hud-card"><span class="hud-label">STRAWBERRY</span><strong id="hudBerry">0 / 0</strong></div>
-            <div class="hud-card hud-bomb"><span class="hud-label">BOMB</span><strong id="hudBomb">READY</strong></div>
-            <div class="hud-card"><span class="hud-label">BGM</span><strong id="hudBgm">OFF</strong></div>
+            <div class="hud-card"><span class="hud-label">🍓</span><strong id="hudBerry">0 / 0</strong></div>
+            <div class="hud-card hud-bomb"><span class="hud-label">💣</span><strong id="hudBomb">READY</strong></div>
+            <div class="hud-card hud-bgm-card"><span class="hud-label">BGM</span><strong id="hudBgm">OFF</strong></div>
           </div>
 
           <div id="sceneOverlay" class="scene-overlay">
@@ -234,6 +234,6 @@
       </div>
     </main>
 
-  <script src="game.js?v=20260512-fix-zindex"></script>
+  <script src="game.js?v=20260513-ui-improve"></script>
   </body>
 </html>
