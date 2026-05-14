@@ -13,7 +13,7 @@
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
-    <link rel="stylesheet" href="style.css?v=20260514-enemy-art-v1">
+    <link rel="stylesheet" href="style.css?v=20260514-stage10-v1">
   </head>
   <body>
     <div class="orientation-notice" aria-hidden="true">
@@ -55,7 +55,7 @@
               <h2>みんなのいちご大冒険</h2>
               <p class="lead">
                 いちごを集めて、虫や水たまりをよけながらトレイを満たし、
-                5つの温室ステージとボスを突破するスマホ対応アクションです。
+                10この温室ステージとボスを突破するスマホ対応アクションです。
               </p>
               <div class="character-select" aria-label="キャラクター選択">
                 <button class="character-card selected" type="button" data-character="miyu" aria-pressed="true">
@@ -82,10 +82,10 @@
                       <span class="mode-icon">🍓</span>
                       <span class="mode-badge">通常</span>
                     </span>
-                    <span class="mode-title">5ステージ冒険</span>
-                    <small class="mode-desc">ボスを倒して、5つの温室をクリアするストーリーモード。</small>
+                    <span class="mode-title">10ステージ冒険</span>
+                    <small class="mode-desc">ボスを倒して、10この温室をクリアするストーリーモード。</small>
                     <span class="mode-meta">
-                      <span>全5面</span>
+                      <span>全10面</span>
                       <span>チェックポイントあり</span>
                       <span>BOMBあり</span>
                       <span>ボス必須</span>
@@ -117,7 +117,7 @@
                 <li>滑らかな横スクロールと 3 層パララックス</li>
                 <li>3人のキャラクター選択、回復ラーメン、無敵スター</li>
                 <li>各ステージ1回のBOMB、投擲攻撃、踏みつけ</li>
-                <li>全5ステージのボスと新しい敵</li>
+                <li>全10ステージのボス、新しい敵、後半ギミック</li>
               </ul>
             </section>
 
@@ -191,6 +191,7 @@
                 <div class="result-card"><span>残り HP</span><strong id="resultHp">0</strong></div>
                 <div class="result-card"><span>クリアタイム</span><strong id="resultTime">0.0 秒</strong></div>
               </div>
+              <img id="endingIllustration" class="ending-illustration hidden" src="assets/images/ending_three_siblings_v1.png" alt="3兄弟のクリアイラスト">
               <p id="resultSummary" class="lead compact"></p>
               <ol id="scoreAttackRanking" class="ranking-list hidden" aria-label="いちごラッシュランキング"></ol>
               <div class="button-row">
@@ -234,6 +235,6 @@
       </div>
     </main>
 
-  <script src="game.js?v=20260514-enemy-art-v1"></script>
+  <script src="game.js?v=20260514-stage10-v1"></script>
   </body>
 </html>

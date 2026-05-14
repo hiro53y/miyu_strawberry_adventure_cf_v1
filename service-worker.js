@@ -1,10 +1,10 @@
-const CACHE_NAME = "miyu-strawberry-cf-v1-20260514-enemy-art-v1";
+const CACHE_NAME = "miyu-strawberry-cf-v1-20260514-stage10-v1";
 
 const CORE_ASSETS = [
   "./",
   "./index.html",
-  "./style.css?v=20260514-enemy-art-v1",
-  "./game.js?v=20260514-enemy-art-v1",
+  "./style.css?v=20260514-stage10-v1",
+  "./game.js?v=20260514-stage10-v1",
   "./manifest.webmanifest",
   "./assets/icons/icon.svg",
   "./assets/icons/icon-192.png",
@@ -20,6 +20,11 @@ const CORE_ASSETS = [
   "./assets/images/bug_enemy_v2.png",
   "./assets/images/stage4_bee_enemy_v1.png",
   "./assets/images/stage5_drone_enemy_v1.png",
+  "./assets/images/stage6_firefly_enemy_v1.png",
+  "./assets/images/stage7_snail_enemy_v1.png",
+  "./assets/images/stage8_snowbat_enemy_v1.png",
+  "./assets/images/stage9_acorn_enemy_v1.png",
+  "./assets/images/stage10_comet_enemy_v1.png",
   "./assets/images/ramen_item_v1.png",
   "./assets/images/invincible_star_v1.png",
   "./assets/images/boss_ladybug_v1.png",
@@ -27,14 +32,26 @@ const CORE_ASSETS = [
   "./assets/images/boss_beetle_v1.png",
   "./assets/images/boss_moth_v1.png",
   "./assets/images/boss_dragonfly_v1.png",
+  "./assets/images/boss_firefly_v1.png",
+  "./assets/images/boss_snail_v1.png",
+  "./assets/images/boss_snowowl_v1.png",
+  "./assets/images/boss_squirrel_v1.png",
+  "./assets/images/boss_comet_v1.png",
+  "./assets/images/ending_three_siblings_v1.png",
   "./assets/generated/background_far.png",
   "./assets/generated/background_mid.png",
   "./assets/generated/ground_tiles.png",
   "./assets/generated/ui_panel.png",
   "./assets/audio/bgm.mp3",
   "./assets/audio/bgm_options/bgm_01.mp3",
+  "./assets/audio/bgm_options/bgm_02.mp3",
   "./assets/audio/bgm_options/bgm_03.mp3",
-  "./assets/audio/bgm_options/bgm_04.mp3"
+  "./assets/audio/bgm_options/bgm_04.mp3",
+  "./assets/audio/bgm_options/stage6_lantern_loop.wav",
+  "./assets/audio/bgm_options/stage7_bubble_loop.wav",
+  "./assets/audio/bgm_options/stage8_ice_loop.wav",
+  "./assets/audio/bgm_options/stage9_wind_loop.wav",
+  "./assets/audio/bgm_options/stage10_starlight_loop.wav"
 ];
 
 self.addEventListener("install", (event) => {

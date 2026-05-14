@@ -72,6 +72,11 @@ const ASSET_MANIFEST = {
     bugEnemy: "assets/images/bug_enemy_v2.png",
     stage4BeeEnemy: "assets/images/stage4_bee_enemy_v1.png",
     stage5DroneEnemy: "assets/images/stage5_drone_enemy_v1.png",
+    stage6FireflyEnemy: "assets/images/stage6_firefly_enemy_v1.png",
+    stage7SnailEnemy: "assets/images/stage7_snail_enemy_v1.png",
+    stage8SnowBatEnemy: "assets/images/stage8_snowbat_enemy_v1.png",
+    stage9AcornEnemy: "assets/images/stage9_acorn_enemy_v1.png",
+    stage10CometEnemy: "assets/images/stage10_comet_enemy_v1.png",
     ramenItem: "assets/images/ramen_item_v1.png",
     starItem: "assets/images/invincible_star_v1.png",
     bossLadybug: "assets/images/boss_ladybug_v1.png",
@@ -79,6 +84,12 @@ const ASSET_MANIFEST = {
     bossBeetle: "assets/images/boss_beetle_v1.png",
     bossMoth: "assets/images/boss_moth_v1.png",
     bossDragonfly: "assets/images/boss_dragonfly_v1.png",
+    bossFirefly: "assets/images/boss_firefly_v1.png",
+    bossSnail: "assets/images/boss_snail_v1.png",
+    bossSnowOwl: "assets/images/boss_snowowl_v1.png",
+    bossSquirrel: "assets/images/boss_squirrel_v1.png",
+    bossComet: "assets/images/boss_comet_v1.png",
+    endingIllustration: "assets/images/ending_three_siblings_v1.png",
     backgroundFar: "assets/generated/background_far.png",
     backgroundMid: "assets/generated/background_mid.png",
     groundTiles: "assets/generated/ground_tiles.png",
@@ -91,6 +102,11 @@ const ASSET_MANIFEST = {
     stage3: "assets/audio/bgm_options/bgm_03.mp3",
     stage4: "assets/audio/bgm_options/bgm_01.mp3",
     stage5: "assets/audio/bgm_options/bgm_04.mp3",
+    stage6: "assets/audio/bgm_options/stage6_lantern_loop.wav",
+    stage7: "assets/audio/bgm_options/stage7_bubble_loop.wav",
+    stage8: "assets/audio/bgm_options/stage8_ice_loop.wav",
+    stage9: "assets/audio/bgm_options/stage9_wind_loop.wav",
+    stage10: "assets/audio/bgm_options/stage10_starlight_loop.wav",
     scoreAttack: "assets/audio/bgm_options/bgm_01.mp3",
   },
 };
@@ -245,7 +261,7 @@ const CHARACTERS = [
 const GAME_MODES = {
   campaign: {
     id: "campaign",
-    label: "5ステージ冒険",
+    label: "10ステージ冒険",
     title: "みんなのいちご大冒険",
   },
   scoreAttack: {
@@ -308,7 +324,34 @@ const BASE_OBSTACLES = [
 ];
 
 const NON_COLLIDING_OBSTACLE_TYPES = new Set(["leafpile"]);
-const DEFEATABLE_OBSTACLE_TYPES = new Set(["bug", "bee", "drone"]);
+const DEFEATABLE_OBSTACLE_TYPES = new Set(["bug", "bee", "drone", "firefly", "snail", "snowbat", "acorn", "comet"]);
+const ENEMY_IMAGE_KEYS = {
+  bee: "stage4BeeEnemy",
+  drone: "stage5DroneEnemy",
+  firefly: "stage6FireflyEnemy",
+  snail: "stage7SnailEnemy",
+  snowbat: "stage8SnowBatEnemy",
+  acorn: "stage9AcornEnemy",
+  comet: "stage10CometEnemy",
+};
+const ENEMY_IMAGE_SCALES = {
+  bee: 0.06,
+  drone: 0.055,
+  firefly: 0.058,
+  snail: 0.056,
+  snowbat: 0.06,
+  acorn: 0.055,
+  comet: 0.058,
+};
+const SPECIAL_BOSS_DRAW = {
+  moth: { imageKey: "bossMoth", scale: 0.13, anchorY: 0.58 },
+  dragonfly: { imageKey: "bossDragonfly", scale: 0.135, anchorY: 0.58 },
+  firefly: { imageKey: "bossFirefly", scale: 0.13, anchorY: 0.58 },
+  snail: { imageKey: "bossSnail", scale: 0.13, anchorY: 0.62 },
+  snowowl: { imageKey: "bossSnowOwl", scale: 0.13, anchorY: 0.6 },
+  squirrel: { imageKey: "bossSquirrel", scale: 0.125, anchorY: 0.64 },
+  comet: { imageKey: "bossComet", scale: 0.13, anchorY: 0.58 },
+};
 
 const STAGE_CONFIGS = [
   {
@@ -378,7 +421,7 @@ const STAGE_CONFIGS = [
       { id: "ramen-3", type: "ramen", x: 2140, y: 378 },
       { id: "star-3", type: "star", x: 4700, y: 294 },
     ],
-    labels: ["FINAL", "Gold Row", "Star Lane", "BOSS"],
+    labels: ["STAGE 3", "Gold Row", "Star Lane", "BOSS"],
   },
   {
     title: "Stage 4",
@@ -424,7 +467,132 @@ const STAGE_CONFIGS = [
       { id: "ramen-5", type: "ramen", x: 2340, y: 334 },
       { id: "star-5", type: "star", x: 4380, y: 254 },
     ],
-    labels: ["FINAL", "Cloud Row", "Rainbow Lane", "BOSS"],
+    labels: ["STAGE 5", "Cloud Row", "Rainbow Lane", "BOSS"],
+  },
+  {
+    title: "Stage 6",
+    name: "Firefly Lantern Maze",
+    jpName: "ほたるランタン迷路",
+    bgm: ASSET_MANIFEST.audio.stage6,
+    musicRate: 1.04,
+    theme: {
+      skyTop: "#19334f",
+      skyMid: "#315f7b",
+      skyBottom: "#fff0b8",
+      greenhouse: "rgba(188, 226, 214, 0.66)",
+      greenhouseTrim: "rgba(255, 205, 96, 0.78)",
+      field: "rgba(74, 132, 115, 0.26)",
+      ground: "#4d4a3a",
+      grass: "#8fc86a",
+      grassDark: "#5f9a52",
+    },
+    gimmick: "lantern",
+    boss: { type: "firefly", hp: 8, x: 5195, y: 294, w: 168, h: 108, movement: "swoop", attack: "orb" },
+    powerups: [
+      { id: "ramen-6", type: "ramen", x: 2140, y: 374 },
+      { id: "star-6", type: "star", x: 4200, y: 260 },
+    ],
+    labels: ["STAGE 6", "Lantern Maze", "Glow Bridge", "BOSS"],
+  },
+  {
+    title: "Stage 7",
+    name: "Bubble Snail Canal",
+    jpName: "あわあわカタツムリ運河",
+    bgm: ASSET_MANIFEST.audio.stage7,
+    musicRate: 1.07,
+    theme: {
+      skyTop: "#9eeaff",
+      skyMid: "#e8fbff",
+      skyBottom: "#d4f7e8",
+      greenhouse: "rgba(205, 242, 255, 0.72)",
+      greenhouseTrim: "rgba(92, 184, 206, 0.82)",
+      field: "rgba(70, 164, 155, 0.28)",
+      ground: "#526a65",
+      grass: "#62c18f",
+      grassDark: "#459c72",
+    },
+    gimmick: "bubble",
+    boss: { type: "snail", hp: 9, x: 5190, y: 352, w: 174, h: 112, movement: "guard", attack: "bubble" },
+    powerups: [
+      { id: "ramen-7", type: "ramen", x: 1760, y: 376 },
+      { id: "star-7", type: "star", x: 3820, y: 260 },
+    ],
+    labels: ["STAGE 7", "Bubble Canal", "Shell Road", "BOSS"],
+  },
+  {
+    title: "Stage 8",
+    name: "Snow Sugar Freezer",
+    jpName: "こおり砂糖フリーザー",
+    bgm: ASSET_MANIFEST.audio.stage8,
+    musicRate: 1.1,
+    theme: {
+      skyTop: "#b8e9ff",
+      skyMid: "#f4fbff",
+      skyBottom: "#fff8dd",
+      greenhouse: "rgba(230, 248, 255, 0.7)",
+      greenhouseTrim: "rgba(126, 196, 226, 0.82)",
+      field: "rgba(160, 218, 232, 0.26)",
+      ground: "#58677b",
+      grass: "#a9d9e8",
+      grassDark: "#72abc2",
+    },
+    gimmick: "ice",
+    boss: { type: "snowowl", hp: 10, x: 5190, y: 294, w: 176, h: 118, movement: "hover", attack: "ice" },
+    powerups: [
+      { id: "ramen-8", type: "ramen", x: 2420, y: 374 },
+      { id: "star-8", type: "star", x: 4560, y: 252 },
+    ],
+    labels: ["STAGE 8", "Ice Lane", "Sugar Snow", "BOSS"],
+  },
+  {
+    title: "Stage 9",
+    name: "Autumn Acorn Lift",
+    jpName: "秋色どんぐりリフト",
+    bgm: ASSET_MANIFEST.audio.stage9,
+    musicRate: 1.14,
+    theme: {
+      skyTop: "#ffd29b",
+      skyMid: "#fff0c6",
+      skyBottom: "#fce6df",
+      greenhouse: "rgba(255, 228, 185, 0.7)",
+      greenhouseTrim: "rgba(213, 132, 74, 0.82)",
+      field: "rgba(182, 108, 78, 0.26)",
+      ground: "#69483b",
+      grass: "#b8bd4f",
+      grassDark: "#8f913d",
+    },
+    gimmick: "wind",
+    boss: { type: "squirrel", hp: 11, x: 5190, y: 346, w: 184, h: 126, movement: "hop", attack: "acorn" },
+    powerups: [
+      { id: "ramen-9", type: "ramen", x: 1900, y: 376 },
+      { id: "star-9", type: "star", x: 4300, y: 248 },
+    ],
+    labels: ["STAGE 9", "Wind Lift", "Acorn Run", "BOSS"],
+  },
+  {
+    title: "Stage 10",
+    name: "Starlight Strawberry Castle",
+    jpName: "星あかりストロベリー城",
+    bgm: ASSET_MANIFEST.audio.stage10,
+    musicRate: 1.18,
+    theme: {
+      skyTop: "#201847",
+      skyMid: "#574aa5",
+      skyBottom: "#ffd6f4",
+      greenhouse: "rgba(221, 214, 255, 0.66)",
+      greenhouseTrim: "rgba(255, 205, 92, 0.86)",
+      field: "rgba(125, 92, 176, 0.3)",
+      ground: "#4b335d",
+      grass: "#a7cc68",
+      grassDark: "#779a50",
+    },
+    gimmick: "starfall",
+    boss: { type: "comet", hp: 13, x: 5185, y: 282, w: 190, h: 126, movement: "zigzag", attack: "comet" },
+    powerups: [
+      { id: "ramen-10", type: "ramen", x: 2120, y: 376 },
+      { id: "star-10", type: "star", x: 4620, y: 236 },
+    ],
+    labels: ["FINAL", "Star Castle", "Last Gate", "BOSS"],
   },
 ];
 
@@ -470,7 +638,95 @@ const SCORE_ATTACK_BOSS_POOL = [
   { type: "beetle", imageKey: "bossBeetle", hp: 5, w: 156, h: 104, movement: "guard" },
   { type: "moth", hp: 6, w: 154, h: 108, movement: "swoop", attack: "spores" },
   { type: "dragonfly", hp: 7, w: 174, h: 104, movement: "zigzag", attack: "laser" },
+  { type: "firefly", hp: 8, w: 168, h: 108, movement: "swoop", attack: "orb" },
+  { type: "snail", hp: 9, w: 174, h: 112, movement: "guard", attack: "bubble" },
+  { type: "snowowl", hp: 10, w: 176, h: 118, movement: "hover", attack: "ice" },
+  { type: "squirrel", hp: 11, w: 184, h: 126, movement: "hop", attack: "acorn" },
+  { type: "comet", hp: 13, w: 190, h: 126, movement: "zigzag", attack: "comet" },
 ];
+
+const ADVANCED_STAGE_PLATFORMS = {
+  5: [
+    { x: 950, y: 300, w: 118, h: 18 },
+    { x: 1660, y: 268, w: 134, h: 18 },
+    { x: 2630, y: 308, w: 128, h: 18 },
+    { x: 3780, y: 254, w: 142, h: 18 },
+    { x: 4560, y: 288, w: 126, h: 18 },
+  ],
+  6: [
+    { x: 900, y: 336, w: 128, h: 18 },
+    { x: 1460, y: 292, w: 132, h: 18 },
+    { x: 2320, y: 252, w: 146, h: 18 },
+    { x: 3340, y: 304, w: 132, h: 18 },
+    { x: 4380, y: 260, w: 148, h: 18 },
+  ],
+  7: [
+    { x: 960, y: 282, w: 122, h: 18 },
+    { x: 1810, y: 242, w: 126, h: 18 },
+    { x: 2740, y: 304, w: 132, h: 18 },
+    { x: 3860, y: 246, w: 128, h: 18 },
+    { x: 4680, y: 286, w: 120, h: 18 },
+  ],
+  8: [
+    { x: 820, y: 302, w: 112, h: 18 },
+    { x: 1540, y: 246, w: 120, h: 18 },
+    { x: 2480, y: 292, w: 116, h: 18 },
+    { x: 3260, y: 238, w: 120, h: 18 },
+    { x: 4240, y: 278, w: 114, h: 18 },
+  ],
+  9: [
+    { x: 760, y: 288, w: 112, h: 18 },
+    { x: 1380, y: 232, w: 116, h: 18 },
+    { x: 2190, y: 298, w: 112, h: 18 },
+    { x: 3040, y: 238, w: 112, h: 18 },
+    { x: 3900, y: 286, w: 118, h: 18 },
+    { x: 4720, y: 230, w: 112, h: 18 },
+  ],
+};
+
+const ADVANCED_STAGE_OBSTACLES = {
+  5: [
+    { x: 900, y: 314, w: 50, h: 34, type: "firefly", damage: 1, movement: "vertical", amplitude: 78, speed: 2.7 },
+    { x: 1320, y: 407, w: 58, h: 18, type: "shadow", damage: 1 },
+    { x: 1940, y: 292, w: 50, h: 34, type: "firefly", damage: 1, movement: "sine", amplitude: 88, speed: 2.9 },
+    { x: 3020, y: 408, w: 72, h: 20, type: "lantern", damage: 1 },
+    { x: 3680, y: 274, w: 50, h: 34, type: "firefly", damage: 1, movement: "vertical", amplitude: 96, speed: 3.1 },
+    { x: 4620, y: 302, w: 50, h: 34, type: "firefly", damage: 1, movement: "sine", amplitude: 98, speed: 3.4 },
+  ],
+  6: [
+    { x: 860, y: 398, w: 52, h: 32, type: "snail", damage: 1, movement: "crawl", amplitude: 60, speed: 1.6 },
+    { x: 1240, y: 408, w: 78, h: 22, type: "bubble", damage: 1 },
+    { x: 1880, y: 392, w: 52, h: 32, type: "snail", damage: 1, movement: "crawl", amplitude: 72, speed: 1.8 },
+    { x: 2780, y: 306, w: 50, h: 34, type: "snail", damage: 1, movement: "vertical", amplitude: 58, speed: 2.4 },
+    { x: 3540, y: 408, w: 82, h: 22, type: "bubble", damage: 1 },
+    { x: 4440, y: 390, w: 52, h: 32, type: "snail", damage: 1, movement: "crawl", amplitude: 88, speed: 2.1 },
+  ],
+  7: [
+    { x: 840, y: 300, w: 52, h: 34, type: "snowbat", damage: 1, movement: "sine", amplitude: 94, speed: 3.1 },
+    { x: 1360, y: 408, w: 84, h: 20, type: "ice", damage: 1 },
+    { x: 2060, y: 280, w: 52, h: 34, type: "snowbat", damage: 1, movement: "vertical", amplitude: 92, speed: 2.8 },
+    { x: 2920, y: 408, w: 86, h: 20, type: "ice", damage: 1 },
+    { x: 3760, y: 250, w: 52, h: 34, type: "snowbat", damage: 1, movement: "sine", amplitude: 112, speed: 3.5 },
+    { x: 4760, y: 286, w: 52, h: 34, type: "snowbat", damage: 1, movement: "vertical", amplitude: 112, speed: 3.2 },
+  ],
+  8: [
+    { x: 760, y: 396, w: 48, h: 32, type: "acorn", damage: 1, movement: "hop", amplitude: 48, speed: 3.0 },
+    { x: 1260, y: 408, w: 90, h: 22, type: "gust", damage: 1 },
+    { x: 1960, y: 384, w: 48, h: 32, type: "acorn", damage: 1, movement: "sine", amplitude: 88, speed: 2.7 },
+    { x: 2860, y: 408, w: 90, h: 22, type: "gust", damage: 1 },
+    { x: 3720, y: 364, w: 48, h: 32, type: "acorn", damage: 1, movement: "hop", amplitude: 64, speed: 3.4 },
+    { x: 4700, y: 350, w: 48, h: 32, type: "acorn", damage: 1, movement: "sine", amplitude: 112, speed: 3.2 },
+  ],
+  9: [
+    { x: 740, y: 292, w: 52, h: 34, type: "comet", damage: 1, movement: "sine", amplitude: 114, speed: 3.5 },
+    { x: 1180, y: 408, w: 74, h: 24, type: "starShard", damage: 1 },
+    { x: 1760, y: 264, w: 52, h: 34, type: "comet", damage: 1, movement: "vertical", amplitude: 122, speed: 3.1 },
+    { x: 2480, y: 408, w: 74, h: 24, type: "starShard", damage: 1 },
+    { x: 3160, y: 248, w: 52, h: 34, type: "comet", damage: 1, movement: "sine", amplitude: 136, speed: 3.9 },
+    { x: 3960, y: 408, w: 78, h: 24, type: "starShard", damage: 1 },
+    { x: 4800, y: 248, w: 52, h: 34, type: "comet", damage: 1, movement: "vertical", amplitude: 138, speed: 3.6 },
+  ],
+};
 
 function createLevelData(stageIndex = 0) {
   const stage = STAGE_CONFIGS[stageIndex] ?? STAGE_CONFIGS[0];
@@ -494,11 +750,14 @@ function createLevelData(stageIndex = 0) {
       { x: 4550, y: 246, w: 138, h: 18 }
     );
   }
+  if (ADVANCED_STAGE_PLATFORMS[stageIndex]) {
+    platforms.push(...ADVANCED_STAGE_PLATFORMS[stageIndex].map((platform) => ({ ...platform })));
+  }
   const collectibles = [
     ...BASE_TOUCH_BERRIES.map(([x, y], index) => ({
       id: `s${stageNo}-b${String(index + 1).padStart(2, "0")}`,
       x: x + stageIndex * 18,
-      y: y + (index % 3 === 0 ? -stageIndex * 10 : stageIndex * 4) + (stageIndex >= 3 && index % 4 === 0 ? -46 : 0),
+      y: y + (index % 3 === 0 ? -stageIndex * 10 : stageIndex * 4) + (stageIndex >= 3 && index % 4 === 0 ? -46 : 0) + (stageIndex >= 5 && index % 5 === 0 ? -24 : 0),
       type: "touch",
     })),
     ...BASE_ACTION_BERRIES.map(([x, y], index) => ({
@@ -545,6 +804,9 @@ function createLevelData(stageIndex = 0) {
       { x: 4900, y: 318, w: 52, h: 34, type: "drone", damage: 1, movement: "sine", amplitude: 90, speed: 3.2 }
     );
   }
+  if (ADVANCED_STAGE_OBSTACLES[stageIndex]) {
+    stageObstacles.push(...ADVANCED_STAGE_OBSTACLES[stageIndex].map((obstacle) => ({ ...obstacle })));
+  }
   return {
     stageLength: CONFIG.stageLength,
     stageIndex,
@@ -553,6 +815,8 @@ function createLevelData(stageIndex = 0) {
     jpName: stage.jpName,
     theme: stage.theme,
     bgm: stage.bgm,
+    musicRate: stage.musicRate ?? 1,
+    gimmick: stage.gimmick ?? null,
     platforms,
     decorations: {
       signPosts: [
@@ -1072,6 +1336,12 @@ class AudioManager {
     }
   }
 
+  setStageMood(options = {}) {
+    this.stageRate = options.rate ?? 1;
+    this.setPlaybackRate(this.stageRate);
+    this.bgm.volume = options.volume ?? 0.32;
+  }
+
   setPlaybackRate(rate = 1) {
     const nextRate = clamp(rate, 0.5, 1.8);
     if (Math.abs(this.bgm.playbackRate - nextRate) < 0.01) {
@@ -1316,6 +1586,7 @@ class GameApp {
       resultHp: document.getElementById("resultHp"),
       resultTime: document.getElementById("resultTime"),
       resultSummary: document.getElementById("resultSummary"),
+      endingIllustration: document.getElementById("endingIllustration"),
       scoreAttackRanking: document.getElementById("scoreAttackRanking"),
       pauseBadge: document.getElementById("pauseBadge"),
     };
@@ -1561,7 +1832,7 @@ class GameApp {
     this.updateModeButtons();
     this.level = createLevelData(stageIndex);
     this.audio.setBgmSource(this.level.bgm);
-    this.audio.setPlaybackRate(1);
+    this.audio.setStageMood({ rate: this.level.musicRate ?? 1, volume: stageIndex >= 5 ? 0.34 : 0.32 });
     const totalBerries = this.level.collectibles.length;
     const startX = carry?.startX ?? 120;
     const startSigns = this.level.decorations.signPosts;
@@ -1658,7 +1929,7 @@ class GameApp {
     this.updateModeButtons();
     this.level = createScoreAttackLevelData(Date.now());
     this.audio.setBgmSource(this.level.bgm);
-    this.audio.setPlaybackRate(1);
+    this.audio.setStageMood({ rate: 1, volume: 0.32 });
     const character = this.getCharacter(this.selectedCharacterId);
     this.runState = {
       mode: GAME_MODES.scoreAttack.id,
@@ -1788,7 +2059,7 @@ class GameApp {
     this.promptTimer = 0;
     this.level = createLevelData(0);
     this.audio.setBgmSource(ASSET_MANIFEST.audio.stage1);
-    this.audio.setPlaybackRate(1);
+    this.audio.setStageMood({ rate: 1, volume: 0.32 });
     this.runState = null;
     this.resultData = null;
     this.setScene("title");
@@ -2000,7 +2271,7 @@ class GameApp {
     const pStats = run.playerStats;
     const accel = player.onGround ? CONFIG.moveAccelGround : CONFIG.moveAccelAir;
     const bombActive = run.bombTimer > 0;
-    this.audio.setPlaybackRate(bombActive ? CONFIG.bombMusicRate : 1);
+    this.audio.setPlaybackRate(bombActive ? CONFIG.bombMusicRate : (this.level.musicRate ?? 1));
     const speedMultiplier = bombActive ? CONFIG.bombSpeedMultiplier : 1;
     const targetMax = (wantsDash ? pStats.maxDashSpeed : pStats.maxRunSpeed) * speedMultiplier;
     const desiredVelocity = moveAxis * targetMax;
@@ -2022,6 +2293,11 @@ class GameApp {
       } else {
         player.vx -= Math.sign(player.vx) * friction;
       }
+    }
+    if (this.level.gimmick === "wind") {
+      player.vx += Math.sin(this.time * 1.8) * 105 * delta;
+    } else if (this.level.gimmick === "starfall") {
+      player.vx += Math.sin(this.time * 2.8) * 70 * delta;
     }
 
     if (this.input.wasPressed("jump") && player.onGround) {
@@ -2080,6 +2356,9 @@ class GameApp {
       player.vy = 0;
       player.onGround = true;
       run.landingWasAirborne = false;
+      if (this.level.gimmick === "ice" && Math.abs(player.vx) > 40) {
+        player.vx *= 1.012;
+      }
     } else {
       player.onGround = false;
     }
@@ -2262,6 +2541,9 @@ class GameApp {
       } else if (DEFEATABLE_OBSTACLE_TYPES.has(obstacle.type) && obstacle.movement === "vertical") {
         obstacle.renderY = obstacle.y + Math.sin(obstacle.phase * obstacle.speed) * obstacle.amplitude;
         obstacle.renderX = obstacle.x + Math.sin(obstacle.phase * obstacle.speed * 0.55) * 18;
+      } else if (DEFEATABLE_OBSTACLE_TYPES.has(obstacle.type) && obstacle.movement === "crawl") {
+        obstacle.renderX = obstacle.x + Math.sin(obstacle.phase * obstacle.speed) * obstacle.amplitude;
+        obstacle.renderY = obstacle.y + Math.sin(obstacle.phase * obstacle.speed * 1.3) * 2;
       }
     });
   }
@@ -2298,6 +2580,9 @@ class GameApp {
       boss.renderY = boss.y + Math.sin(boss.phase * 2.1) * 56;
       this.updateBossAttack(boss, delta, "laser");
     }
+    if (boss.attack) {
+      this.updateBossAttack(boss, delta, boss.attack);
+    }
   }
 
   updateBossAttack(boss, delta, kind) {
@@ -2305,7 +2590,16 @@ class GameApp {
     if (!run || run.mode === GAME_MODES.scoreAttack.id) {
       return;
     }
-    boss.attackCooldown = Math.max(0, (boss.attackCooldown ?? (kind === "laser" ? 1.15 : 1.6)) - delta);
+    const firstCooldown = {
+      laser: 1.15,
+      spores: 1.6,
+      orb: 1.35,
+      bubble: 1.25,
+      ice: 1.15,
+      acorn: 1.05,
+      comet: 0.95,
+    }[kind] ?? 1.6;
+    boss.attackCooldown = Math.max(0, (boss.attackCooldown ?? firstCooldown) - delta);
     if (boss.attackCooldown > 0) {
       return;
     }
@@ -2324,6 +2618,76 @@ class GameApp {
         life: 2.4,
       });
       boss.attackCooldown = 1.05;
+    } else if (kind === "orb") {
+      for (let index = 0; index < 4; index += 1) {
+        run.bossProjectiles.push({
+          type: "orb",
+          x: fromX - 36,
+          y: fromY - 18 + index * 18,
+          vx: -230 - index * 26,
+          vy: -86 + index * 56,
+          w: 22,
+          h: 22,
+          life: 2.7,
+        });
+      }
+      boss.attackCooldown = 1.32;
+    } else if (kind === "bubble") {
+      for (let index = 0; index < 3; index += 1) {
+        run.bossProjectiles.push({
+          type: "bubble",
+          x: fromX - 56 - index * 12,
+          y: fromY + 20 - index * 18,
+          vx: -180 - index * 34,
+          vy: -110 - index * 20,
+          w: 28,
+          h: 28,
+          life: 3.2,
+        });
+      }
+      boss.attackCooldown = 1.22;
+    } else if (kind === "ice") {
+      for (let index = 0; index < 3; index += 1) {
+        run.bossProjectiles.push({
+          type: "ice",
+          x: fromX - 48,
+          y: fromY - 24 + index * 24,
+          vx: -320,
+          vy: clamp((player.y - fromY) * 0.58, -150, 150) + (index - 1) * 70,
+          w: 34,
+          h: 16,
+          life: 2.5,
+        });
+      }
+      boss.attackCooldown = 1.16;
+    } else if (kind === "acorn") {
+      for (let index = 0; index < 4; index += 1) {
+        run.bossProjectiles.push({
+          type: "acorn",
+          x: fromX - 34 - index * 10,
+          y: fromY - 36,
+          vx: -210 - index * 36,
+          vy: -170 + index * 34,
+          w: 24,
+          h: 24,
+          life: 2.9,
+        });
+      }
+      boss.attackCooldown = 1.05;
+    } else if (kind === "comet") {
+      for (let index = 0; index < 5; index += 1) {
+        run.bossProjectiles.push({
+          type: "comet",
+          x: fromX - 42 - index * 8,
+          y: 92 + index * 54 + Math.sin(boss.phase + index) * 20,
+          vx: -360 - index * 28,
+          vy: 120 + index * 12,
+          w: 36,
+          h: 20,
+          life: 2.4,
+        });
+      }
+      boss.attackCooldown = 0.98;
     } else {
       for (let index = 0; index < 3; index += 1) {
         run.bossProjectiles.push({
@@ -2488,6 +2852,13 @@ class GameApp {
       shot.y += shot.vy * delta;
       if (shot.type === "spore") {
         shot.vy += 180 * delta;
+      } else if (shot.type === "bubble") {
+        shot.vy += 64 * delta;
+        shot.x += Math.sin((shot.life ?? 0) * 8) * 18 * delta;
+      } else if (shot.type === "acorn") {
+        shot.vy += 210 * delta;
+      } else if (shot.type === "comet") {
+        shot.vy += 80 * delta;
       }
       return shot.life > 0 && shot.x > this.cameraX - 180 && shot.y < CONFIG.height + 120;
     });
@@ -2828,11 +3199,11 @@ class GameApp {
       this.audio.playSe("clear");
       this.spawnDustBurst(run.player.x, run.player.y - 36, 22, "clear");
       this.els.messageEyebrow.textContent = `${this.level.title} Clear`;
-      this.els.messageTitle.textContent = run.stageIndex < STAGE_CONFIGS.length - 1 ? "次の温室へ進もう！" : "5ステージクリア！";
+      this.els.messageTitle.textContent = run.stageIndex < STAGE_CONFIGS.length - 1 ? "次の温室へ進もう！" : "10ステージクリア！";
       this.els.messageBody.textContent =
         run.stageIndex < STAGE_CONFIGS.length - 1
           ? `${this.level.jpName} を突破しました。応援メンバーと合流して次のステージへ進みます。`
-          : "最後のボスを越えて、いちごトレイがいっぱいになりました。";
+          : "最後のボスを越えて、3兄弟のいちごトレイがきらきらいっぱいになりました。";
       this.sceneTimer = CONFIG.clearDelay;
     } else {
       const cpLabel = run.checkpoint?.label ?? "スタート";
@@ -2945,7 +3316,8 @@ class GameApp {
     };
     const isScoreAttack = this.resultData.mode === GAME_MODES.scoreAttack.id;
     this.els.resultEyebrow.textContent = isScoreAttack ? "Strawberry Rush Result" : run.finishKind === "clear" ? "Clear Result" : "Retry Result";
-    this.els.resultTitle.textContent = isScoreAttack ? "いちごラッシュ結果" : run.finishKind === "clear" ? "全5ステージクリア" : "ゲームオーバー";
+    const finalCampaignClear = !isScoreAttack && run.finishKind === "clear" && run.stageIndex === STAGE_CONFIGS.length - 1;
+    this.els.resultTitle.textContent = isScoreAttack ? "いちごラッシュ結果" : run.finishKind === "clear" ? "全10ステージクリア" : "ゲームオーバー";
     this.els.resultScore.textContent = `${formatNumber(this.resultData.score)} 点`;
     this.els.resultBest.textContent = `${formatNumber(this.resultData.best)} 点`;
     this.els.resultBerry.textContent = isScoreAttack
@@ -2955,6 +3327,7 @@ class GameApp {
     this.els.resultHp.textContent = String(this.resultData.hp);
     this.els.resultTime.textContent = formatSeconds(this.resultData.time);
     this.els.resultSummary.textContent = this.resultData.summary;
+    this.els.endingIllustration?.classList.toggle("hidden", !finalCampaignClear);
     this.renderScoreAttackRanking(isScoreAttack ? this.resultData.scoreAttackRanking : [], this.resultData.scoreAttackRecordId);
     this.setScene("result");
     this.updateUi();
@@ -3722,6 +4095,13 @@ class GameApp {
         case "drone":
           this.drawDroneEnemy(x, y, 1, fade, obstacle.defeated ? 0.45 : 0);
           break;
+        case "firefly":
+        case "snail":
+        case "snowbat":
+        case "acorn":
+        case "comet":
+          this.drawGeneratedEnemy(obstacle.type, x, y, 1, fade, obstacle.defeated ? 0.45 : 0);
+          break;
         case "thorn":
           this.drawThornPatch(x, y, obstacle.w, obstacle.h, fade);
           break;
@@ -3730,6 +4110,24 @@ class GameApp {
           break;
         case "crystal":
           this.drawCrystalHazard(x, y, obstacle.w, obstacle.h, fade);
+          break;
+        case "shadow":
+          this.drawShadowPuddle(x, y, obstacle.w, obstacle.h, fade);
+          break;
+        case "lantern":
+          this.drawLanternHazard(x, y, obstacle.w, obstacle.h, fade);
+          break;
+        case "bubble":
+          this.drawBubbleHazard(x, y, obstacle.w, obstacle.h, fade);
+          break;
+        case "ice":
+          this.drawIcePatch(x, y, obstacle.w, obstacle.h, fade);
+          break;
+        case "gust":
+          this.drawGustHazard(x, y, obstacle.w, obstacle.h, fade);
+          break;
+        case "starShard":
+          this.drawStarShardHazard(x, y, obstacle.w, obstacle.h, fade);
           break;
         default:
           break;
@@ -3750,11 +4148,12 @@ class GameApp {
     const alpha = boss.defeated ? clamp((boss.deadTimer ?? 0) / 0.55, 0, 1) : 1;
     const scale = boss.type === "beetle" ? 0.34 : boss.type === "frog" ? 0.31 : 0.33;
     const jitter = boss.hitFlash > 0 ? Math.sin(this.time * 80) * 3 : 0;
-    const drewSpecialBossAsset =
-      (boss.type === "moth" && this.drawImageAsset("bossMoth", x + jitter, y, 0.13, { anchorX: 0.5, anchorY: 0.58, alpha, shadow: true }))
-      || (boss.type === "dragonfly" && this.drawImageAsset("bossDragonfly", x + jitter, y, 0.135, { anchorX: 0.5, anchorY: 0.58, alpha, shadow: true }));
+    const specialBoss = SPECIAL_BOSS_DRAW[boss.type];
+    const drewSpecialBossAsset = specialBoss
+      ? this.drawImageAsset(specialBoss.imageKey, x + jitter, y, specialBoss.scale, { anchorX: 0.5, anchorY: specialBoss.anchorY, alpha, shadow: true })
+      : false;
     if (!drewSpecialBossAsset) {
-      if (boss.type === "moth" || boss.type === "dragonfly") {
+      if (specialBoss) {
         this.drawSpecialBoss(boss, x + jitter, y, alpha);
       } else if (!this.drawImageAsset(boss.imageKey, x + jitter, y, scale, { anchorX: 0.5, anchorY: 0.72, alpha, shadow: true })) {
         this.drawBugEnemy(x + jitter, y, 0.24, alpha, boss.hitFlash > 0 ? 0.2 : 0);
@@ -3814,8 +4213,44 @@ class GameApp {
         ctx.fillStyle = glow;
         pathRoundedRect(ctx, -shot.w / 2, -shot.h / 2, shot.w, shot.h, shot.h / 2);
         ctx.fill();
+      } else if (shot.type === "ice") {
+        ctx.fillStyle = "rgba(195, 246, 255, 0.9)";
+        ctx.strokeStyle = "rgba(92, 160, 220, 0.62)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(-shot.w / 2, 0);
+        ctx.lineTo(-4, -shot.h / 2);
+        ctx.lineTo(shot.w / 2, 0);
+        ctx.lineTo(-4, shot.h / 2);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      } else if (shot.type === "bubble") {
+        ctx.strokeStyle = "rgba(185, 245, 255, 0.86)";
+        ctx.fillStyle = "rgba(255, 255, 255, 0.24)";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.arc(0, 0, shot.w / 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      } else if (shot.type === "acorn") {
+        ctx.fillStyle = "#9b6a37";
+        ctx.beginPath();
+        ctx.ellipse(0, 2, 12, 14, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "#5f3f2b";
+        ctx.fillRect(-10, -12, 20, 8);
+      } else if (shot.type === "comet") {
+        ctx.rotate(Math.atan2(shot.vy, shot.vx));
+        const trail = ctx.createLinearGradient(-32, 0, 18, 0);
+        trail.addColorStop(0, "rgba(255, 98, 172, 0)");
+        trail.addColorStop(0.45, "rgba(255, 216, 92, 0.72)");
+        trail.addColorStop(1, "rgba(118, 235, 255, 0.96)");
+        ctx.fillStyle = trail;
+        pathRoundedRect(ctx, -32, -7, 50, 14, 7);
+        ctx.fill();
       } else {
-        ctx.fillStyle = "rgba(255, 220, 92, 0.86)";
+        ctx.fillStyle = shot.type === "orb" ? "rgba(255, 236, 112, 0.9)" : "rgba(255, 220, 92, 0.86)";
         ctx.beginPath();
         ctx.arc(0, 0, 12, 0, Math.PI * 2);
         ctx.fill();
@@ -4225,6 +4660,23 @@ class GameApp {
       ctx.fillStyle = `rgba(255, 255, 255, ${flash})`;
       ctx.fillRect(0, 0, CONFIG.width, CONFIG.height);
     }
+    const gimmick = this.level?.gimmick;
+    if (this.scene === "playing" && gimmick === "lantern") {
+      ctx.fillStyle = "rgba(10, 20, 46, 0.12)";
+      ctx.fillRect(0, 0, CONFIG.width, CONFIG.height);
+    } else if (this.scene === "playing" && gimmick === "ice") {
+      ctx.fillStyle = "rgba(210, 248, 255, 0.12)";
+      ctx.fillRect(0, 0, CONFIG.width, CONFIG.height);
+    } else if (this.scene === "playing" && gimmick === "starfall") {
+      ctx.save();
+      ctx.globalAlpha = 0.48;
+      for (let i = 0; i < 12; i += 1) {
+        const x = (i * 117 + this.time * 92) % (CONFIG.width + 140) - 70;
+        const y = (i * 43 + this.time * 38) % 260;
+        this.drawStarShape(x, y, 4 + (i % 3), "rgba(255, 238, 126, 0.78)");
+      }
+      ctx.restore();
+    }
   }
 
   drawBombCutin() {
@@ -4425,6 +4877,54 @@ class GameApp {
     ctx.restore();
   }
 
+  drawGeneratedEnemy(type, x, y, scale, alpha, squash = 0) {
+    const imageKey = ENEMY_IMAGE_KEYS[type];
+    const imageScale = ENEMY_IMAGE_SCALES[type] ?? 0.056;
+    if (imageKey && this.drawImageAsset(imageKey, x, y, imageScale * scale, { anchorX: 0.5, anchorY: type === "snail" || type === "acorn" ? 0.68 : 0.58, alpha, shadow: false })) {
+      return;
+    }
+    if (type === "snail") {
+      const ctx = this.ctx;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.translate(x, y);
+      ctx.scale(scale, scale);
+      ctx.fillStyle = "rgba(77, 43, 94, 0.14)";
+      ctx.beginPath();
+      ctx.ellipse(0, 18, 24, 7, 0, 0, Math.PI * 2);
+      ctx.fill();
+      const shell = ctx.createRadialGradient(-6, -6, 4, -3, -4, 24);
+      shell.addColorStop(0, "#fff");
+      shell.addColorStop(0.35, "#9defff");
+      shell.addColorStop(1, "#a987ef");
+      ctx.fillStyle = shell;
+      ctx.beginPath();
+      ctx.arc(-6, -4, 22, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "#f5c56d";
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(-6, -4, 13, 0.3, Math.PI * 1.7);
+      ctx.stroke();
+      ctx.fillStyle = "#70d9e5";
+      pathRoundedRect(ctx, -4, -1, 42, 22, 12);
+      ctx.fill();
+      ctx.fillStyle = "#fff";
+      ctx.beginPath();
+      ctx.arc(24, -14, 5, 0, Math.PI * 2);
+      ctx.arc(38, -12, 5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = "#4b375d";
+      ctx.beginPath();
+      ctx.arc(25, -14, 2, 0, Math.PI * 2);
+      ctx.arc(39, -12, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+      return;
+    }
+    this.drawBugEnemy(x, y, 0.11 * scale, alpha, squash);
+  }
+
   drawThornPatch(x, y, w, h, alpha) {
     const ctx = this.ctx;
     ctx.save();
@@ -4440,6 +4940,96 @@ class GameApp {
       ctx.lineTo(px + 15, y + 8);
       ctx.closePath();
       ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  drawShadowPuddle(x, y, w, h, alpha) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const grad = ctx.createRadialGradient(x, y, 4, x, y + 2, w * 0.7);
+    grad.addColorStop(0, "rgba(116, 88, 190, 0.72)");
+    grad.addColorStop(1, "rgba(28, 22, 62, 0.82)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.ellipse(x, y + 4, w / 2, h / 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  drawLanternHazard(x, y, w, h, alpha) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    const grad = ctx.createRadialGradient(x, y, 3, x, y, w * 0.55);
+    grad.addColorStop(0, "rgba(255,255,255,0.92)");
+    grad.addColorStop(0.45, "rgba(255, 218, 92, 0.82)");
+    grad.addColorStop(1, "rgba(255, 128, 72, 0.2)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.ellipse(x, y, w / 2, h / 2, 0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  drawBubbleHazard(x, y, w, h, alpha) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = "rgba(165, 242, 255, 0.78)";
+    ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 4; i += 1) {
+      ctx.beginPath();
+      ctx.arc(x - w / 2 + 14 + i * (w / 4), y + Math.sin(this.time * 3 + i) * 3, 9 + (i % 2) * 3, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  drawIcePatch(x, y, w, h, alpha) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "rgba(198, 244, 255, 0.82)";
+    ctx.strokeStyle = "rgba(87, 152, 208, 0.5)";
+    for (let i = 0; i < 5; i += 1) {
+      const px = x - w / 2 + 8 + i * (w / 5);
+      ctx.beginPath();
+      ctx.moveTo(px, y + h / 2);
+      ctx.lineTo(px + 8, y - h / 2 - (i % 2) * 6);
+      ctx.lineTo(px + 18, y + h / 2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  drawGustHazard(x, y, w, h, alpha) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = "rgba(255, 241, 190, 0.78)";
+    ctx.lineWidth = 4;
+    for (let i = 0; i < 3; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(x - w / 2, y - 8 + i * 8);
+      ctx.bezierCurveTo(x - 12, y - 20 + i * 10, x + 10, y + 18 - i * 7, x + w / 2, y - 6 + i * 7);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  drawStarShardHazard(x, y, w, h, alpha) {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = "rgba(255, 235, 112, 0.88)";
+    for (let i = 0; i < 4; i += 1) {
+      this.drawStarShape(x - w / 2 + 12 + i * (w / 4), y + (i % 2) * 4, 9, ctx.fillStyle);
     }
     ctx.restore();
   }
