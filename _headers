@@ -18,6 +18,10 @@
   Cache-Control: no-cache
 /index.html
   Cache-Control: no-cache
+/voice_preview.html
+  Cache-Control: no-cache
+/assets/audio/voice/voice_manifest.json
+  Cache-Control: no-cache
 
 # ---- バージョン付き JS / CSS ----
 # ?v=... でバージョン管理しているため、ファイル自体は長期キャッシュ可

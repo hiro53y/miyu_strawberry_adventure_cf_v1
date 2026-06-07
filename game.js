@@ -51,6 +51,7 @@ const CONFIG = {
   },
   storageKeyBestScore: "miyu_strawberry_adventure_best_score",
   storageKeyScoreAttackScores: "miyu_strawberry_adventure_score_attack_top5",
+  storageKeyVoiceEnabled: "miyu_strawberry_adventure_voice_enabled",
   scoreAttackTopLimit: 5,
   scoreAttackInitialLength: 4200,
   scoreAttackChunkWidth: 860,
@@ -108,6 +109,7 @@ const ASSET_MANIFEST = {
     stage9: "assets/audio/bgm_options/stage9_wind_loop.wav",
     stage10: "assets/audio/bgm_options/stage10_starlight_loop.wav",
     scoreAttack: "assets/audio/bgm_options/bgm_01.mp3",
+    voiceManifest: "assets/audio/voice/voice_manifest.json",
   },
 };
 
@@ -1169,6 +1171,7 @@ class InputManager {
       ControlLeft: "attack",
       KeyB: "bomb",
       KeyM: "bgm",
+      KeyV: "voice",
       KeyP: "pause",
       KeyR: "restart",
       KeyT: "back",
@@ -1272,6 +1275,8 @@ class AudioManager {
     this.bgm.loop = true;
     this.bgm.volume = 0.32;
     this.bgm.playbackRate = 1;
+    this.baseVolume = 0.32;
+    this.duckTimer = null;
     this.bgm.preload = "auto";
     this.bgmAvailable = true;
     this.bgmEnabled = false;
@@ -1328,7 +1333,8 @@ class AudioManager {
     this.bgmAvailable = true;
     this.bgm.src = src;
     this.bgm.loop = true;
-    this.bgm.volume = 0.32;
+    this.baseVolume = 0.32;
+    this.bgm.volume = this.baseVolume;
     this.bgm.playbackRate = 1;
     this.bgm.load();
     if (shouldResume) {
@@ -1339,7 +1345,24 @@ class AudioManager {
   setStageMood(options = {}) {
     this.stageRate = options.rate ?? 1;
     this.setPlaybackRate(this.stageRate);
-    this.bgm.volume = options.volume ?? 0.32;
+    this.baseVolume = options.volume ?? 0.32;
+    if (!this.duckTimer) {
+      this.bgm.volume = this.baseVolume;
+    }
+  }
+
+  duckBgm(duration = 1.2, volume = 0.18) {
+    if (!this.bgmEnabled || !this.bgmAvailable) {
+      return;
+    }
+    if (this.duckTimer) {
+      clearTimeout(this.duckTimer);
+    }
+    this.bgm.volume = Math.min(this.bgm.volume, volume);
+    this.duckTimer = setTimeout(() => {
+      this.duckTimer = null;
+      this.bgm.volume = this.baseVolume;
+    }, Math.max(150, duration * 1000));
   }
 
   setPlaybackRate(rate = 1) {
@@ -1519,6 +1542,167 @@ class AudioManager {
   }
 }
 
+class VoiceManager {
+  constructor(manifestUrl, audioManager) {
+    this.manifestUrl = manifestUrl;
+    this.audioManager = audioManager;
+    this.enabled = this.loadEnabled();
+    this.unlocked = false;
+    this.available = false;
+    this.manifest = null;
+    this.clips = [];
+    this.byEvent = new Map();
+    this.cooldowns = new Map();
+    this.currentAudio = null;
+    this.currentPriority = 0;
+  }
+
+  loadEnabled() {
+    try {
+      const value = localStorage.getItem(CONFIG.storageKeyVoiceEnabled);
+      return value == null ? true : value === "true";
+    } catch (error) {
+      return true;
+    }
+  }
+
+  saveEnabled() {
+    try {
+      localStorage.setItem(CONFIG.storageKeyVoiceEnabled, String(this.enabled));
+    } catch (error) {
+      // localStorage can be unavailable on restricted browsers.
+    }
+  }
+
+  async load() {
+    try {
+      const response = await fetch(this.manifestUrl, { cache: "no-cache" });
+      if (!response.ok) {
+        throw new Error(`${response.status} ${response.statusText}`);
+      }
+      this.manifest = await response.json();
+      this.clips = (this.manifest.clips ?? []).filter((clip) => clip.generated && clip.file && clip.event);
+      this.available = this.clips.length > 0;
+      this.byEvent.clear();
+      this.clips.forEach((clip) => {
+        if (!this.byEvent.has(clip.event)) {
+          this.byEvent.set(clip.event, []);
+        }
+        this.byEvent.get(clip.event).push(clip);
+      });
+    } catch (error) {
+      this.available = false;
+      this.clips = [];
+      console.warn("Voice manifest load failed.", error);
+    }
+  }
+
+  async unlock() {
+    this.unlocked = true;
+  }
+
+  setEnabled(enabled) {
+    this.enabled = enabled;
+    this.saveEnabled();
+    if (!enabled && this.currentAudio) {
+      this.currentAudio.pause();
+      this.currentAudio = null;
+      this.currentPriority = 0;
+    }
+  }
+
+  toggle() {
+    this.setEnabled(!this.enabled);
+  }
+
+  play(event, options = {}) {
+    if (!this.enabled || !this.unlocked || !this.available) {
+      return false;
+    }
+    const now = performance.now() / 1000;
+    const candidates = this.findCandidates(event, options);
+    if (candidates.length === 0) {
+      return false;
+    }
+
+    const chance = options.chance ?? Math.max(...candidates.map((clip) => Number(clip.weight ?? 1)));
+    if (chance < 1 && Math.random() > chance) {
+      return false;
+    }
+
+    const cooldownKey = `${event}:${options.characterId ?? "any"}:${options.stageIndex ?? "any"}`;
+    const cooldownUntil = this.cooldowns.get(cooldownKey) ?? 0;
+    if (now < cooldownUntil) {
+      return false;
+    }
+
+    const chosen = this.weightedChoice(candidates);
+    const priority = options.priority ?? Number(chosen.priority ?? 1);
+    if (this.currentAudio && !this.currentAudio.ended) {
+      if (priority < this.currentPriority) {
+        return false;
+      }
+      this.currentAudio.pause();
+    }
+
+    const audio = new Audio(chosen.file);
+    audio.preload = "auto";
+    audio.volume = options.volume ?? 0.92;
+    this.currentAudio = audio;
+    this.currentPriority = priority;
+    this.cooldowns.set(cooldownKey, now + (options.cooldownSec ?? Number(chosen.cooldownSec ?? 3)));
+    audio.addEventListener("ended", () => {
+      if (this.currentAudio === audio) {
+        this.currentAudio = null;
+        this.currentPriority = 0;
+      }
+    });
+    audio.addEventListener("error", () => {
+      if (this.currentAudio === audio) {
+        this.currentAudio = null;
+        this.currentPriority = 0;
+      }
+    });
+    const duration = Number(chosen.durationSec ?? 1.2) + 0.25;
+    this.audioManager.duckBgm(duration, options.duckVolume ?? 0.18);
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch((error) => {
+        if (error?.name !== "AbortError") {
+          console.warn("Voice playback failed.", error);
+        }
+      });
+    }
+    return true;
+  }
+
+  findCandidates(event, options) {
+    const list = this.byEvent.get(event) ?? [];
+    const stageNo = options.stageIndex == null ? null : String(options.stageIndex + 1).padStart(2, "0");
+    return list.filter((clip) => {
+      if (stageNo && clip.id?.startsWith("stage_") && !clip.id.includes(`stage_${stageNo}_`)) {
+        return false;
+      }
+      if (!options.characterId || clip.characterId === "system") {
+        return true;
+      }
+      return clip.characterId === options.characterId;
+    });
+  }
+
+  weightedChoice(candidates) {
+    const total = candidates.reduce((sum, clip) => sum + Math.max(0.01, Number(clip.weight ?? 1)), 0);
+    let cursor = Math.random() * total;
+    for (const clip of candidates) {
+      cursor -= Math.max(0.01, Number(clip.weight ?? 1));
+      if (cursor <= 0) {
+        return clip;
+      }
+    }
+    return candidates[candidates.length - 1];
+  }
+}
+
 class GameApp {
   constructor() {
     this.canvas = document.getElementById("gameCanvas");
@@ -1528,6 +1712,8 @@ class GameApp {
     window.addEventListener("resize", () => this.resizeCanvas());
     this.input = new InputManager();
     this.audio = new AudioManager(ASSET_MANIFEST.audio.bgm);
+    this.voice = new VoiceManager(ASSET_MANIFEST.audio.voiceManifest, this.audio);
+    this.voice.load();
     this.bestScore = this.loadBestScore();
     this.scoreAttackScores = this.loadScoreAttackScores();
     this.selectedMode = GAME_MODES.campaign.id;
@@ -1545,6 +1731,7 @@ class GameApp {
     this.goalNoticeTimer = 0;
     this.previewPhase = 0;
     this.afterImageCooldown = 0;
+    this.titleVoicePlayed = false;
     this.images = {};
     this.sprites = null;
     this.characterSprites = {};
@@ -1564,9 +1751,12 @@ class GameApp {
       hudBerry: document.getElementById("hudBerry"),
       hudBomb: document.getElementById("hudBomb"),
       hudBgm: document.getElementById("hudBgm"),
+      hudVoice: document.getElementById("hudVoice"),
       hudBgmToggle: document.getElementById("hudBgmToggle"),
+      hudVoiceToggle: document.getElementById("hudVoiceToggle"),
       hudTitleButton: document.getElementById("hudTitleButton"),
       titleBgmToggle: document.getElementById("titleBgmToggle"),
+      titleVoiceToggle: document.getElementById("titleVoiceToggle"),
       characterButtons: Array.from(document.querySelectorAll("[data-character]")),
       modeButtons: Array.from(document.querySelectorAll("[data-mode]")),
       scoreAttackBestLine: document.getElementById("scoreAttackBestLine"),
@@ -1597,6 +1787,7 @@ class GameApp {
     this.loadAssets();
     this.setScene("title");
     this.updateUi();
+    this.updateVoiceButtons();
     requestAnimationFrame((timestamp) => this.frame(timestamp));
   }
 
@@ -1610,60 +1801,89 @@ class GameApp {
     this.ctx.imageSmoothingQuality = "high";
   }
 
+  async unlockAudio(options = {}) {
+    await this.audio.unlock();
+    await this.voice.unlock();
+    if (options.titleVoice !== false && this.scene === "title" && !this.titleVoicePlayed) {
+      this.titleVoicePlayed = true;
+      this.voice.play("ui.title", { priority: 2, cooldownSec: 25 });
+    }
+  }
+
   bindUi() {
     document.getElementById("startButton").addEventListener("click", async () => {
-      await this.audio.unlock();
+      await this.unlockAudio({ titleVoice: false });
       this.audio.playSe("button");
       this.startSelectedMode();
     });
     document.getElementById("howToButton").addEventListener("click", async () => {
-      await this.audio.unlock();
+      await this.unlockAudio();
       this.audio.playSe("button");
       this.setScene("howTo");
     });
     document.getElementById("closeHowToButton").addEventListener("click", async () => {
-      await this.audio.unlock();
+      await this.unlockAudio();
       this.audio.playSe("button");
       this.setScene("title");
     });
     document.getElementById("retryButton").addEventListener("click", async () => {
-      await this.audio.unlock();
+      await this.unlockAudio({ titleVoice: false });
       this.audio.playSe("button");
       this.retryFromCheckpoint();
     });
     document.getElementById("backToTitleButton").addEventListener("click", async () => {
-      await this.audio.unlock();
+      await this.unlockAudio({ titleVoice: false });
       this.audio.playSe("button");
       this.toTitle();
     });
     this.els.hudBgmToggle.addEventListener("click", async () => {
-      await this.audio.unlock();
+      await this.unlockAudio({ titleVoice: false });
       this.audio.toggleBgm();
       this.audio.playSe("button");
       this.updateBgmButtons();
     });
+    this.els.hudVoiceToggle?.addEventListener("click", async () => {
+      await this.unlockAudio({ titleVoice: false });
+      this.voice.toggle();
+      this.audio.playSe("button");
+      if (this.voice.enabled) {
+        this.voice.play("ui.voice", { priority: 2, cooldownSec: 0.6 });
+      }
+      this.updateVoiceButtons();
+    });
     this.els.hudTitleButton.addEventListener("click", async () => {
-      await this.audio.unlock();
+      await this.unlockAudio({ titleVoice: false });
       this.audio.playSe("button");
       this.toTitle();
     });
     this.els.titleBgmToggle.addEventListener("click", async () => {
-      await this.audio.unlock();
+      await this.unlockAudio();
       this.audio.toggleBgm();
       this.audio.playSe("button");
       this.updateBgmButtons();
     });
+    this.els.titleVoiceToggle?.addEventListener("click", async () => {
+      await this.unlockAudio();
+      this.voice.toggle();
+      this.audio.playSe("button");
+      if (this.voice.enabled) {
+        this.voice.play("ui.voice", { priority: 2, cooldownSec: 0.6 });
+      }
+      this.updateVoiceButtons();
+    });
     this.els.characterButtons.forEach((button) => {
       button.addEventListener("click", async () => {
-        await this.audio.unlock();
+        await this.unlockAudio();
         this.selectCharacter(button.dataset.character);
+        this.voice.play("character.select", { characterId: this.selectedCharacterId, priority: 3, cooldownSec: 1.1 });
         this.audio.playSe("button");
       });
     });
     this.els.modeButtons.forEach((button) => {
       button.addEventListener("click", async () => {
-        await this.audio.unlock();
+        await this.unlockAudio();
         this.selectMode(button.dataset.mode);
+        this.voice.play("ui.mode", { priority: 2, cooldownSec: 1.2 });
         this.audio.playSe("button");
       });
     });
@@ -1884,6 +2104,7 @@ class GameApp {
       afterimages: [],
       projectiles: [],
       bossProjectiles: [],
+      bossVoicePlayed: false,
       bombReady: carry?.bombReady ?? true,
       bombTimer: carry?.bombTimer ?? 0,
       bombAllies: [],
@@ -1921,6 +2142,18 @@ class GameApp {
     } else {
       this.audio.syncBgm();
     }
+    this.voice.play("stage.start", {
+      characterId: this.selectedCharacterId,
+      stageIndex,
+      priority: 6,
+      cooldownSec: 2.5,
+    });
+    const startCharacterId = this.selectedCharacterId;
+    window.setTimeout(() => {
+      if (this.scene === "playing" && this.runState?.selectedCharacterId === startCharacterId && this.runState?.stageIndex === stageIndex) {
+        this.voice.play("character.start", { characterId: startCharacterId, priority: 4, cooldownSec: 3 });
+      }
+    }, 1500);
     this.updateUi();
   }
 
@@ -1975,6 +2208,7 @@ class GameApp {
       afterimages: [],
       projectiles: [],
       bossProjectiles: [],
+      bossVoicePlayed: false,
       bombReady: true,
       bombTimer: 0,
       bombAllies: [],
@@ -2004,6 +2238,17 @@ class GameApp {
     } else {
       this.audio.syncBgm();
     }
+    this.voice.play("rush.start", {
+      characterId: this.selectedCharacterId,
+      priority: 6,
+      cooldownSec: 3,
+    });
+    const rushCharacterId = this.selectedCharacterId;
+    window.setTimeout(() => {
+      if (this.scene === "playing" && this.runState?.mode === GAME_MODES.scoreAttack.id && this.runState?.selectedCharacterId === rushCharacterId) {
+        this.voice.play("character.start", { characterId: rushCharacterId, priority: 4, cooldownSec: 3 });
+      }
+    }, 1300);
     this.updateUi();
   }
 
@@ -2113,6 +2358,7 @@ class GameApp {
     this.goalNoticeTimer = Math.max(this.goalNoticeTimer, duration);
     // プロンプトバブルには1行目だけ渡す（複数行メッセージ対応）
     this.showPrompt(message.split("\n")[0], duration);
+    this.voice.play("goal.blocked", { priority: 4, cooldownSec: 6 });
   }
 
   updateBgmButtons() {
@@ -2122,6 +2368,22 @@ class GameApp {
     this.els.hudBgmToggle.setAttribute("aria-pressed", pressed);
     this.els.titleBgmToggle.textContent = label;
     this.els.titleBgmToggle.setAttribute("aria-pressed", pressed);
+  }
+
+  updateVoiceButtons() {
+    const label = this.voice.enabled ? "VOICE ON" : "VOICE OFF";
+    const pressed = String(this.voice.enabled);
+    if (this.els.hudVoiceToggle) {
+      this.els.hudVoiceToggle.textContent = label;
+      this.els.hudVoiceToggle.setAttribute("aria-pressed", pressed);
+    }
+    if (this.els.titleVoiceToggle) {
+      this.els.titleVoiceToggle.textContent = label;
+      this.els.titleVoiceToggle.setAttribute("aria-pressed", pressed);
+    }
+    if (this.els.hudVoice) {
+      this.els.hudVoice.textContent = this.voice.enabled ? (this.voice.available ? "ON" : "WAIT") : "OFF";
+    }
   }
 
   async frame(timestamp) {
@@ -2137,28 +2399,39 @@ class GameApp {
 
   async handleGlobalInput() {
     if (this.input.wasPressed("bgm")) {
-      await this.audio.unlock();
+      await this.unlockAudio({ titleVoice: false });
       this.audio.toggleBgm();
       this.audio.playSe("button");
       this.updateUi();
     }
 
+    if (this.input.wasPressed("voice")) {
+      await this.unlockAudio({ titleVoice: false });
+      this.voice.toggle();
+      this.audio.playSe("button");
+      if (this.voice.enabled) {
+        this.voice.play("ui.voice", { priority: 2, cooldownSec: 0.6 });
+      }
+      this.updateUi();
+    }
+
     if (this.scene === "title" && (this.input.wasPressed("left") || this.input.wasPressed("right"))) {
-      await this.audio.unlock();
+      await this.unlockAudio();
       this.cycleCharacter(this.input.wasPressed("right") ? 1 : -1);
+      this.voice.play("character.select", { characterId: this.selectedCharacterId, priority: 3, cooldownSec: 1.1 });
       this.audio.playSe("button");
       return;
     }
 
     if (this.scene === "title" && (this.input.wasPressed("jump") || this.input.wasPressed("action"))) {
-      await this.audio.unlock();
+      await this.unlockAudio({ titleVoice: false });
       this.audio.playSe("button");
       this.startSelectedMode();
       return;
     }
 
     if (this.scene === "howTo" && (this.input.wasPressed("back") || this.input.wasPressed("action"))) {
-      await this.audio.unlock();
+      await this.unlockAudio({ titleVoice: false });
       this.audio.playSe("button");
       this.setScene("title");
       this.updateUi();
@@ -2166,14 +2439,14 @@ class GameApp {
     }
 
     if (this.input.wasPressed("back") && this.scene !== "title" && this.scene !== "howTo") {
-      await this.audio.unlock();
+      await this.unlockAudio({ titleVoice: false });
       this.audio.playSe("button");
       this.toTitle();
       return;
     }
 
     if (this.input.wasPressed("restart") && this.scene !== "title" && this.scene !== "howTo") {
-      await this.audio.unlock();
+      await this.unlockAudio({ titleVoice: false });
       this.audio.playSe("button");
       this.retryFromCheckpoint();
       return;
@@ -2185,7 +2458,7 @@ class GameApp {
     }
 
     if (this.scene === "result" && (this.input.wasPressed("jump") || this.input.wasPressed("action"))) {
-      await this.audio.unlock();
+      await this.unlockAudio({ titleVoice: false });
       this.audio.playSe("button");
       this.retryFromCheckpoint();
     }
@@ -2193,6 +2466,7 @@ class GameApp {
 
   update(delta) {
     this.updateBgmButtons();
+    this.updateVoiceButtons();
     this.updateWindPetals(delta);
 
     if (this.shakeTime > 0) {
@@ -2285,6 +2559,7 @@ class GameApp {
       if (wantsDash && player.dashBurstTimer <= 0) {
         player.dashBurstTimer = 0.26;
         this.audio.playSe("dash");
+        this.voice.play("action.dash", { characterId: run.selectedCharacterId });
       }
     } else if (player.onGround) {
       const friction = CONFIG.frictionGround * delta;
@@ -2305,6 +2580,7 @@ class GameApp {
       player.onGround = false;
       run.landingWasAirborne = true;
       this.audio.playSe("jump");
+      this.voice.play("action.jump", { characterId: run.selectedCharacterId });
       this.spawnDustBurst(player.x, player.y - 4, 8, "lift");
     }
 
@@ -2315,6 +2591,11 @@ class GameApp {
     this.updateObstacles(delta);
     this.updateBoss(delta);
     this.updateBossProjectiles(delta);
+    const activeBoss = this.level.boss;
+    if (activeBoss && !activeBoss.defeated && !run.bossVoicePlayed && activeBoss.x - player.x < 760) {
+      run.bossVoicePlayed = true;
+      this.voice.play("boss.appear", { characterId: run.selectedCharacterId, priority: 6, cooldownSec: 7 });
+    }
 
     if (bombActive) {
       const flyAxis = (this.input.isDown("jump") ? -1 : 0) + (this.input.isDown("action") ? 1 : 0);
@@ -2455,16 +2736,20 @@ class GameApp {
     const boss = this.level.boss;
     if (boss && !boss.defeated && player.x > boss.x + 560) {
       this.level.boss = null;
+      run.bossVoicePlayed = false;
       this.level.nextBossX = player.x + randRange(this.level.rng, CONFIG.scoreAttackBossMinGap, CONFIG.scoreAttackBossMaxGap);
       this.showPrompt("ボスをスルー！収穫を続けよう", 1.8);
     } else if (boss && boss.defeated && (boss.deadTimer ?? 0) <= 0) {
       this.level.boss = null;
+      run.bossVoicePlayed = false;
       this.level.nextBossX = player.x + randRange(this.level.rng, CONFIG.scoreAttackBossMinGap, CONFIG.scoreAttackBossMaxGap);
     }
 
     if (!this.level.boss && player.x + CONFIG.width * 1.1 >= this.level.nextBossX) {
       this.level.boss = createScoreAttackBoss(this.level, this.level.nextBossX);
+      run.bossVoicePlayed = true;
       this.showPrompt("ボス出現！倒してもスルーしてもOK", 1.8);
+      this.voice.play("boss.appear", { characterId: run.selectedCharacterId, priority: 6, cooldownSec: 7 });
     }
   }
 
@@ -2500,6 +2785,7 @@ class GameApp {
     this.startShake(0.58, 12);
     this.showPrompt("BOMB発動！3人チームで大冒険", 2.2);
     this.audio.playSe("bomb");
+    this.voice.play("bomb.activate", { characterId: run.selectedCharacterId, priority: 8, cooldownSec: 8 });
     if (run.mode === GAME_MODES.scoreAttack.id) {
       this.spawnScoreAttackBombBerries();
     }
@@ -2735,6 +3021,7 @@ class GameApp {
       explosive: run.bombTimer > 0,
     });
     this.audio.playSe("throw");
+    this.voice.play("action.throw", { characterId: run.selectedCharacterId });
   }
 
   getCampaignClearStatus() {
@@ -2886,6 +3173,7 @@ class GameApp {
       this.startShake(0.36, 9);
       this.spawnDustBurst(player.x, player.y - 18, 12, "damage");
       this.audio.playSe("damage");
+      this.voice.play("player.damage", { characterId: run.selectedCharacterId, priority: 5 });
       break;
     }
   }
@@ -2971,8 +3259,12 @@ class GameApp {
     run.score += Math.round(100 * multiplier);
     this.spawnBerryBurst(berry.x, berry.y, mode === "action", run.player.facing);
     this.audio.playSe("berry");
+    this.voice.play("item.berry", { characterId: run.selectedCharacterId });
     if (run.combo >= 2) {
       this.audio.playSe("combo");
+      if (run.combo >= 3) {
+        this.voice.play("item.combo", { characterId: run.selectedCharacterId, priority: 2 });
+      }
     }
     this.pendingPrompt = "";
     this.promptTimer = 0;
@@ -3021,6 +3313,7 @@ class GameApp {
       run.score += CONFIG.ramenScore;
       this.spawnDustBurst(item.x, item.y, 10, "clear");
       this.audio.playSe("heal");
+      this.voice.play("item.heal", { characterId: run.selectedCharacterId, priority: 5 });
       return;
     }
     if (item.type === "star") {
@@ -3034,6 +3327,7 @@ class GameApp {
         this.startShake(0.28, 8);
         this.showPrompt(`スターでBOMB +${CONFIG.bombStarBonusSeconds}秒！`, 1.8);
         this.audio.playSe("power");
+        this.voice.play("item.power", { characterId: run.selectedCharacterId, priority: 5 });
         return;
       }
       run.player.powerTimer = CONFIG.powerDuration;
@@ -3042,6 +3336,7 @@ class GameApp {
       this.spawnBerryBurst(item.x, item.y, true, run.player.facing);
       this.startShake(0.18, 4.5);
       this.audio.playSe("power");
+      this.voice.play("item.power", { characterId: run.selectedCharacterId, priority: 5 });
     }
   }
 
@@ -3065,6 +3360,7 @@ class GameApp {
       this.spawnDustBurst(boss.renderX ?? boss.x, boss.renderY ?? boss.y, 28, "clear");
       this.spawnBerryBurst(boss.renderX ?? boss.x, (boss.renderY ?? boss.y) - 24, true, run.player.facing);
       this.audio.playSe("clear");
+      this.voice.play("boss.defeat", { characterId: run.selectedCharacterId, priority: 7, cooldownSec: 4 });
     this.showPrompt(run.mode === GAME_MODES.scoreAttack.id ? "ボス撃破！スコア大量獲得" : "ボスをたおした！ゴールゲートが開いた！", 2.2);
     }
     return true;
@@ -3109,6 +3405,7 @@ class GameApp {
     this.startShake(0.42, 10);
     this.spawnDustBurst(player.x, player.y - 18, 14, "damage");
     this.audio.playSe("damage");
+    this.voice.play("player.damage", { characterId: this.runState.selectedCharacterId, priority: 5 });
   }
 
   checkObstacleHits(player) {
@@ -3146,6 +3443,7 @@ class GameApp {
         this.startShake(0.36, 8.5);
         this.spawnDustBurst(player.x, player.y - 18, 10, "damage");
         this.audio.playSe("damage");
+        this.voice.play("player.damage", { characterId: this.runState.selectedCharacterId, priority: 5 });
         this.runState.stageDamageTaken += 1;
         break;
       }
@@ -3197,6 +3495,11 @@ class GameApp {
 
     if (kind === "clear") {
       this.audio.playSe("clear");
+      this.voice.play(run.stageIndex < STAGE_CONFIGS.length - 1 ? "stage.clear" : "final.clear", {
+        characterId: run.selectedCharacterId,
+        priority: run.stageIndex < STAGE_CONFIGS.length - 1 ? 7 : 9,
+        cooldownSec: 5,
+      });
       this.spawnDustBurst(run.player.x, run.player.y - 36, 22, "clear");
       this.els.messageEyebrow.textContent = `${this.level.title} Clear`;
       this.els.messageTitle.textContent = run.stageIndex < STAGE_CONFIGS.length - 1 ? "次の温室へ進もう！" : "10ステージクリア！";
@@ -3209,6 +3512,7 @@ class GameApp {
       const cpLabel = run.checkpoint?.label ?? "スタート";
       const hasCheckpointProgress = (run.checkpoint?.x ?? 120) > 120 || (run.checkpoint?.stageIndex ?? 0) > 0;
       this.audio.playSe("gameover");
+      this.voice.play("game.over", { characterId: run.selectedCharacterId, priority: 8, cooldownSec: 5 });
       this.els.messageEyebrow.textContent = "Game Over";
       this.els.messageTitle.textContent = `${this.getCharacter(run.selectedCharacterId).name}がつかれちゃった`;
       this.els.messageBody.textContent = hasCheckpointProgress
@@ -3238,6 +3542,7 @@ class GameApp {
       ? `いちごラッシュ終了。収穫 ${formatNumber(run.harvestedStrawberries ?? 0)} 個、手持ち ${formatNumber(run.strawberries)} 個で、ランキング ${ranking.rank} 位に入りました。`
       : `いちごラッシュ終了。収穫 ${formatNumber(run.harvestedStrawberries ?? 0)} 個、手持ち ${formatNumber(run.strawberries)} 個でした。上位5位更新は次回狙えます。`;
     this.audio.playSe("gameover");
+    this.voice.play("rush.end", { characterId: run.selectedCharacterId, priority: 7, cooldownSec: 4 });
     this.els.messageEyebrow.textContent = "Score Attack";
     this.els.messageTitle.textContent = "いちごラッシュ終了";
     this.els.messageBody.textContent = "HPがなくなりました。RETRYでランダム配置を作り直して再挑戦できます。";

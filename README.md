@@ -10,7 +10,7 @@
 |---|---|
 | ベース | `miyu_strawberry_adventure_mobile_web_v1` |
 | 差分 | ローカルサーバー不要・`_headers` 追加・バージョン文字列更新 |
-| ビルド識別 | `20260514-stage10-v1` |
+| ビルド識別 | `20260607-voicevox-v1` |
 
 ローカル起動スクリプト（`run_local.bat` / `serve_local.py` 等）は含みません。  
 このフォルダをそのまま Cloudflare Pages にデプロイして使います。
@@ -86,7 +86,7 @@ miyu_strawberry_adventure_cf_v1/
 ├── service-worker.js     ← PWA オフラインキャッシュ
 ├── manifest.webmanifest  ← PWA ホーム追加メタ情報
 └── assets/
-    ├── audio/            ← BGM（bgm.mp3 + bgm_options/）
+    ├── audio/            ← BGM（bgm.mp3 + bgm_options/）とVOICEVOXボイス定義
     ├── generated/        ← 背景・地面タイル等
     ├── icons/            ← PWA アイコン（SVG/PNG）
     └── images/           ← キャラクター・アイテム・ボス等
@@ -114,6 +114,41 @@ miyu_strawberry_adventure_cf_v1/
 - 後半ギミック: ランタン暗闇、泡運河、氷床、風リフト、星降り城
 - 新敵/ボス: ハチ、ドローン、ほたる、カタツムリ、雪コウモリ、どんぐり、コメット、蛾ボス、トンボボス、ほたる女王、カタツムリ王、雪ふくろう、どんぐりリス、コメットドラゴン
 - 追加BGM: Stage 6〜10 用のループWAVを `assets/audio/bgm_options/` に同梱
+- VOICEVOXボイス: `assets/audio/voice/voice_manifest.json` と `VoiceManager` を追加。生成済みWAVがある場合だけ、短いキャラクターボイスをBGM/SEに重ねて再生
 - 最終演出: Stage 10 クリア後、3兄弟が喜ぶクリアイラストをリザルト画面に表示
 - タッチ操作: ← → JUMP DASH ACTION SHOT BOMB PAUSE RETRY TITLE
 - PWA: スマホのホーム画面に追加してフルスクリーンで遊べる
+
+---
+
+## VOICEVOX音声の生成と確認
+
+このパッケージはVOICEVOX本体やEngineを同梱しません。ローカルでVOICEVOX Engineを起動してから、生成済みWAVだけを成果物へ入れる構成です。
+
+### 生成手順
+
+1. VOICEVOX Engineを起動し、`http://127.0.0.1:50021` にアクセスできる状態にする
+2. このフォルダをPowerShellで開く
+3. 以下を実行する
+
+```powershell
+node tools/generate_voicevox_assets.mjs
+```
+
+- 生成先: `assets/audio/voice/`
+- manifest: `assets/audio/voice/voice_manifest.json`
+- プレビュー: `voice_preview.html`
+- 話者IDは固定せず、生成時に `/speakers` から解決します
+- 生成定義は154件です。現在VOICEVOX Engine未起動の状態では、計画manifestのみ入っています
+
+### 音声の扱い
+
+- BGM/SEとは独立した `VOICE ON/OFF` を追加済み
+- `V` キーまたは画面上部の `VOICE` ボタンで切り替えできます
+- ジャンプ、ダッシュ、いちご取得などは低確率再生です
+- BOMB、回復、スター、ボス、クリア、ゲームオーバーは高優先度で再生します
+- Service Workerは `voice_manifest.json` のみ事前キャッシュし、WAVは初回再生時にランタイムキャッシュします
+
+### クレジットと規約
+
+VOICEVOXの音声を公開版に含める場合は、使用した各話者の利用規約を確認し、必要なクレジットを公開ページまたはREADMEに追記してください。

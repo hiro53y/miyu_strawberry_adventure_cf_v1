@@ -13,7 +13,7 @@
     <link rel="manifest" href="manifest.webmanifest">
     <link rel="icon" href="assets/icons/icon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="assets/icons/icon-192.png">
-    <link rel="stylesheet" href="style.css?v=20260514-stage10-v1">
+    <link rel="stylesheet" href="style.css?v=20260607-voicevox-v1">
   </head>
   <body>
     <div class="orientation-notice" aria-hidden="true">
@@ -32,6 +32,7 @@
           <div class="header-actions">
             <button id="hudTitleButton" class="ghost-button" type="button">タイトル</button>
             <button id="hudBgmToggle" class="ghost-button" type="button" aria-pressed="false">BGM OFF</button>
+            <button id="hudVoiceToggle" class="ghost-button" type="button" aria-pressed="true">VOICE ON</button>
           </div>
         </header>
 
@@ -47,6 +48,7 @@
             <div class="hud-card"><span class="hud-label">🍓</span><strong id="hudBerry">0 / 0</strong></div>
             <div class="hud-card hud-bomb"><span class="hud-label">💣</span><strong id="hudBomb">READY</strong></div>
             <div class="hud-card hud-bgm-card"><span class="hud-label">BGM</span><strong id="hudBgm">OFF</strong></div>
+            <div class="hud-card hud-voice-card"><span class="hud-label">VOICE</span><strong id="hudVoice">WAIT</strong></div>
           </div>
 
           <div id="sceneOverlay" class="scene-overlay">
@@ -112,6 +114,7 @@
                 <button id="startButton" class="primary-button" type="button">START</button>
                 <button id="howToButton" class="secondary-button" type="button">操作説明</button>
                 <button id="titleBgmToggle" class="ghost-button" type="button" aria-pressed="false">BGM ON</button>
+                <button id="titleVoiceToggle" class="ghost-button" type="button" aria-pressed="true">VOICE ON</button>
               </div>
               <ul class="feature-list">
                 <li>滑らかな横スクロールと 3 層パララックス</li>
@@ -155,6 +158,10 @@
                 <div>
                   <h3>BGM ON / OFF</h3>
                   <p>上部ボタン または BGM</p>
+                </div>
+                <div>
+                  <h3>VOICE ON / OFF</h3>
+                  <p>上部ボタン または V</p>
                 </div>
                 <div>
                   <h3>一時停止 / リスタート</h3>
@@ -229,12 +236,13 @@
           <span>Action</span>
           <span>Berry Shot</span>
           <span>Bomb</span>
+          <span>Voice Toggle</span>
           <span>Pause</span>
           <span>Title</span>
         </footer>
       </div>
     </main>
 
-  <script src="game.js?v=20260514-stage10-v1"></script>
+  <script src="game.js?v=20260607-voicevox-v1"></script>
   </body>
 </html>
