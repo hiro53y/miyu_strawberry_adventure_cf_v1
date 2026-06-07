@@ -60,6 +60,8 @@ const CONFIG = {
   scoreAttackBossMaxGap: 3900,
 };
 
+const APP_BUILD_ID = "20260607-voicevox-mobile-v4";
+
 const ASSET_MANIFEST = {
   images: {
     hero: "assets/images/miyu_character_sheet_v2_clean.png",
@@ -109,7 +111,7 @@ const ASSET_MANIFEST = {
     stage9: "assets/audio/bgm_options/stage9_wind_loop.wav",
     stage10: "assets/audio/bgm_options/stage10_starlight_loop.wav",
     scoreAttack: "assets/audio/bgm_options/bgm_01.mp3",
-    voiceManifest: "assets/audio/voice/voice_manifest.json",
+    voiceManifest: `assets/audio/voice/voice_manifest.json?v=${APP_BUILD_ID}`,
   },
 };
 
@@ -5720,8 +5722,37 @@ window.addEventListener("DOMContentLoaded", () => {
   document.body.classList.toggle("is-coarse-pointer", window.matchMedia?.("(pointer: coarse)")?.matches ?? false);
   new GameApp();
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("service-worker.js?v=20260607-voicevox-mobile-v3")
-      .then((registration) => registration.update?.())
+    let reloadingForServiceWorker = false;
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      if (reloadingForServiceWorker) {
+        return;
+      }
+      reloadingForServiceWorker = true;
+      const url = new URL(window.location.href);
+      url.searchParams.set("build", APP_BUILD_ID);
+      window.location.replace(url.href);
+    });
+    navigator.serviceWorker.register(`service-worker.js?v=${APP_BUILD_ID}`, { updateViaCache: "none" })
+      .then((registration) => {
+        const activateWaitingWorker = () => {
+          if (registration.waiting) {
+            registration.waiting.postMessage({ type: "SKIP_WAITING" });
+          }
+        };
+        activateWaitingWorker();
+        registration.addEventListener("updatefound", () => {
+          const worker = registration.installing;
+          if (!worker) {
+            return;
+          }
+          worker.addEventListener("statechange", () => {
+            if (worker.state === "installed" && navigator.serviceWorker.controller) {
+              worker.postMessage({ type: "SKIP_WAITING" });
+            }
+          });
+        });
+        return registration.update?.();
+      })
       .catch((error) => {
         console.warn("Service worker registration failed.", error);
       });

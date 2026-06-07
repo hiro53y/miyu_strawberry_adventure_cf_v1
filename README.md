@@ -10,7 +10,7 @@
 |---|---|
 | ベース | `miyu_strawberry_adventure_mobile_web_v1` |
 | 差分 | ローカルサーバー不要・`_headers` 追加・バージョン文字列更新 |
-| ビルド識別 | `20260607-voicevox-mobile-v3` |
+| ビルド識別 | `20260607-voicevox-mobile-v4` |
 
 ローカル起動スクリプト（`run_local.bat` / `serve_local.py` 等）は含みません。  
 このフォルダをそのまま Cloudflare Pages にデプロイして使います。

@@ -1,11 +1,11 @@
-const CACHE_NAME = "miyu-strawberry-cf-v1-20260607-voicevox-mobile-v3";
+const CACHE_NAME = "miyu-strawberry-cf-v1-20260607-voicevox-mobile-v4";
 
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./voice_preview.html",
-  "./style.css?v=20260607-voicevox-mobile-v3",
-  "./game.js?v=20260607-voicevox-mobile-v3",
+  "./style.css?v=20260607-voicevox-mobile-v4",
+  "./game.js?v=20260607-voicevox-mobile-v4",
   "./manifest.webmanifest",
   "./assets/icons/icon.svg",
   "./assets/icons/icon-192.png",
@@ -72,6 +72,12 @@ self.addEventListener("activate", (event) => {
   );
 });
 
+self.addEventListener("message", (event) => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
     return;
@@ -82,6 +88,26 @@ self.addEventListener("fetch", (event) => {
   }
   if (["reload", "no-store", "no-cache"].includes(event.request.cache)) {
     event.respondWith(fetch(event.request));
+    return;
+  }
+  const isNavigation = event.request.mode === "navigate" || event.request.headers.get("accept")?.includes("text/html");
+  if (isNavigation) {
+    event.respondWith(
+      fetch(event.request)
+        .then((response) => {
+          if (response.ok) {
+            const copy = response.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+          }
+          return response;
+        })
+        .catch(() => caches.match(event.request).then((cached) => cached || caches.match("./index.html")))
+        .then((response) => response || new Response("Offline: page not cached", {
+          status: 503,
+          statusText: "Service Unavailable",
+          headers: { "Content-Type": "text/plain; charset=utf-8" },
+        }))
+    );
     return;
   }
 
