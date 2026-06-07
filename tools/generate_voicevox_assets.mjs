@@ -3,7 +3,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const VERSION = "20260607-voicevox-mobile-v4";
+const VERSION = "20260607-voicevox-mobile-v5";
 const DEFAULT_ENGINE = "http://127.0.0.1:50021";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));

@@ -60,7 +60,7 @@ const CONFIG = {
   scoreAttackBossMaxGap: 3900,
 };
 
-const APP_BUILD_ID = "20260607-voicevox-mobile-v4";
+const APP_BUILD_ID = "20260607-voicevox-mobile-v5";
 
 const ASSET_MANIFEST = {
   images: {
@@ -1560,11 +1560,12 @@ class VoiceManager {
     this.loadPromise = null;
     this.byEvent = new Map();
     this.cooldowns = new Map();
-    this.currentAudio = null;
+    this.bufferCache = new Map();
+    this.currentSource = null;
+    this.currentGain = null;
+    this.currentVoiceToken = null;
     this.currentPriority = 0;
-    this.playbackAudio = null;
     this.primePromise = null;
-    this.primeClipFile = "data:audio/wav;base64,UklGRsQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
   }
 
   loadEnabled() {
@@ -1621,29 +1622,6 @@ class VoiceManager {
     }
   }
 
-  getPlaybackAudio() {
-    if (!this.playbackAudio) {
-      const audio = new Audio();
-      audio.preload = "auto";
-      audio.playsInline = true;
-      audio.setAttribute("playsinline", "");
-      audio.addEventListener("ended", () => {
-        if (this.currentAudio === audio) {
-          this.currentAudio = null;
-          this.currentPriority = 0;
-        }
-      });
-      audio.addEventListener("error", () => {
-        if (this.currentAudio === audio) {
-          this.currentAudio = null;
-          this.currentPriority = 0;
-        }
-      });
-      this.playbackAudio = audio;
-    }
-    return this.playbackAudio;
-  }
-
   async prime() {
     if (this.primed) {
       return;
@@ -1660,49 +1638,38 @@ class VoiceManager {
   }
 
   async primePlaybackAudio() {
-    const audio = this.getPlaybackAudio();
+    const ctx = this.audioManager.ensureContext();
+    if (!ctx) {
+      return;
+    }
     try {
-      audio.pause();
-      audio.muted = true;
-      audio.volume = 0;
-      audio.src = this.primeClipFile;
-      audio.load();
-      const playPromise = audio.play();
-      if (playPromise && typeof playPromise.then === "function") {
-        let didPlay = false;
+      if (ctx.state === "suspended") {
         await Promise.race([
-          playPromise.then(() => {
-            didPlay = true;
-          }),
+          ctx.resume(),
           new Promise((resolve) => setTimeout(resolve, 350)),
         ]);
-        this.primed = didPlay;
-      } else {
-        this.primed = true;
       }
+      const buffer = ctx.createBuffer(1, 1, ctx.sampleRate || 44100);
+      const source = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      gain.gain.value = 0;
+      source.buffer = buffer;
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start(0);
+      this.primed = ctx.state === "running";
     } catch (error) {
       if (error?.name !== "AbortError") {
         console.warn("Voice unlock failed.", error);
       }
-    } finally {
-      audio.pause();
-      try {
-        audio.currentTime = 0;
-      } catch (error) {
-        // Some mobile browsers disallow seeking before metadata is ready.
-      }
-      audio.muted = false;
-      audio.volume = 0.92;
     }
   }
 
   setEnabled(enabled) {
     this.enabled = enabled;
     this.saveEnabled();
-    if (!enabled && this.currentAudio) {
-      this.currentAudio.pause();
-      this.currentAudio = null;
-      this.currentPriority = 0;
+    if (!enabled) {
+      this.stopCurrentVoice();
     }
   }
 
@@ -1733,42 +1700,121 @@ class VoiceManager {
 
     const chosen = this.weightedChoice(candidates);
     const priority = options.priority ?? Number(chosen.priority ?? 1);
-    if (this.currentAudio && !this.currentAudio.ended && !this.currentAudio.paused) {
+    if (this.currentSource) {
       if (priority < this.currentPriority) {
         return false;
       }
-      this.currentAudio.pause();
+      this.stopCurrentVoice();
     }
 
-    const audio = this.getPlaybackAudio();
-    audio.pause();
-    audio.preload = "auto";
-    audio.playsInline = true;
-    audio.muted = false;
-    audio.volume = options.volume ?? 0.92;
-    audio.src = chosen.file;
-    audio.load();
-    this.currentAudio = audio;
+    const token = Symbol(chosen.id ?? chosen.file);
+    this.currentVoiceToken = token;
     this.currentPriority = priority;
     this.cooldowns.set(cooldownKey, now + (options.cooldownSec ?? Number(chosen.cooldownSec ?? 3)));
-    const duration = Number(chosen.durationSec ?? 1.2) + 0.25;
-    this.audioManager.duckBgm(duration, options.duckVolume ?? 0.18);
-    const playPromise = audio.play();
-    if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch((error) => {
-        if (error?.name !== "AbortError") {
-          console.warn("Voice playback failed.", error);
-        }
-        if (this.currentAudio === audio) {
-          this.currentAudio = null;
+    this.playDecodedClip(chosen, options, priority, token)
+      .catch((error) => {
+        if (this.currentVoiceToken === token) {
+          this.currentVoiceToken = null;
           this.currentPriority = 0;
         }
-        if (error?.name === "NotAllowedError") {
-          this.primed = false;
-        }
+        console.warn("Voice playback failed.", error);
       });
-    }
     return true;
+  }
+
+  stopCurrentVoice() {
+    if (this.currentSource) {
+      try {
+        this.currentSource.stop();
+      } catch (error) {
+        // BufferSource can only be stopped once.
+      }
+      this.currentSource = null;
+    }
+    if (this.currentGain) {
+      try {
+        this.currentGain.disconnect();
+      } catch (error) {
+        // Gain may already be disconnected after source end.
+      }
+      this.currentGain = null;
+    }
+    this.currentVoiceToken = null;
+    this.currentPriority = 0;
+  }
+
+  async playDecodedClip(clip, options, priority, token) {
+    const ctx = this.audioManager.ensureContext();
+    if (!ctx) {
+      return;
+    }
+    if (ctx.state === "suspended") {
+      try {
+        await ctx.resume();
+      } catch (error) {
+        console.warn("Voice audio context resume failed.", error);
+      }
+    }
+    const buffer = await this.loadAudioBuffer(clip.file, ctx);
+    if (!this.enabled || !this.unlocked || this.currentVoiceToken !== token) {
+      return;
+    }
+    const source = ctx.createBufferSource();
+    const gain = ctx.createGain();
+    const now = ctx.currentTime;
+    gain.gain.setValueAtTime(options.volume ?? 0.92, now);
+    source.buffer = buffer;
+    source.connect(gain);
+    gain.connect(ctx.destination);
+    source.onended = () => {
+      if (this.currentSource === source) {
+        this.currentSource = null;
+        this.currentGain = null;
+        this.currentVoiceToken = null;
+        this.currentPriority = 0;
+      }
+      try {
+        gain.disconnect();
+      } catch (error) {
+        // Gain may already be disconnected by stopCurrentVoice().
+      }
+    };
+    this.currentSource = source;
+    this.currentGain = gain;
+    this.currentPriority = priority;
+    const duration = Number(clip.durationSec ?? buffer.duration ?? 1.2) + 0.25;
+    this.audioManager.duckBgm(duration, options.duckVolume ?? 0.18);
+    source.start(now);
+  }
+
+  async loadAudioBuffer(file, ctx) {
+    const cached = this.bufferCache.get(file);
+    if (cached) {
+      return cached;
+    }
+    const promise = fetch(file, { cache: "force-cache" })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`${response.status} ${response.statusText}`);
+        }
+        return response.arrayBuffer();
+      })
+      .then((arrayBuffer) => this.decodeAudioData(ctx, arrayBuffer))
+      .catch((error) => {
+        this.bufferCache.delete(file);
+        throw error;
+      });
+    this.bufferCache.set(file, promise);
+    return promise;
+  }
+
+  decodeAudioData(ctx, arrayBuffer) {
+    return new Promise((resolve, reject) => {
+      const result = ctx.decodeAudioData(arrayBuffer.slice(0), resolve, reject);
+      if (result && typeof result.then === "function") {
+        result.then(resolve).catch(reject);
+      }
+    });
   }
 
   findCandidates(event, options) {

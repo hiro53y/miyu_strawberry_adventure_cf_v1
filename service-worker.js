@@ -1,11 +1,11 @@
-const CACHE_NAME = "miyu-strawberry-cf-v1-20260607-voicevox-mobile-v4";
+const CACHE_NAME = "miyu-strawberry-cf-v1-20260607-voicevox-mobile-v5";
 
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./voice_preview.html",
-  "./style.css?v=20260607-voicevox-mobile-v4",
-  "./game.js?v=20260607-voicevox-mobile-v4",
+  "./style.css?v=20260607-voicevox-mobile-v5",
+  "./game.js?v=20260607-voicevox-mobile-v5",
   "./manifest.webmanifest",
   "./assets/icons/icon.svg",
   "./assets/icons/icon-192.png",
