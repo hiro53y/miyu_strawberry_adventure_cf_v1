@@ -16,6 +16,8 @@ const manifestOnly = args.has("--manifest-only");
 const force = args.has("--force");
 const limitArg = process.argv.find((arg) => arg.startsWith("--limit="));
 const limit = limitArg ? Math.max(1, Number(limitArg.split("=")[1])) : null;
+const idsArg = process.argv.find((arg) => arg.startsWith("--ids="));
+const selectedIds = idsArg ? new Set(idsArg.slice("--ids=".length).split(",").map((id) => id.trim()).filter(Boolean)) : null;
 const engineArg = process.argv.find((arg) => arg.startsWith("--engine="));
 const engineBase = engineArg ? engineArg.slice("--engine=".length) : DEFAULT_ENGINE;
 
@@ -121,16 +123,16 @@ const EVENT_DEFAULTS = {
 };
 
 const STAGES = [
-  "あさつゆいちご温室",
-  "きりのウォーターハウス",
-  "夕やけジャムガーデン",
-  "月あかりハニートンネル",
-  "にじ雲スカイガーデン",
-  "ほたるランタン迷路",
-  "泡カタツムリ運河",
-  "氷砂糖フリーザー",
-  "秋色どんぐりリフト",
-  "星あかりストロベリー城",
+  "あさつゆ温室",
+  "水の温室",
+  "夕やけ庭",
+  "ハチのトンネル",
+  "にじ雲ガーデン",
+  "ランタン迷路",
+  "泡の運河",
+  "氷の温室",
+  "どんぐりリフト",
+  "星の城",
 ];
 
 const SYSTEM_LINES = [
@@ -157,14 +159,14 @@ const SYSTEM_LINES = [
     "強敵クリア。ゴールへ進もう。",
     "ナイスファイト！",
   ].map((text, i) => systemLine("boss.defeat", "narrator", "system/boss", `boss_defeat_${i + 1}`, text)),
-  systemLine("rush.start", "narrator", "system/rush", "rush_start_1", "いちごラッシュ開始。走り続けよう。"),
+  systemLine("rush.start", "narrator", "system/rush", "rush_start_1", "ラッシュ開始。走り続けよう。"),
   systemLine("rush.start", "support", "system/rush", "rush_start_2", "どこまで行けるかな。"),
-  systemLine("rush.end", "support", "system/rush", "rush_end_1", "いちごラッシュ終了。おつかれさま。"),
+  systemLine("rush.end", "support", "system/rush", "rush_end_1", "ラッシュ終了。おつかれさま。"),
   systemLine("rush.end", "narrator", "system/rush", "rush_end_2", "記録を確認しよう。"),
   systemLine("goal.blocked", "support", "system/goal", "goal_blocked_1", "いちごをもう少し集めよう。"),
   systemLine("goal.blocked", "narrator", "system/goal", "goal_blocked_2", "ボスと収穫を確認してね。"),
   systemLine("final.clear", "narrator", "system/final", "final_clear_1", "全ステージクリア。おめでとう！"),
-  systemLine("final.clear", "support", "system/final", "final_clear_2", "三人で、最後まで走りきったね。"),
+  systemLine("final.clear", "support", "system/final", "final_clear_2", "三人で、走りきったね。"),
   systemLine("final.clear", "miyu", "system/final", "final_clear_3", "いちごトレイ、きらきらいっぱい！"),
   systemLine("final.clear", "kazuki", "system/final", "final_clear_4", "最高の冒険だったね！"),
 ];
@@ -381,7 +383,13 @@ async function main() {
     throw new Error(`話者を解決できませんでした: ${missingRoles.join(", ")}`);
   }
 
-  const target = limit ? planned.slice(0, limit) : planned;
+  const scopedPlan = selectedIds ? planned.filter((line) => selectedIds.has(line.id)) : planned;
+  if (selectedIds && scopedPlan.length !== selectedIds.size) {
+    const found = new Set(scopedPlan.map((line) => line.id));
+    const missing = [...selectedIds].filter((id) => !found.has(id));
+    throw new Error(`Unknown clip id: ${missing.join(", ")}`);
+  }
+  const target = limit ? scopedPlan.slice(0, limit) : scopedPlan;
   const generated = [];
   for (const line of target) {
     const speaker = resolved[line.role];
@@ -410,7 +418,7 @@ async function main() {
     version: VERSION,
     generatedAt: new Date().toISOString(),
     engine: { endpoint: engineBase, version },
-    status: limit ? "partial" : "generated",
+    status: limit || selectedIds ? "partial" : "generated",
     clips: generated,
     plannedClips: planned.filter((line) => !generatedIds.has(line.id)),
     speakerResolution: resolved,

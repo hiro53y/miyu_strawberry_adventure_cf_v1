@@ -139,7 +139,7 @@ node tools/generate_voicevox_assets.mjs
 - manifest: `assets/audio/voice/voice_manifest.json`
 - プレビュー: `voice_preview.html`
 - 話者IDは固定せず、生成時に `/speakers` から解決します
-- 生成定義は154件です。現在VOICEVOX Engine未起動の状態では、計画manifestのみ入っています
+- 生成定義は154件です。現在はVOICEVOX Engine `0.25.2` で154件すべて生成済みです
 
 ### 音声の扱い
 
