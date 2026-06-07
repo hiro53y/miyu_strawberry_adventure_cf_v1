@@ -1,11 +1,12 @@
 {
   "version": "20260607-voicevox-v1",
-  "generatedAt": "2026-06-07T03:34:54.975Z",
-  "engine": null,
-  "status": "manifest-only",
-  "note": "VOICEVOX Engineが起動していない状態で作成した計画manifestです。WAV生成後はclipsに実ファイル情報が入ります。",
-  "clips": [],
-  "plannedClips": [
+  "generatedAt": "2026-06-07T04:27:31.981Z",
+  "engine": {
+    "endpoint": "http://127.0.0.1:50021",
+    "version": "0.25.2"
+  },
+  "status": "generated",
+  "clips": [
     {
       "id": "miyu_select_01",
       "event": "character.select",
@@ -23,12 +24,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.493,
+      "peak": 0.4914,
+      "generated": true
     },
     {
       "id": "miyu_select_02",
@@ -47,12 +48,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 2.197,
+      "peak": 0.5408,
+      "generated": true
     },
     {
       "id": "miyu_select_03",
@@ -71,12 +72,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.717,
+      "peak": 0.3556,
+      "generated": true
     },
     {
       "id": "miyu_start_01",
@@ -95,12 +96,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.003,
+      "peak": 0.4502,
+      "generated": true
     },
     {
       "id": "miyu_start_02",
@@ -119,12 +120,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.867,
+      "peak": 0.3169,
+      "generated": true
     },
     {
       "id": "miyu_start_03",
@@ -143,12 +144,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 2.091,
+      "peak": 0.4862,
+      "generated": true
     },
     {
       "id": "miyu_jump_01",
@@ -167,12 +168,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.512,
+      "peak": 0.1982,
+      "generated": true
     },
     {
       "id": "miyu_jump_02",
@@ -191,12 +192,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.544,
+      "peak": 0.3426,
+      "generated": true
     },
     {
       "id": "miyu_jump_03",
@@ -215,12 +216,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.725,
+      "peak": 0.3294,
+      "generated": true
     },
     {
       "id": "miyu_dash_01",
@@ -239,12 +240,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.96,
+      "peak": 0.2019,
+      "generated": true
     },
     {
       "id": "miyu_dash_02",
@@ -263,12 +264,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.619,
+      "peak": 0.2722,
+      "generated": true
     },
     {
       "id": "miyu_dash_03",
@@ -287,12 +288,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.907,
+      "peak": 0.4023,
+      "generated": true
     },
     {
       "id": "miyu_throw_01",
@@ -311,12 +312,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.981,
+      "peak": 0.2958,
+      "generated": true
     },
     {
       "id": "miyu_throw_02",
@@ -335,12 +336,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.597,
+      "peak": 0.245,
+      "generated": true
     },
     {
       "id": "miyu_throw_03",
@@ -359,12 +360,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.693,
+      "peak": 0.3406,
+      "generated": true
     },
     {
       "id": "miyu_berry_01",
@@ -383,12 +384,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.557,
+      "peak": 0.4217,
+      "generated": true
     },
     {
       "id": "miyu_berry_02",
@@ -407,12 +408,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.96,
+      "peak": 0.3354,
+      "generated": true
     },
     {
       "id": "miyu_berry_03",
@@ -431,12 +432,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.811,
+      "peak": 0.2572,
+      "generated": true
     },
     {
       "id": "miyu_combo_01",
@@ -455,12 +456,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.853,
+      "peak": 0.3534,
+      "generated": true
     },
     {
       "id": "miyu_combo_02",
@@ -479,12 +480,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.035,
+      "peak": 0.3411,
+      "generated": true
     },
     {
       "id": "miyu_combo_03",
@@ -503,12 +504,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.821,
+      "peak": 0.2013,
+      "generated": true
     },
     {
       "id": "miyu_heal_01",
@@ -527,12 +528,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.248,
+      "peak": 0.3375,
+      "generated": true
     },
     {
       "id": "miyu_heal_02",
@@ -551,12 +552,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.971,
+      "peak": 0.2487,
+      "generated": true
     },
     {
       "id": "miyu_heal_03",
@@ -575,12 +576,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.864,
+      "peak": 0.4357,
+      "generated": true
     },
     {
       "id": "miyu_power_01",
@@ -599,12 +600,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.6,
+      "peak": 0.4945,
+      "generated": true
     },
     {
       "id": "miyu_power_02",
@@ -623,12 +624,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.109,
+      "peak": 0.3899,
+      "generated": true
     },
     {
       "id": "miyu_power_03",
@@ -647,12 +648,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.821,
+      "peak": 0.3474,
+      "generated": true
     },
     {
       "id": "miyu_bomb_01",
@@ -671,12 +672,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.515,
+      "peak": 0.3604,
+      "generated": true
     },
     {
       "id": "miyu_bomb_02",
@@ -695,12 +696,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.184,
+      "peak": 0.3577,
+      "generated": true
     },
     {
       "id": "miyu_bomb_03",
@@ -719,12 +720,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.109,
+      "peak": 0.2509,
+      "generated": true
     },
     {
       "id": "miyu_damage_01",
@@ -743,12 +744,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.568,
+      "peak": 0.2238,
+      "generated": true
     },
     {
       "id": "miyu_damage_02",
@@ -767,12 +768,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.971,
+      "peak": 0.3506,
+      "generated": true
     },
     {
       "id": "miyu_damage_03",
@@ -791,12 +792,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.896,
+      "peak": 0.4406,
+      "generated": true
     },
     {
       "id": "miyu_clear_01",
@@ -815,12 +816,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.003,
+      "peak": 0.2352,
+      "generated": true
     },
     {
       "id": "miyu_clear_02",
@@ -839,12 +840,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 0.715,
+      "peak": 0.4163,
+      "generated": true
     },
     {
       "id": "miyu_clear_03",
@@ -863,12 +864,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.365,
+      "peak": 0.3843,
+      "generated": true
     },
     {
       "id": "miyu_gameover_01",
@@ -887,12 +888,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 2.304,
+      "peak": 0.3365,
+      "generated": true
     },
     {
       "id": "miyu_gameover_02",
@@ -911,12 +912,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.483,
+      "peak": 0.2762,
+      "generated": true
     },
     {
       "id": "miyu_gameover_03",
@@ -935,12 +936,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 1.472,
+      "peak": 0.2129,
+      "generated": true
     },
     {
       "id": "kazuki_select_01",
@@ -959,12 +960,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.728,
+      "peak": 0.282,
+      "generated": true
     },
     {
       "id": "kazuki_select_02",
@@ -983,12 +984,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.536,
+      "peak": 0.3538,
+      "generated": true
     },
     {
       "id": "kazuki_select_03",
@@ -1007,12 +1008,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.109,
+      "peak": 0.4564,
+      "generated": true
     },
     {
       "id": "kazuki_start_01",
@@ -1031,12 +1032,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.12,
+      "peak": 0.2274,
+      "generated": true
     },
     {
       "id": "kazuki_start_02",
@@ -1055,12 +1056,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.269,
+      "peak": 0.3943,
+      "generated": true
     },
     {
       "id": "kazuki_start_03",
@@ -1079,12 +1080,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.013,
+      "peak": 0.4539,
+      "generated": true
     },
     {
       "id": "kazuki_jump_01",
@@ -1103,12 +1104,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 0.523,
+      "peak": 0.161,
+      "generated": true
     },
     {
       "id": "kazuki_jump_02",
@@ -1127,12 +1128,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 0.651,
+      "peak": 0.35,
+      "generated": true
     },
     {
       "id": "kazuki_jump_03",
@@ -1151,12 +1152,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 0.949,
+      "peak": 0.463,
+      "generated": true
     },
     {
       "id": "kazuki_dash_01",
@@ -1175,12 +1176,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.035,
+      "peak": 0.3756,
+      "generated": true
     },
     {
       "id": "kazuki_dash_02",
@@ -1199,12 +1200,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.056,
+      "peak": 0.3772,
+      "generated": true
     },
     {
       "id": "kazuki_dash_03",
@@ -1223,12 +1224,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 0.544,
+      "peak": 0.4962,
+      "generated": true
     },
     {
       "id": "kazuki_throw_01",
@@ -1247,12 +1248,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.696,
+      "peak": 0.4698,
+      "generated": true
     },
     {
       "id": "kazuki_throw_02",
@@ -1271,12 +1272,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 0.672,
+      "peak": 0.5704,
+      "generated": true
     },
     {
       "id": "kazuki_throw_03",
@@ -1295,12 +1296,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 0.661,
+      "peak": 0.3776,
+      "generated": true
     },
     {
       "id": "kazuki_berry_01",
@@ -1319,12 +1320,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 0.981,
+      "peak": 0.3116,
+      "generated": true
     },
     {
       "id": "kazuki_berry_02",
@@ -1343,12 +1344,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.173,
+      "peak": 0.5693,
+      "generated": true
     },
     {
       "id": "kazuki_berry_03",
@@ -1367,12 +1368,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 0.885,
+      "peak": 0.3267,
+      "generated": true
     },
     {
       "id": "kazuki_combo_01",
@@ -1391,12 +1392,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.109,
+      "peak": 0.3309,
+      "generated": true
     },
     {
       "id": "kazuki_combo_02",
@@ -1415,12 +1416,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.12,
+      "peak": 0.6039,
+      "generated": true
     },
     {
       "id": "kazuki_combo_03",
@@ -1439,12 +1440,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.013,
+      "peak": 0.2802,
+      "generated": true
     },
     {
       "id": "kazuki_heal_01",
@@ -1463,12 +1464,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.12,
+      "peak": 0.4545,
+      "generated": true
     },
     {
       "id": "kazuki_heal_02",
@@ -1487,12 +1488,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.056,
+      "peak": 0.3716,
+      "generated": true
     },
     {
       "id": "kazuki_heal_03",
@@ -1511,12 +1512,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.493,
+      "peak": 0.2116,
+      "generated": true
     },
     {
       "id": "kazuki_power_01",
@@ -1535,12 +1536,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 0.853,
+      "peak": 0.3223,
+      "generated": true
     },
     {
       "id": "kazuki_power_02",
@@ -1559,12 +1560,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.365,
+      "peak": 0.355,
+      "generated": true
     },
     {
       "id": "kazuki_power_03",
@@ -1583,12 +1584,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.013,
+      "peak": 0.4396,
+      "generated": true
     },
     {
       "id": "kazuki_bomb_01",
@@ -1607,12 +1608,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.237,
+      "peak": 0.3883,
+      "generated": true
     },
     {
       "id": "kazuki_bomb_02",
@@ -1631,12 +1632,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.579,
+      "peak": 0.3138,
+      "generated": true
     },
     {
       "id": "kazuki_bomb_03",
@@ -1655,12 +1656,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.387,
+      "peak": 0.3855,
+      "generated": true
     },
     {
       "id": "kazuki_damage_01",
@@ -1679,12 +1680,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.493,
+      "peak": 0.4135,
+      "generated": true
     },
     {
       "id": "kazuki_damage_02",
@@ -1703,12 +1704,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 0.96,
+      "peak": 0.4159,
+      "generated": true
     },
     {
       "id": "kazuki_damage_03",
@@ -1727,12 +1728,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 0.928,
+      "peak": 0.354,
+      "generated": true
     },
     {
       "id": "kazuki_clear_01",
@@ -1751,12 +1752,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.077,
+      "peak": 0.5049,
+      "generated": true
     },
     {
       "id": "kazuki_clear_02",
@@ -1775,12 +1776,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.024,
+      "peak": 0.2215,
+      "generated": true
     },
     {
       "id": "kazuki_clear_03",
@@ -1799,12 +1800,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.205,
+      "peak": 0.2611,
+      "generated": true
     },
     {
       "id": "kazuki_gameover_01",
@@ -1823,12 +1824,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.376,
+      "peak": 0.5067,
+      "generated": true
     },
     {
       "id": "kazuki_gameover_02",
@@ -1847,12 +1848,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.739,
+      "peak": 0.3559,
+      "generated": true
     },
     {
       "id": "kazuki_gameover_03",
@@ -1871,12 +1872,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.312,
+      "peak": 0.3095,
+      "generated": true
     },
     {
       "id": "itsuki_select_01",
@@ -1895,12 +1896,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 2.133,
+      "peak": 0.3552,
+      "generated": true
     },
     {
       "id": "itsuki_select_02",
@@ -1919,12 +1920,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.237,
+      "peak": 0.2438,
+      "generated": true
     },
     {
       "id": "itsuki_select_03",
@@ -1943,12 +1944,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.184,
+      "peak": 0.2249,
+      "generated": true
     },
     {
       "id": "itsuki_start_01",
@@ -1967,12 +1968,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 0.971,
+      "peak": 0.1636,
+      "generated": true
     },
     {
       "id": "itsuki_start_02",
@@ -1991,12 +1992,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.387,
+      "peak": 0.3052,
+      "generated": true
     },
     {
       "id": "itsuki_start_03",
@@ -2015,12 +2016,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.312,
+      "peak": 0.5111,
+      "generated": true
     },
     {
       "id": "itsuki_jump_01",
@@ -2039,12 +2040,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 0.789,
+      "peak": 0.2975,
+      "generated": true
     },
     {
       "id": "itsuki_jump_02",
@@ -2063,12 +2064,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.237,
+      "peak": 0.2438,
+      "generated": true
     },
     {
       "id": "itsuki_jump_03",
@@ -2087,12 +2088,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 0.693,
+      "peak": 0.1974,
+      "generated": true
     },
     {
       "id": "itsuki_dash_01",
@@ -2111,12 +2112,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 0.864,
+      "peak": 0.2634,
+      "generated": true
     },
     {
       "id": "itsuki_dash_02",
@@ -2135,12 +2136,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.397,
+      "peak": 0.5671,
+      "generated": true
     },
     {
       "id": "itsuki_dash_03",
@@ -2159,12 +2160,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.259,
+      "peak": 0.1613,
+      "generated": true
     },
     {
       "id": "itsuki_throw_01",
@@ -2183,12 +2184,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.472,
+      "peak": 0.287,
+      "generated": true
     },
     {
       "id": "itsuki_throw_02",
@@ -2207,12 +2208,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 0.64,
+      "peak": 0.1709,
+      "generated": true
     },
     {
       "id": "itsuki_throw_03",
@@ -2231,12 +2232,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 0.8,
+      "peak": 0.2549,
+      "generated": true
     },
     {
       "id": "itsuki_berry_01",
@@ -2255,12 +2256,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.248,
+      "peak": 0.4872,
+      "generated": true
     },
     {
       "id": "itsuki_berry_02",
@@ -2279,12 +2280,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 0.949,
+      "peak": 0.4003,
+      "generated": true
     },
     {
       "id": "itsuki_berry_03",
@@ -2303,12 +2304,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 0.779,
+      "peak": 0.2617,
+      "generated": true
     },
     {
       "id": "itsuki_combo_01",
@@ -2327,12 +2328,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 0.981,
+      "peak": 0.5035,
+      "generated": true
     },
     {
       "id": "itsuki_combo_02",
@@ -2351,12 +2352,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.397,
+      "peak": 0.1806,
+      "generated": true
     },
     {
       "id": "itsuki_combo_03",
@@ -2375,12 +2376,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.099,
+      "peak": 0.1833,
+      "generated": true
     },
     {
       "id": "itsuki_heal_01",
@@ -2399,12 +2400,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 0.949,
+      "peak": 0.3516,
+      "generated": true
     },
     {
       "id": "itsuki_heal_02",
@@ -2423,12 +2424,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.355,
+      "peak": 0.2464,
+      "generated": true
     },
     {
       "id": "itsuki_heal_03",
@@ -2447,12 +2448,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.205,
+      "peak": 0.4101,
+      "generated": true
     },
     {
       "id": "itsuki_power_01",
@@ -2471,12 +2472,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 0.811,
+      "peak": 0.4235,
+      "generated": true
     },
     {
       "id": "itsuki_power_02",
@@ -2495,12 +2496,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.195,
+      "peak": 0.5564,
+      "generated": true
     },
     {
       "id": "itsuki_power_03",
@@ -2519,12 +2520,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.067,
+      "peak": 0.2578,
+      "generated": true
     },
     {
       "id": "itsuki_bomb_01",
@@ -2543,12 +2544,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.835,
+      "peak": 0.2683,
+      "generated": true
     },
     {
       "id": "itsuki_bomb_02",
@@ -2567,12 +2568,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.067,
+      "peak": 0.1587,
+      "generated": true
     },
     {
       "id": "itsuki_bomb_03",
@@ -2591,12 +2592,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.589,
+      "peak": 0.2664,
+      "generated": true
     },
     {
       "id": "itsuki_damage_01",
@@ -2615,12 +2616,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.728,
+      "peak": 0.1913,
+      "generated": true
     },
     {
       "id": "itsuki_damage_02",
@@ -2639,12 +2640,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.28,
+      "peak": 0.3191,
+      "generated": true
     },
     {
       "id": "itsuki_damage_03",
@@ -2663,12 +2664,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.355,
+      "peak": 0.2203,
+      "generated": true
     },
     {
       "id": "itsuki_clear_01",
@@ -2687,12 +2688,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.12,
+      "peak": 0.3955,
+      "generated": true
     },
     {
       "id": "itsuki_clear_02",
@@ -2711,12 +2712,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.131,
+      "peak": 0.3183,
+      "generated": true
     },
     {
       "id": "itsuki_clear_03",
@@ -2735,12 +2736,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.493,
+      "peak": 0.3164,
+      "generated": true
     },
     {
       "id": "itsuki_gameover_01",
@@ -2759,12 +2760,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.333,
+      "peak": 0.2037,
+      "generated": true
     },
     {
       "id": "itsuki_gameover_02",
@@ -2783,12 +2784,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.696,
+      "peak": 0.2339,
+      "generated": true
     },
     {
       "id": "itsuki_gameover_03",
@@ -2807,12 +2808,12 @@
       "volumeScale": 0.86,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3,
+      "durationSec": 1.728,
+      "peak": 0.4356,
+      "generated": true
     },
     {
       "id": "ui_title_1",
@@ -2831,12 +2832,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 1.632,
+      "peak": 0.3015,
+      "generated": true
     },
     {
       "id": "ui_title_2",
@@ -2855,12 +2856,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 1.483,
+      "peak": 0.2527,
+      "generated": true
     },
     {
       "id": "ui_title_3",
@@ -2879,12 +2880,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 1.749,
+      "peak": 0.397,
+      "generated": true
     },
     {
       "id": "ui_title_4",
@@ -2903,12 +2904,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.176,
+      "peak": 0.2846,
+      "generated": true
     },
     {
       "id": "ui_mode_campaign_1",
@@ -2927,12 +2928,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 1.664,
+      "peak": 0.2452,
+      "generated": true
     },
     {
       "id": "ui_mode_rush_1",
@@ -2951,12 +2952,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 1.739,
+      "peak": 0.4527,
+      "generated": true
     },
     {
       "id": "ui_voice_on_1",
@@ -2975,12 +2976,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "雨晴はう",
+      "speakerStyle": "ノーマル",
+      "speakerId": 10,
+      "durationSec": 1.568,
+      "peak": 0.3298,
+      "generated": true
     },
     {
       "id": "ui_voice_on_2",
@@ -2999,12 +3000,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "雨晴はう",
+      "speakerStyle": "ノーマル",
+      "speakerId": 10,
+      "durationSec": 1.909,
+      "peak": 0.4049,
+      "generated": true
     },
     {
       "id": "stage_01_intro_1",
@@ -3023,12 +3024,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.677,
+      "peak": 0.2548,
+      "generated": true
     },
     {
       "id": "stage_02_intro_1",
@@ -3047,12 +3048,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.411,
+      "peak": 0.3156,
+      "generated": true
     },
     {
       "id": "stage_03_intro_1",
@@ -3071,12 +3072,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.656,
+      "peak": 0.3931,
+      "generated": true
     },
     {
       "id": "stage_04_intro_1",
@@ -3095,12 +3096,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.859,
+      "peak": 0.3573,
+      "generated": true
     },
     {
       "id": "stage_05_intro_1",
@@ -3119,12 +3120,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.443,
+      "peak": 0.4106,
+      "generated": true
     },
     {
       "id": "stage_06_intro_1",
@@ -3143,12 +3144,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.315,
+      "peak": 0.3982,
+      "generated": true
     },
     {
       "id": "stage_07_intro_1",
@@ -3167,12 +3168,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.453,
+      "peak": 0.4604,
+      "generated": true
     },
     {
       "id": "stage_08_intro_1",
@@ -3191,12 +3192,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.645,
+      "peak": 0.377,
+      "generated": true
     },
     {
       "id": "stage_09_intro_1",
@@ -3215,12 +3216,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.699,
+      "peak": 0.2788,
+      "generated": true
     },
     {
       "id": "stage_10_intro_1",
@@ -3239,12 +3240,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.827,
+      "peak": 0.2913,
+      "generated": true
     },
     {
       "id": "boss_appear_1",
@@ -3263,12 +3264,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "青山龍星",
+      "speakerStyle": "ノーマル",
+      "speakerId": 13,
+      "durationSec": 2.091,
+      "peak": 0.3872,
+      "generated": true
     },
     {
       "id": "boss_appear_2",
@@ -3287,12 +3288,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.453,
+      "peak": 0.3604,
+      "generated": true
     },
     {
       "id": "boss_appear_3",
@@ -3311,12 +3312,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 1.877,
+      "peak": 0.2775,
+      "generated": true
     },
     {
       "id": "boss_appear_4",
@@ -3335,12 +3336,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 1.525,
+      "peak": 0.318,
+      "generated": true
     },
     {
       "id": "boss_appear_5",
@@ -3359,12 +3360,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 1.952,
+      "peak": 0.4101,
+      "generated": true
     },
     {
       "id": "boss_defeat_1",
@@ -3383,12 +3384,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 0.853,
+      "peak": 0.3274,
+      "generated": true
     },
     {
       "id": "boss_defeat_2",
@@ -3407,12 +3408,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 1.963,
+      "peak": 0.4678,
+      "generated": true
     },
     {
       "id": "boss_defeat_3",
@@ -3431,12 +3432,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.272,
+      "peak": 0.3532,
+      "generated": true
     },
     {
       "id": "boss_defeat_4",
@@ -3455,12 +3456,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 0.939,
+      "peak": 0.5076,
+      "generated": true
     },
     {
       "id": "rush_start_1",
@@ -3479,12 +3480,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.539,
+      "peak": 0.3592,
+      "generated": true
     },
     {
       "id": "rush_start_2",
@@ -3503,12 +3504,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "雨晴はう",
+      "speakerStyle": "ノーマル",
+      "speakerId": 10,
+      "durationSec": 1.355,
+      "peak": 0.2569,
+      "generated": true
     },
     {
       "id": "rush_end_1",
@@ -3527,12 +3528,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "雨晴はう",
+      "speakerStyle": "ノーマル",
+      "speakerId": 10,
+      "durationSec": 2.709,
+      "peak": 0.3569,
+      "generated": true
     },
     {
       "id": "rush_end_2",
@@ -3551,12 +3552,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 1.504,
+      "peak": 0.2686,
+      "generated": true
     },
     {
       "id": "goal_blocked_1",
@@ -3575,12 +3576,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "雨晴はう",
+      "speakerStyle": "ノーマル",
+      "speakerId": 10,
+      "durationSec": 1.952,
+      "peak": 0.3078,
+      "generated": true
     },
     {
       "id": "goal_blocked_2",
@@ -3599,12 +3600,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 1.963,
+      "peak": 0.2906,
+      "generated": true
     },
     {
       "id": "final_clear_1",
@@ -3623,12 +3624,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2,
+      "durationSec": 2.293,
+      "peak": 0.2843,
+      "generated": true
     },
     {
       "id": "final_clear_2",
@@ -3647,12 +3648,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "雨晴はう",
+      "speakerStyle": "ノーマル",
+      "speakerId": 10,
+      "durationSec": 2.869,
+      "peak": 0.3694,
+      "generated": true
     },
     {
       "id": "final_clear_3",
@@ -3671,12 +3672,12 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8,
+      "durationSec": 2.176,
+      "peak": 0.3808,
+      "generated": true
     },
     {
       "id": "final_clear_4",
@@ -3695,12 +3696,45 @@
       "volumeScale": 0.92,
       "prePhonemeLength": 0.06,
       "postPhonemeLength": 0.08,
-      "speakerName": null,
-      "speakerStyle": null,
-      "speakerId": null,
-      "durationSec": null,
-      "peak": null,
-      "generated": false
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12,
+      "durationSec": 1.749,
+      "peak": 0.4872,
+      "generated": true
     }
-  ]
+  ],
+  "plannedClips": [],
+  "speakerResolution": {
+    "miyu": {
+      "speakerName": "春日部つむぎ",
+      "speakerStyle": "ノーマル",
+      "speakerId": 8
+    },
+    "kazuki": {
+      "speakerName": "白上虎太郎",
+      "speakerStyle": "ふつう",
+      "speakerId": 12
+    },
+    "itsuki": {
+      "speakerName": "ずんだもん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 3
+    },
+    "narrator": {
+      "speakerName": "四国めたん",
+      "speakerStyle": "ノーマル",
+      "speakerId": 2
+    },
+    "support": {
+      "speakerName": "雨晴はう",
+      "speakerStyle": "ノーマル",
+      "speakerId": 10
+    },
+    "boss": {
+      "speakerName": "青山龍星",
+      "speakerStyle": "ノーマル",
+      "speakerId": 13
+    }
+  }
 }
