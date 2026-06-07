@@ -1,5 +1,5 @@
 {
-  "version": "20260607-voicevox-v1",
+  "version": "20260607-voicevox-mobile-v3",
   "generatedAt": "2026-06-07T09:51:48.891Z",
   "engine": {
     "endpoint": "http://127.0.0.1:50021",

@@ -1,11 +1,11 @@
-const CACHE_NAME = "miyu-strawberry-cf-v1-20260607-voicevox-v1";
+const CACHE_NAME = "miyu-strawberry-cf-v1-20260607-voicevox-mobile-v3";
 
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./voice_preview.html",
-  "./style.css?v=20260607-voicevox-v1",
-  "./game.js?v=20260607-voicevox-v1",
+  "./style.css?v=20260607-voicevox-mobile-v3",
+  "./game.js?v=20260607-voicevox-mobile-v3",
   "./manifest.webmanifest",
   "./assets/icons/icon.svg",
   "./assets/icons/icon-192.png",
@@ -74,6 +74,14 @@ self.addEventListener("activate", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
+    return;
+  }
+  if (event.request.headers.has("range")) {
+    event.respondWith(fetch(event.request));
+    return;
+  }
+  if (["reload", "no-store", "no-cache"].includes(event.request.cache)) {
+    event.respondWith(fetch(event.request));
     return;
   }
 

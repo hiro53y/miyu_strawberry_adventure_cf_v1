@@ -1303,7 +1303,10 @@ class AudioManager {
     const ctx = this.ensureContext();
     if (ctx && ctx.state === "suspended") {
       try {
-        await ctx.resume();
+        await Promise.race([
+          ctx.resume(),
+          new Promise((resolve) => setTimeout(resolve, 350)),
+        ]);
       } catch (error) {
         console.warn("Audio resume failed.", error);
       }
@@ -1548,13 +1551,18 @@ class VoiceManager {
     this.audioManager = audioManager;
     this.enabled = this.loadEnabled();
     this.unlocked = false;
+    this.primed = false;
     this.available = false;
     this.manifest = null;
     this.clips = [];
+    this.loadPromise = null;
     this.byEvent = new Map();
     this.cooldowns = new Map();
     this.currentAudio = null;
     this.currentPriority = 0;
+    this.playbackAudio = null;
+    this.primePromise = null;
+    this.primeClipFile = "data:audio/wav;base64,UklGRsQAAABXQVZFZm10IBAAAAABAAEAQB8AAIA+AAACABAAZGF0YaAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA";
   }
 
   loadEnabled() {
@@ -1574,7 +1582,19 @@ class VoiceManager {
     }
   }
 
-  async load() {
+  load() {
+    if (!this.loadPromise) {
+      this.loadPromise = this.fetchManifest();
+    }
+    return this.loadPromise;
+  }
+
+  async unlock() {
+    this.unlocked = true;
+    await this.prime();
+  }
+
+  async fetchManifest() {
     try {
       const response = await fetch(this.manifestUrl, { cache: "no-cache" });
       if (!response.ok) {
@@ -1593,12 +1613,85 @@ class VoiceManager {
     } catch (error) {
       this.available = false;
       this.clips = [];
+      this.byEvent.clear();
+      this.loadPromise = null;
       console.warn("Voice manifest load failed.", error);
     }
   }
 
-  async unlock() {
-    this.unlocked = true;
+  getPlaybackAudio() {
+    if (!this.playbackAudio) {
+      const audio = new Audio();
+      audio.preload = "auto";
+      audio.playsInline = true;
+      audio.setAttribute("playsinline", "");
+      audio.addEventListener("ended", () => {
+        if (this.currentAudio === audio) {
+          this.currentAudio = null;
+          this.currentPriority = 0;
+        }
+      });
+      audio.addEventListener("error", () => {
+        if (this.currentAudio === audio) {
+          this.currentAudio = null;
+          this.currentPriority = 0;
+        }
+      });
+      this.playbackAudio = audio;
+    }
+    return this.playbackAudio;
+  }
+
+  async prime() {
+    if (this.primed) {
+      return;
+    }
+    if (this.primePromise) {
+      await this.primePromise;
+      return;
+    }
+    this.primePromise = this.primePlaybackAudio()
+      .finally(() => {
+        this.primePromise = null;
+      });
+    await this.primePromise;
+  }
+
+  async primePlaybackAudio() {
+    const audio = this.getPlaybackAudio();
+    try {
+      audio.pause();
+      audio.muted = true;
+      audio.volume = 0;
+      audio.src = this.primeClipFile;
+      audio.load();
+      const playPromise = audio.play();
+      if (playPromise && typeof playPromise.then === "function") {
+        let didPlay = false;
+        await Promise.race([
+          playPromise.then(() => {
+            didPlay = true;
+          }),
+          new Promise((resolve) => setTimeout(resolve, 350)),
+        ]);
+        this.primed = didPlay;
+      } else {
+        this.primed = true;
+      }
+    } catch (error) {
+      if (error?.name !== "AbortError") {
+        console.warn("Voice unlock failed.", error);
+      }
+    } finally {
+      audio.pause();
+      try {
+        audio.currentTime = 0;
+      } catch (error) {
+        // Some mobile browsers disallow seeking before metadata is ready.
+      }
+      audio.muted = false;
+      audio.volume = 0.92;
+    }
   }
 
   setEnabled(enabled) {
@@ -1638,31 +1731,24 @@ class VoiceManager {
 
     const chosen = this.weightedChoice(candidates);
     const priority = options.priority ?? Number(chosen.priority ?? 1);
-    if (this.currentAudio && !this.currentAudio.ended) {
+    if (this.currentAudio && !this.currentAudio.ended && !this.currentAudio.paused) {
       if (priority < this.currentPriority) {
         return false;
       }
       this.currentAudio.pause();
     }
 
-    const audio = new Audio(chosen.file);
+    const audio = this.getPlaybackAudio();
+    audio.pause();
     audio.preload = "auto";
+    audio.playsInline = true;
+    audio.muted = false;
     audio.volume = options.volume ?? 0.92;
+    audio.src = chosen.file;
+    audio.load();
     this.currentAudio = audio;
     this.currentPriority = priority;
     this.cooldowns.set(cooldownKey, now + (options.cooldownSec ?? Number(chosen.cooldownSec ?? 3)));
-    audio.addEventListener("ended", () => {
-      if (this.currentAudio === audio) {
-        this.currentAudio = null;
-        this.currentPriority = 0;
-      }
-    });
-    audio.addEventListener("error", () => {
-      if (this.currentAudio === audio) {
-        this.currentAudio = null;
-        this.currentPriority = 0;
-      }
-    });
     const duration = Number(chosen.durationSec ?? 1.2) + 0.25;
     this.audioManager.duckBgm(duration, options.duckVolume ?? 0.18);
     const playPromise = audio.play();
@@ -1670,6 +1756,13 @@ class VoiceManager {
       playPromise.catch((error) => {
         if (error?.name !== "AbortError") {
           console.warn("Voice playback failed.", error);
+        }
+        if (this.currentAudio === audio) {
+          this.currentAudio = null;
+          this.currentPriority = 0;
+        }
+        if (error?.name === "NotAllowedError") {
+          this.primed = false;
         }
       });
     }
@@ -1802,11 +1895,15 @@ class GameApp {
   }
 
   async unlockAudio(options = {}) {
-    await this.audio.unlock();
-    await this.voice.unlock();
+    const voiceUnlock = this.voice.unlock();
+    const audioUnlock = this.audio.unlock();
+    const manifestLoad = this.voice.load();
+    await Promise.race([
+      Promise.allSettled([voiceUnlock, audioUnlock, manifestLoad]),
+      new Promise((resolve) => setTimeout(resolve, 450)),
+    ]);
     if (options.titleVoice !== false && this.scene === "title" && !this.titleVoicePlayed) {
-      this.titleVoicePlayed = true;
-      this.voice.play("ui.title", { priority: 2, cooldownSec: 25 });
+      this.titleVoicePlayed = this.voice.play("ui.title", { priority: 2, cooldownSec: 25 });
     }
   }
 
@@ -5623,8 +5720,10 @@ window.addEventListener("DOMContentLoaded", () => {
   document.body.classList.toggle("is-coarse-pointer", window.matchMedia?.("(pointer: coarse)")?.matches ?? false);
   new GameApp();
   if ("serviceWorker" in navigator && location.protocol !== "file:") {
-    navigator.serviceWorker.register("service-worker.js").catch((error) => {
-      console.warn("Service worker registration failed.", error);
-    });
+    navigator.serviceWorker.register("service-worker.js?v=20260607-voicevox-mobile-v3")
+      .then((registration) => registration.update?.())
+      .catch((error) => {
+        console.warn("Service worker registration failed.", error);
+      });
   }
 });

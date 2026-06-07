@@ -35,6 +35,11 @@
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 
+# ---- VOICEVOX ボイス ----
+# 同じファイル名で再生成する可能性があるため、ボイスは毎回再検証する
+/assets/audio/voice/*
+  Cache-Control: no-cache
+
 # ---- 全パス共通：セキュリティヘッダー ----
 /*
   X-Content-Type-Options: nosniff
