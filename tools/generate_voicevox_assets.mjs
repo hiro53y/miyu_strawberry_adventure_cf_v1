@@ -1,9 +1,9 @@
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { chmod, mkdir, readFile, readdir, unlink, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-const VERSION = "20260607-voicevox-mobile-v5";
+const VERSION = "20260608-voicevox-mobile-v6";
 const DEFAULT_ENGINE = "http://127.0.0.1:50021";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
@@ -14,6 +14,7 @@ const manifestPath = path.join(voiceRoot, "voice_manifest.json");
 const args = new Set(process.argv.slice(2));
 const manifestOnly = args.has("--manifest-only");
 const force = args.has("--force");
+const clean = args.has("--clean");
 const limitArg = process.argv.find((arg) => arg.startsWith("--limit="));
 const limit = limitArg ? Math.max(1, Number(limitArg.split("=")[1])) : null;
 const idsArg = process.argv.find((arg) => arg.startsWith("--ids="));
@@ -358,8 +359,57 @@ async function writeManifest(data) {
   await writeFile(manifestPath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
 }
 
+async function removeWavFiles(root) {
+  if (!existsSync(root)) {
+    return { removed: 0, failed: [] };
+  }
+  let removed = 0;
+  const failed = [];
+  const entries = await readdir(root, { withFileTypes: true });
+  for (const entry of entries) {
+    const fullPath = path.join(root, entry.name);
+    if (entry.isDirectory()) {
+      const result = await removeWavFiles(fullPath);
+      removed += result.removed;
+      failed.push(...result.failed);
+      continue;
+    }
+    if (entry.isFile() && entry.name.toLowerCase().endsWith(".wav")) {
+      let deleted = false;
+      for (let attempt = 0; attempt < 3 && !deleted; attempt += 1) {
+        try {
+          await unlink(fullPath);
+          deleted = true;
+          removed += 1;
+        } catch (error) {
+          if (error?.code === "ENOENT") {
+            deleted = true;
+            break;
+          }
+          if (attempt === 0 && ["EPERM", "EACCES"].includes(error?.code)) {
+            try {
+              await chmod(fullPath, 0o666);
+            } catch {
+              // Some OneDrive placeholders reject chmod; retry unlink below.
+            }
+          }
+          if (attempt < 2) {
+            await new Promise((resolve) => setTimeout(resolve, 180));
+          } else {
+            failed.push({ file: fullPath, code: error?.code ?? "UNKNOWN" });
+          }
+        }
+      }
+    }
+  }
+  return { removed, failed };
+}
+
 async function main() {
   const planned = createPlan();
+  if (clean && (manifestOnly || limit || selectedIds)) {
+    throw new Error("--clean は全件再生成専用です。--manifest-only / --limit / --ids と同時には使えません。");
+  }
   if (manifestOnly) {
     await writeManifest({
       version: VERSION,
@@ -390,6 +440,14 @@ async function main() {
     throw new Error(`Unknown clip id: ${missing.join(", ")}`);
   }
   const target = limit ? scopedPlan.slice(0, limit) : scopedPlan;
+  if (clean) {
+    const { removed, failed } = await removeWavFiles(voiceRoot);
+    console.log(`clean removed ${removed} wav files under ${voiceRoot}`);
+    if (failed.length > 0) {
+      console.warn(`clean could not remove ${failed.length} wav files; --force will overwrite them.`);
+      failed.slice(0, 8).forEach((entry) => console.warn(`  ${entry.code}: ${entry.file}`));
+    }
+  }
   const generated = [];
   for (const line of target) {
     const speaker = resolved[line.role];

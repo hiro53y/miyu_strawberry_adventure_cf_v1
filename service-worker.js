@@ -1,11 +1,11 @@
-const CACHE_NAME = "miyu-strawberry-cf-v1-20260607-voicevox-mobile-v5";
+const CACHE_NAME = "miyu-strawberry-cf-v1-20260608-voicevox-mobile-v6";
 
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./voice_preview.html",
-  "./style.css?v=20260607-voicevox-mobile-v5",
-  "./game.js?v=20260607-voicevox-mobile-v5",
+  "./style.css?v=20260608-voicevox-mobile-v6",
+  "./game.js?v=20260608-voicevox-mobile-v6",
   "./manifest.webmanifest",
   "./assets/icons/icon.svg",
   "./assets/icons/icon-192.png",
@@ -53,7 +53,7 @@ const CORE_ASSETS = [
   "./assets/audio/bgm_options/stage8_ice_loop.wav",
   "./assets/audio/bgm_options/stage9_wind_loop.wav",
   "./assets/audio/bgm_options/stage10_starlight_loop.wav",
-  "./assets/audio/voice/voice_manifest.json"
+  "./assets/audio/voice/voice_manifest.json?v=20260608-voicevox-mobile-v6"
 ];
 
 self.addEventListener("install", (event) => {

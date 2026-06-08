@@ -52,6 +52,7 @@ const CONFIG = {
   storageKeyBestScore: "miyu_strawberry_adventure_best_score",
   storageKeyScoreAttackScores: "miyu_strawberry_adventure_score_attack_top5",
   storageKeyVoiceEnabled: "miyu_strawberry_adventure_voice_enabled",
+  storageKeyVoiceBuild: "miyu_strawberry_adventure_voice_build",
   scoreAttackTopLimit: 5,
   scoreAttackInitialLength: 4200,
   scoreAttackChunkWidth: 860,
@@ -60,7 +61,7 @@ const CONFIG = {
   scoreAttackBossMaxGap: 3900,
 };
 
-const APP_BUILD_ID = "20260607-voicevox-mobile-v5";
+const APP_BUILD_ID = "20260608-voicevox-mobile-v6";
 
 const ASSET_MANIFEST = {
   images: {
@@ -1551,10 +1552,13 @@ class VoiceManager {
   constructor(manifestUrl, audioManager) {
     this.manifestUrl = manifestUrl;
     this.audioManager = audioManager;
+    this.ensureVoiceDefaultForBuild();
     this.enabled = this.loadEnabled();
     this.unlocked = false;
     this.primed = false;
     this.available = false;
+    this.status = "wait";
+    this.lastError = "";
     this.manifest = null;
     this.clips = [];
     this.loadPromise = null;
@@ -1577,9 +1581,22 @@ class VoiceManager {
     }
   }
 
+  ensureVoiceDefaultForBuild() {
+    try {
+      const seenBuild = localStorage.getItem(CONFIG.storageKeyVoiceBuild);
+      if (seenBuild !== APP_BUILD_ID) {
+        localStorage.setItem(CONFIG.storageKeyVoiceEnabled, "true");
+        localStorage.setItem(CONFIG.storageKeyVoiceBuild, APP_BUILD_ID);
+      }
+    } catch (error) {
+      // localStorage can be unavailable on restricted browsers.
+    }
+  }
+
   saveEnabled() {
     try {
       localStorage.setItem(CONFIG.storageKeyVoiceEnabled, String(this.enabled));
+      localStorage.setItem(CONFIG.storageKeyVoiceBuild, APP_BUILD_ID);
     } catch (error) {
       // localStorage can be unavailable on restricted browsers.
     }
@@ -1606,6 +1623,8 @@ class VoiceManager {
       this.manifest = await response.json();
       this.clips = (this.manifest.clips ?? []).filter((clip) => clip.generated && clip.file && clip.event);
       this.available = this.clips.length > 0;
+      this.status = this.available ? "ready" : "wait";
+      this.lastError = "";
       this.byEvent.clear();
       this.clips.forEach((clip) => {
         if (!this.byEvent.has(clip.event)) {
@@ -1615,6 +1634,8 @@ class VoiceManager {
       });
     } catch (error) {
       this.available = false;
+      this.status = "error";
+      this.lastError = "manifest";
       this.clips = [];
       this.byEvent.clear();
       this.loadPromise = null;
@@ -1658,10 +1679,49 @@ class VoiceManager {
       gain.connect(ctx.destination);
       source.start(0);
       this.primed = ctx.state === "running";
+      if (!this.primed) {
+        this.status = "wait";
+      }
     } catch (error) {
       if (error?.name !== "AbortError") {
+        this.status = "error";
+        this.lastError = "unlock";
         console.warn("Voice unlock failed.", error);
       }
+    }
+  }
+
+  primeFromUserGesture() {
+    this.unlocked = true;
+    const ctx = this.audioManager.ensureContext();
+    if (!ctx) {
+      return;
+    }
+    if (ctx.state === "suspended") {
+      ctx.resume()
+        .then(() => {
+          this.primed = ctx.state === "running";
+        })
+        .catch((error) => {
+          this.status = "error";
+          this.lastError = "unlock";
+          console.warn("Voice unlock failed.", error);
+        });
+    }
+    try {
+      const buffer = ctx.createBuffer(1, 1, ctx.sampleRate || 44100);
+      const source = ctx.createBufferSource();
+      const gain = ctx.createGain();
+      gain.gain.value = 0;
+      source.buffer = buffer;
+      source.connect(gain);
+      gain.connect(ctx.destination);
+      source.start(0);
+      this.primed = ctx.state === "running";
+    } catch (error) {
+      this.status = "error";
+      this.lastError = "unlock";
+      console.warn("Voice unlock failed.", error);
     }
   }
 
@@ -1717,6 +1777,8 @@ class VoiceManager {
           this.currentVoiceToken = null;
           this.currentPriority = 0;
         }
+        this.status = "error";
+        this.lastError = "playback";
         console.warn("Voice playback failed.", error);
       });
     return true;
@@ -1752,6 +1814,8 @@ class VoiceManager {
       try {
         await ctx.resume();
       } catch (error) {
+        this.status = "error";
+        this.lastError = "resume";
         console.warn("Voice audio context resume failed.", error);
       }
     }
@@ -1782,6 +1846,8 @@ class VoiceManager {
     this.currentSource = source;
     this.currentGain = gain;
     this.currentPriority = priority;
+    this.status = "ready";
+    this.lastError = "";
     const duration = Number(clip.durationSec ?? buffer.duration ?? 1.2) + 0.25;
     this.audioManager.duckBgm(duration, options.duckVolume ?? 0.18);
     source.start(now);
@@ -1923,6 +1989,7 @@ class GameApp {
     };
 
     this.bindUi();
+    this.bindAudioGestureUnlock();
     this.updateCharacterButtons();
     this.updateModeButtons();
     this.loadAssets();
@@ -1953,6 +2020,20 @@ class GameApp {
     if (options.titleVoice !== false && this.scene === "title" && !this.titleVoicePlayed) {
       this.titleVoicePlayed = this.voice.play("ui.title", { priority: 2, cooldownSec: 25 });
     }
+  }
+
+  bindAudioGestureUnlock() {
+    const unlockFromGesture = () => {
+      this.audio.unlocked = true;
+      const ctx = this.audio.ensureContext();
+      if (ctx && ctx.state === "suspended") {
+        ctx.resume().catch((error) => console.warn("Audio resume failed.", error));
+      }
+      this.voice.primeFromUserGesture();
+    };
+    window.addEventListener("pointerdown", unlockFromGesture, { capture: true, passive: true });
+    window.addEventListener("touchstart", unlockFromGesture, { capture: true, passive: true });
+    window.addEventListener("click", unlockFromGesture, { capture: true, passive: true });
   }
 
   bindUi() {
@@ -2527,7 +2608,13 @@ class GameApp {
       this.els.titleVoiceToggle.setAttribute("aria-pressed", pressed);
     }
     if (this.els.hudVoice) {
-      this.els.hudVoice.textContent = this.voice.enabled ? (this.voice.available ? "ON" : "WAIT") : "OFF";
+      if (!this.voice.enabled) {
+        this.els.hudVoice.textContent = "OFF";
+      } else if (this.voice.status === "error") {
+        this.els.hudVoice.textContent = "ERR";
+      } else {
+        this.els.hudVoice.textContent = this.voice.available ? "ON" : "WAIT";
+      }
     }
   }
 

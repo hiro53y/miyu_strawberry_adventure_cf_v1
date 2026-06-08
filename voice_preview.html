@@ -219,13 +219,99 @@
     </main>
 
     <script>
-      const manifestUrl = "assets/audio/voice/voice_manifest.json";
+      const APP_BUILD_ID = "20260608-voicevox-mobile-v6";
+      const manifestUrl = `assets/audio/voice/voice_manifest.json?v=${APP_BUILD_ID}`;
       const table = document.getElementById("voiceTable");
       const filterInput = document.getElementById("filterInput");
       const eventSelect = document.getElementById("eventSelect");
       const reloadButton = document.getElementById("reloadButton");
       let manifest = null;
-      let currentAudio = null;
+      let audioContext = null;
+      let currentSource = null;
+      let currentGain = null;
+      const bufferCache = new Map();
+
+      function ensureAudioContext() {
+        if (!audioContext) {
+          const Ctor = window.AudioContext || window.webkitAudioContext;
+          if (Ctor) {
+            audioContext = new Ctor();
+          }
+        }
+        return audioContext;
+      }
+
+      async function decodeClip(file) {
+        const cached = bufferCache.get(file);
+        if (cached) {
+          return cached;
+        }
+        const promise = fetch(file, { cache: "force-cache" })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`${response.status} ${response.statusText}`);
+            }
+            return response.arrayBuffer();
+          })
+          .then((arrayBuffer) => new Promise((resolve, reject) => {
+            const ctx = ensureAudioContext();
+            const result = ctx.decodeAudioData(arrayBuffer.slice(0), resolve, reject);
+            if (result && typeof result.then === "function") {
+              result.then(resolve).catch(reject);
+            }
+          }))
+          .catch((error) => {
+            bufferCache.delete(file);
+            throw error;
+          });
+        bufferCache.set(file, promise);
+        return promise;
+      }
+
+      async function playClip(clip) {
+        const ctx = ensureAudioContext();
+        if (!ctx) {
+          throw new Error("AudioContext is unavailable");
+        }
+        if (ctx.state === "suspended") {
+          await ctx.resume();
+        }
+        if (currentSource) {
+          try {
+            currentSource.stop();
+          } catch (error) {
+            // BufferSource can only be stopped once.
+          }
+        }
+        if (currentGain) {
+          try {
+            currentGain.disconnect();
+          } catch (error) {
+            // Gain may already be disconnected.
+          }
+        }
+        const buffer = await decodeClip(clip.file);
+        const source = ctx.createBufferSource();
+        const gain = ctx.createGain();
+        source.buffer = buffer;
+        gain.gain.value = 0.92;
+        source.connect(gain);
+        gain.connect(ctx.destination);
+        source.onended = () => {
+          if (currentSource === source) {
+            currentSource = null;
+            currentGain = null;
+          }
+          try {
+            gain.disconnect();
+          } catch (error) {
+            // Gain may already be disconnected.
+          }
+        };
+        currentSource = source;
+        currentGain = gain;
+        source.start(ctx.currentTime);
+      }
 
       function visibleClips() {
         const query = filterInput.value.trim().toLowerCase();
@@ -247,13 +333,25 @@
           button.type = "button";
           button.textContent = "Play";
           button.disabled = !clip.generated;
-          button.addEventListener("click", () => {
-            if (currentAudio) {
-              currentAudio.pause();
+          button.addEventListener("click", async () => {
+            button.disabled = true;
+            const originalText = button.textContent;
+            button.textContent = "Playing";
+            try {
+              await playClip(clip);
+            } catch (error) {
+              console.warn("voice preview failed", error);
+              button.textContent = "ERR";
+              setTimeout(() => {
+                button.textContent = originalText;
+                button.disabled = !clip.generated;
+              }, 900);
+              return;
             }
-            currentAudio = new Audio(clip.file);
-            currentAudio.volume = 0.92;
-            currentAudio.play().catch((error) => console.warn("voice preview failed", error));
+            setTimeout(() => {
+              button.textContent = originalText;
+              button.disabled = !clip.generated;
+            }, Math.max(500, Number(clip.durationSec ?? 1) * 1000));
           });
           playCell.append(button);
 
@@ -278,7 +376,9 @@
       }
 
       async function loadManifest() {
-        const response = await fetch(`${manifestUrl}?t=${Date.now()}`);
+        const url = new URL(manifestUrl, window.location.href);
+        url.searchParams.set("t", String(Date.now()));
+        const response = await fetch(url);
         manifest = await response.json();
         document.getElementById("manifestStatus").textContent = manifest.status ?? "loaded";
         document.getElementById("generatedCount").textContent = String(manifest.clips?.length ?? 0);
