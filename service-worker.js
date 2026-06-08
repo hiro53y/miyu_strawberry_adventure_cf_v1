@@ -1,11 +1,11 @@
-const CACHE_NAME = "miyu-strawberry-cf-v1-20260608-voicevox-mobile-v6";
+const CACHE_NAME = "miyu-strawberry-cf-v1-20260609-voicevox-mobile-v8";
 
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./voice_preview.html",
-  "./style.css?v=20260608-voicevox-mobile-v6",
-  "./game.js?v=20260608-voicevox-mobile-v6",
+  "./style.css?v=20260609-voicevox-mobile-v8",
+  "./game.js?v=20260609-voicevox-mobile-v8",
   "./manifest.webmanifest",
   "./assets/icons/icon.svg",
   "./assets/icons/icon-192.png",
@@ -53,7 +53,7 @@ const CORE_ASSETS = [
   "./assets/audio/bgm_options/stage8_ice_loop.wav",
   "./assets/audio/bgm_options/stage9_wind_loop.wav",
   "./assets/audio/bgm_options/stage10_starlight_loop.wav",
-  "./assets/audio/voice/voice_manifest.json?v=20260608-voicevox-mobile-v6"
+  "./assets/audio/voice/voice_manifest.json?v=20260609-voicevox-mobile-v8"
 ];
 
 self.addEventListener("install", (event) => {
@@ -80,6 +80,11 @@ self.addEventListener("message", (event) => {
 
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") {
+    return;
+  }
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.pathname.includes("/assets/audio/voice/") && requestUrl.pathname.endsWith(".wav")) {
+    event.respondWith(fetch(event.request));
     return;
   }
   if (event.request.headers.has("range")) {

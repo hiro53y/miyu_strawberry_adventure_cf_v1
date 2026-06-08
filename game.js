@@ -61,7 +61,7 @@ const CONFIG = {
   scoreAttackBossMaxGap: 3900,
 };
 
-const APP_BUILD_ID = "20260608-voicevox-mobile-v6";
+const APP_BUILD_ID = "20260609-voicevox-mobile-v8";
 
 const ASSET_MANIFEST = {
   images: {
@@ -1570,6 +1570,8 @@ class VoiceManager {
     this.currentVoiceToken = null;
     this.currentPriority = 0;
     this.primePromise = null;
+    this.preloadPromise = null;
+    this.pendingVoice = null;
   }
 
   loadEnabled() {
@@ -1611,7 +1613,14 @@ class VoiceManager {
 
   async unlock() {
     this.unlocked = true;
+    const loadPromise = this.load();
     await this.prime();
+    await Promise.race([
+      loadPromise,
+      new Promise((resolve) => setTimeout(resolve, 900)),
+    ]);
+    this.preloadImportantClip();
+    this.flushPendingVoice();
   }
 
   async fetchManifest() {
@@ -1632,6 +1641,10 @@ class VoiceManager {
         }
         this.byEvent.get(clip.event).push(clip);
       });
+      if (this.unlocked) {
+        this.preloadImportantClip();
+        this.flushPendingVoice();
+      }
     } catch (error) {
       this.available = false;
       this.status = "error";
@@ -1678,10 +1691,7 @@ class VoiceManager {
       source.connect(gain);
       gain.connect(ctx.destination);
       source.start(0);
-      this.primed = ctx.state === "running";
-      if (!this.primed) {
-        this.status = "wait";
-      }
+      this.primed = true;
     } catch (error) {
       if (error?.name !== "AbortError") {
         this.status = "error";
@@ -1697,8 +1707,9 @@ class VoiceManager {
     if (!ctx) {
       return;
     }
+    let resumePromise = Promise.resolve();
     if (ctx.state === "suspended") {
-      ctx.resume()
+      resumePromise = ctx.resume()
         .then(() => {
           this.primed = ctx.state === "running";
         })
@@ -1717,12 +1728,20 @@ class VoiceManager {
       source.connect(gain);
       gain.connect(ctx.destination);
       source.start(0);
-      this.primed = ctx.state === "running";
+      this.primed = true;
     } catch (error) {
       this.status = "error";
       this.lastError = "unlock";
       console.warn("Voice unlock failed.", error);
     }
+    Promise.allSettled([this.load(), resumePromise])
+      .then(() => {
+        this.preloadImportantClip();
+        this.flushPendingVoice();
+      })
+      .catch(() => {
+        // fetchManifest records the error state.
+      });
   }
 
   setEnabled(enabled) {
@@ -1738,7 +1757,11 @@ class VoiceManager {
   }
 
   play(event, options = {}) {
-    if (!this.enabled || !this.unlocked || !this.available) {
+    if (!this.enabled) {
+      return false;
+    }
+    if (!this.unlocked || !this.available) {
+      this.queuePendingVoice(event, options);
       return false;
     }
     const now = performance.now() / 1000;
@@ -1854,11 +1877,12 @@ class VoiceManager {
   }
 
   async loadAudioBuffer(file, ctx) {
-    const cached = this.bufferCache.get(file);
+    const url = this.buildVoiceUrl(file);
+    const cached = this.bufferCache.get(url);
     if (cached) {
       return cached;
     }
-    const promise = fetch(file, { cache: "force-cache" })
+    const promise = fetch(url, { cache: "no-cache" })
       .then((response) => {
         if (!response.ok) {
           throw new Error(`${response.status} ${response.statusText}`);
@@ -1867,11 +1891,88 @@ class VoiceManager {
       })
       .then((arrayBuffer) => this.decodeAudioData(ctx, arrayBuffer))
       .catch((error) => {
-        this.bufferCache.delete(file);
+        this.bufferCache.delete(url);
         throw error;
       });
-    this.bufferCache.set(file, promise);
+    this.bufferCache.set(url, promise);
     return promise;
+  }
+
+  buildVoiceUrl(file) {
+    try {
+      const url = new URL(file, window.location.href);
+      url.searchParams.set("v", APP_BUILD_ID);
+      return url.href;
+    } catch (error) {
+      return `${file}${file.includes("?") ? "&" : "?"}v=${encodeURIComponent(APP_BUILD_ID)}`;
+    }
+  }
+
+  queuePendingVoice(event, options = {}) {
+    if (!this.unlocked || !this.shouldQueueVoice(event, options)) {
+      return;
+    }
+    const priority = Number(options.priority ?? 1);
+    const currentPriority = Number(this.pendingVoice?.options?.priority ?? -1);
+    if (this.pendingVoice && currentPriority > priority) {
+      return;
+    }
+    this.pendingVoice = {
+      event,
+      options: { ...options },
+      queuedAt: performance.now(),
+    };
+  }
+
+  shouldQueueVoice(event, options = {}) {
+    const priority = Number(options.priority ?? 1);
+    if (priority >= 4) {
+      return true;
+    }
+    return [
+      "ui.title",
+      "ui.voice",
+      "ui.mode",
+      "character.select",
+      "character.start",
+      "stage.start",
+      "rush.start",
+    ].includes(event);
+  }
+
+  flushPendingVoice() {
+    if (!this.pendingVoice || !this.enabled || !this.unlocked || !this.available) {
+      return;
+    }
+    const pending = this.pendingVoice;
+    this.pendingVoice = null;
+    window.setTimeout(() => {
+      this.play(pending.event, pending.options);
+    }, 0);
+  }
+
+  preloadImportantClip() {
+    if (this.preloadPromise || !this.enabled || !this.unlocked || !this.available) {
+      return;
+    }
+    const ctx = this.audioManager.ensureContext();
+    if (!ctx) {
+      return;
+    }
+    const clip = this.findCandidates("ui.voice", {})[0]
+      ?? this.findCandidates("ui.title", {})[0]
+      ?? this.clips[0];
+    if (!clip?.file) {
+      return;
+    }
+    this.preloadPromise = this.loadAudioBuffer(clip.file, ctx)
+      .catch((error) => {
+        this.lastError = "preload";
+        console.warn("Voice preload failed.", error);
+      })
+      .finally(() => {
+        this.preloadPromise = null;
+      });
   }
 
   decodeAudioData(ctx, arrayBuffer) {
@@ -2032,8 +2133,21 @@ class GameApp {
       this.voice.primeFromUserGesture();
     };
     window.addEventListener("pointerdown", unlockFromGesture, { capture: true, passive: true });
+    window.addEventListener("pointerup", unlockFromGesture, { capture: true, passive: true });
+    window.addEventListener("mousedown", unlockFromGesture, { capture: true, passive: true });
     window.addEventListener("touchstart", unlockFromGesture, { capture: true, passive: true });
+    window.addEventListener("touchend", unlockFromGesture, { capture: true, passive: true });
     window.addEventListener("click", unlockFromGesture, { capture: true, passive: true });
+    window.addEventListener("pageshow", () => {
+      if (this.voice.unlocked || this.audio.unlocked) {
+        unlockFromGesture();
+      }
+    });
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden && this.voice.unlocked) {
+        unlockFromGesture();
+      }
+    });
   }
 
   bindUi() {
@@ -2612,8 +2726,12 @@ class GameApp {
         this.els.hudVoice.textContent = "OFF";
       } else if (this.voice.status === "error") {
         this.els.hudVoice.textContent = "ERR";
+      } else if (!this.voice.available) {
+        this.els.hudVoice.textContent = "WAIT";
+      } else if (!this.voice.unlocked || !this.voice.primed) {
+        this.els.hudVoice.textContent = "TAP";
       } else {
-        this.els.hudVoice.textContent = this.voice.available ? "ON" : "WAIT";
+        this.els.hudVoice.textContent = "ON";
       }
     }
   }

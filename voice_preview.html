@@ -219,7 +219,7 @@
     </main>
 
     <script>
-      const APP_BUILD_ID = "20260608-voicevox-mobile-v6";
+      const APP_BUILD_ID = "20260609-voicevox-mobile-v8";
       const manifestUrl = `assets/audio/voice/voice_manifest.json?v=${APP_BUILD_ID}`;
       const table = document.getElementById("voiceTable");
       const filterInput = document.getElementById("filterInput");
@@ -241,12 +241,19 @@
         return audioContext;
       }
 
+      function buildVoiceUrl(file) {
+        const url = new URL(file, window.location.href);
+        url.searchParams.set("v", APP_BUILD_ID);
+        return url.href;
+      }
+
       async function decodeClip(file) {
-        const cached = bufferCache.get(file);
+        const url = buildVoiceUrl(file);
+        const cached = bufferCache.get(url);
         if (cached) {
           return cached;
         }
-        const promise = fetch(file, { cache: "force-cache" })
+        const promise = fetch(url, { cache: "no-cache" })
           .then((response) => {
             if (!response.ok) {
               throw new Error(`${response.status} ${response.statusText}`);
@@ -261,12 +268,37 @@
             }
           }))
           .catch((error) => {
-            bufferCache.delete(file);
+            bufferCache.delete(url);
             throw error;
           });
-        bufferCache.set(file, promise);
+        bufferCache.set(url, promise);
         return promise;
       }
+
+      function primeAudioFromGesture() {
+        const ctx = ensureAudioContext();
+        if (!ctx) {
+          return;
+        }
+        if (ctx.state === "suspended") {
+          ctx.resume().catch((error) => console.warn("preview audio resume failed", error));
+        }
+        try {
+          const source = ctx.createBufferSource();
+          const gain = ctx.createGain();
+          source.buffer = ctx.createBuffer(1, 1, ctx.sampleRate || 44100);
+          gain.gain.value = 0;
+          source.connect(gain);
+          gain.connect(ctx.destination);
+          source.start(0);
+        } catch (error) {
+          console.warn("preview audio prime failed", error);
+        }
+      }
+
+      ["pointerdown", "pointerup", "mousedown", "touchstart", "touchend", "click"].forEach((eventName) => {
+        window.addEventListener(eventName, primeAudioFromGesture, { capture: true, passive: true });
+      });
 
       async function playClip(clip) {
         const ctx = ensureAudioContext();
