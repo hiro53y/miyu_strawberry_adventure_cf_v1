@@ -10,7 +10,7 @@
 |---|---|
 | ベース | `miyu_strawberry_adventure_mobile_web_v1` |
 | 差分 | ローカルサーバー不要・`_headers` 追加・バージョン文字列更新 |
-| ビルド識別 | `20260609-voicevox-mobile-v8` |
+| ビルド識別 | `20260609-voicevox-mobile-v9` |
 
 ローカル起動スクリプト（`run_local.bat` / `serve_local.py` 等）は含みません。  
 このフォルダをそのまま Cloudflare Pages にデプロイして使います。
@@ -145,7 +145,7 @@ node tools/generate_voicevox_assets.mjs
 
 - BGM/SEとは独立した `VOICE ON/OFF` を追加済み
 - `V` キーまたは画面上部の `VOICE` ボタンで切り替えできます
-- v8では準備前の重要ボイスをキューし、WAVにもビルドクエリを付けて古い音声キャッシュを回避します
+- v9では準備前の重要ボイスをキューし、WAVにもビルドクエリを付けて古い音声キャッシュを回避します。Web Audioが動かない場合はHTMLAudioへフォールバックします
 - ジャンプ、ダッシュ、いちご取得などは低確率再生です
 - BOMB、回復、スター、ボス、クリア、ゲームオーバーは高優先度で再生します
 - Service Workerは `voice_manifest.json` のみ事前キャッシュし、WAVは再生時にビルドクエリ付きでネットワーク取得して古いキャッシュを避けます

@@ -61,7 +61,7 @@ const CONFIG = {
   scoreAttackBossMaxGap: 3900,
 };
 
-const APP_BUILD_ID = "20260609-voicevox-mobile-v8";
+const APP_BUILD_ID = "20260609-voicevox-mobile-v9";
 
 const ASSET_MANIFEST = {
   images: {
@@ -1567,11 +1567,13 @@ class VoiceManager {
     this.bufferCache = new Map();
     this.currentSource = null;
     this.currentGain = null;
+    this.currentFallbackAudio = null;
     this.currentVoiceToken = null;
     this.currentPriority = 0;
     this.primePromise = null;
     this.preloadPromise = null;
     this.pendingVoice = null;
+    this.fallbackAudio = this.createFallbackAudio();
   }
 
   loadEnabled() {
@@ -1674,6 +1676,7 @@ class VoiceManager {
   async primePlaybackAudio() {
     const ctx = this.audioManager.ensureContext();
     if (!ctx) {
+      this.primeFallbackAudio();
       return;
     }
     try {
@@ -1692,6 +1695,7 @@ class VoiceManager {
       gain.connect(ctx.destination);
       source.start(0);
       this.primed = true;
+      this.primeFallbackAudio();
     } catch (error) {
       if (error?.name !== "AbortError") {
         this.status = "error";
@@ -1705,6 +1709,7 @@ class VoiceManager {
     this.unlocked = true;
     const ctx = this.audioManager.ensureContext();
     if (!ctx) {
+      this.primeFallbackAudio();
       return;
     }
     let resumePromise = Promise.resolve();
@@ -1729,6 +1734,7 @@ class VoiceManager {
       gain.connect(ctx.destination);
       source.start(0);
       this.primed = true;
+      this.primeFallbackAudio();
     } catch (error) {
       this.status = "error";
       this.lastError = "unlock";
@@ -1808,6 +1814,16 @@ class VoiceManager {
   }
 
   stopCurrentVoice() {
+    if (this.currentFallbackAudio) {
+      try {
+        this.currentFallbackAudio.pause();
+        this.currentFallbackAudio.removeAttribute("src");
+        this.currentFallbackAudio.load();
+      } catch (error) {
+        // Audio element cleanup can fail on older mobile browsers.
+      }
+      this.currentFallbackAudio = null;
+    }
     if (this.currentSource) {
       try {
         this.currentSource.stop();
@@ -1831,6 +1847,7 @@ class VoiceManager {
   async playDecodedClip(clip, options, priority, token) {
     const ctx = this.audioManager.ensureContext();
     if (!ctx) {
+      await this.playHtmlAudioClip(clip, options, priority, token);
       return;
     }
     if (ctx.state === "suspended") {
@@ -1842,7 +1859,18 @@ class VoiceManager {
         console.warn("Voice audio context resume failed.", error);
       }
     }
-    const buffer = await this.loadAudioBuffer(clip.file, ctx);
+    if (ctx.state !== "running") {
+      await this.playHtmlAudioClip(clip, options, priority, token);
+      return;
+    }
+    let buffer;
+    try {
+      buffer = await this.loadAudioBuffer(clip.file, ctx);
+    } catch (error) {
+      console.warn("Voice Web Audio decode failed; trying HTMLAudio fallback.", error);
+      await this.playHtmlAudioClip(clip, options, priority, token);
+      return;
+    }
     if (!this.enabled || !this.unlocked || this.currentVoiceToken !== token) {
       return;
     }
@@ -1873,7 +1901,18 @@ class VoiceManager {
     this.lastError = "";
     const duration = Number(clip.durationSec ?? buffer.duration ?? 1.2) + 0.25;
     this.audioManager.duckBgm(duration, options.duckVolume ?? 0.18);
-    source.start(now);
+    try {
+      source.start(now);
+    } catch (error) {
+      this.currentSource = null;
+      this.currentGain = null;
+      try {
+        gain.disconnect();
+      } catch {
+        // Gain may not be connected on failed start.
+      }
+      await this.playHtmlAudioClip(clip, options, priority, token);
+    }
   }
 
   async loadAudioBuffer(file, ctx) {
@@ -1973,6 +2012,59 @@ class VoiceManager {
       .finally(() => {
         this.preloadPromise = null;
       });
+  }
+
+  createFallbackAudio() {
+    const audio = new Audio();
+    audio.preload = "auto";
+    audio.playsInline = true;
+    audio.setAttribute("playsinline", "");
+    return audio;
+  }
+
+  primeFallbackAudio() {
+    if (!this.fallbackAudio) {
+      return;
+    }
+    this.fallbackAudio.load();
+  }
+
+  async playHtmlAudioClip(clip, options, priority, token) {
+    if (!this.enabled || !this.unlocked || this.currentVoiceToken !== token || !clip?.file) {
+      return;
+    }
+    const audio = this.fallbackAudio ?? this.createFallbackAudio();
+    this.fallbackAudio = audio;
+    try {
+      audio.pause();
+      audio.src = this.buildVoiceUrl(clip.file);
+      audio.currentTime = 0;
+      audio.volume = clamp(options.volume ?? 1, 0, 1);
+      audio.muted = false;
+      audio.onended = () => {
+        if (this.currentFallbackAudio === audio) {
+          this.currentFallbackAudio = null;
+          this.currentVoiceToken = null;
+          this.currentPriority = 0;
+        }
+      };
+      this.currentFallbackAudio = audio;
+      this.currentPriority = priority;
+      this.status = "ready";
+      this.lastError = "";
+      const duration = Number(clip.durationSec ?? 1.2) + 0.25;
+      this.audioManager.duckBgm(duration, options.duckVolume ?? 0.12);
+      await audio.play();
+    } catch (error) {
+      if (this.currentVoiceToken === token) {
+        this.currentFallbackAudio = null;
+        this.currentVoiceToken = null;
+        this.currentPriority = 0;
+      }
+      this.status = "error";
+      this.lastError = "html-audio";
+      console.warn("Voice HTMLAudio fallback failed.", error);
+    }
   }
 
   decodeAudioData(ctx, arrayBuffer) {
