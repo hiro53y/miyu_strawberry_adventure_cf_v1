@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>VOICEVOX Voice Preview</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #fff8fb;
+        --panel: #ffffff;
+        --line: #ead8e8;
+        --text: #342638;
+        --muted: #776578;
+        --accent: #d84f78;
+        --accent-dark: #9b3356;
+      }
+
+      body {
+        margin: 0;
+        font-family: "Yu Gothic UI", "Meiryo", system-ui, sans-serif;
+        color: var(--text);
+        background: var(--bg);
+      }
+
+      main {
+        width: min(1120px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 48px;
+      }
+
+      header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        justify-content: space-between;
+        gap: 14px;
+        padding-bottom: 18px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      h1 {
+        margin: 0 0 6px;
+        font-size: 1.7rem;
+      }
+
+      p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .tools {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+      }
+
+      input,
+      select,
+      button {
+        font: inherit;
+      }
+
+      input,
+      select {
+        min-height: 38px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 0 10px;
+        background: white;
+      }
+
+      button {
+        min-height: 38px;
+        border: 0;
+        border-radius: 8px;
+        padding: 0 13px;
+        color: white;
+        background: var(--accent);
+        cursor: pointer;
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.45;
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 10px;
+        margin: 18px 0;
+      }
+
+      .summary div {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px;
+        background: var(--panel);
+      }
+
+      .summary span {
+        display: block;
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      .summary strong {
+        display: block;
+        margin-top: 4px;
+        font-size: 1.22rem;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        overflow: hidden;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: var(--panel);
+      }
+
+      th,
+      td {
+        padding: 9px 10px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        vertical-align: top;
+        font-size: 0.9rem;
+      }
+
+      th {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        color: var(--accent-dark);
+        background: #fff0f5;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      .status {
+        display: inline-block;
+        border-radius: 999px;
+        padding: 2px 8px;
+        color: white;
+        background: #8b8f99;
+        font-size: 0.76rem;
+        white-space: nowrap;
+      }
+
+      .status.generated {
+        background: #25805a;
+      }
+
+      .mono {
+        font-family: Consolas, "Cascadia Mono", monospace;
+        font-size: 0.82rem;
+      }
+
+      @media (max-width: 760px) {
+        main {
+          width: min(100% - 18px, 1120px);
+          padding-top: 18px;
+        }
+
+        .summary {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+
+        th:nth-child(3),
+        td:nth-child(3),
+        th:nth-child(6),
+        td:nth-child(6) {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>VOICEVOX Voice Preview</h1>
+          <p>生成済みWAVの再生確認と、未生成クリップの一覧確認に使います。</p>
+        </div>
+        <div class="tools">
+          <input id="filterInput" type="search" placeholder="検索">
+          <select id="eventSelect">
+            <option value="">すべてのイベント</option>
+          </select>
+          <button id="reloadButton" type="button">再読み込み</button>
+        </div>
+      </header>
+
+      <section class="summary" aria-label="summary">
+        <div><span>manifest</span><strong id="manifestStatus">loading</strong></div>
+        <div><span>generated clips</span><strong id="generatedCount">0</strong></div>
+        <div><span>planned clips</span><strong id="plannedCount">0</strong></div>
+        <div><span>version</span><strong id="versionText">-</strong></div>
+      </section>
+
+      <table>
+        <thead>
+          <tr>
+            <th>再生</th>
+            <th>イベント</th>
+            <th>キャラ</th>
+            <th>テキスト</th>
+            <th>状態</th>
+            <th>ファイル</th>
+          </tr>
+        </thead>
+        <tbody id="voiceTable"></tbody>
+      </table>
+    </main>
+
+    <script>
+      const APP_BUILD_ID = "20260609-voicevox-mobile-v9";
+      const manifestUrl = `assets/audio/voice/voice_manifest.json?v=${APP_BUILD_ID}`;
+      const table = document.getElementById("voiceTable");
+      const filterInput = document.getElementById("filterInput");
+      const eventSelect = document.getElementById("eventSelect");
+      const reloadButton = document.getElementById("reloadButton");
+      let manifest = null;
+      let audioContext = null;
+      let currentSource = null;
+      let currentGain = null;
+      const bufferCache = new Map();
+
+      function ensureAudioContext() {
+        if (!audioContext) {
+          const Ctor = window.AudioContext || window.webkitAudioContext;
+          if (Ctor) {
+            audioContext = new Ctor();
+          }
+        }
+        return audioContext;
+      }
+
+      function buildVoiceUrl(file) {
+        const url = new URL(file, window.location.href);
+        url.searchParams.set("v", APP_BUILD_ID);
+        return url.href;
+      }
+
+      async function decodeClip(file) {
+        const url = buildVoiceUrl(file);
+        const cached = bufferCache.get(url);
+        if (cached) {
+          return cached;
+        }
+        const promise = fetch(url, { cache: "no-cache" })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`${response.status} ${response.statusText}`);
+            }
+            return response.arrayBuffer();
+          })
+          .then((arrayBuffer) => new Promise((resolve, reject) => {
+            const ctx = ensureAudioContext();
+            const result = ctx.decodeAudioData(arrayBuffer.slice(0), resolve, reject);
+            if (result && typeof result.then === "function") {
+              result.then(resolve).catch(reject);
+            }
+          }))
+          .catch((error) => {
+            bufferCache.delete(url);
+            throw error;
+          });
+        bufferCache.set(url, promise);
+        return promise;
+      }
+
+      function primeAudioFromGesture() {
+        const ctx = ensureAudioContext();
+        if (!ctx) {
+          return;
+        }
+        if (ctx.state === "suspended") {
+          ctx.resume().catch((error) => console.warn("preview audio resume failed", error));
+        }
+        try {
+          const source = ctx.createBufferSource();
+          const gain = ctx.createGain();
+          source.buffer = ctx.createBuffer(1, 1, ctx.sampleRate || 44100);
+          gain.gain.value = 0;
+          source.connect(gain);
+          gain.connect(ctx.destination);
+          source.start(0);
+        } catch (error) {
+          console.warn("preview audio prime failed", error);
+        }
+      }
+
+      ["pointerdown", "pointerup", "mousedown", "touchstart", "touchend", "click"].forEach((eventName) => {
+        window.addEventListener(eventName, primeAudioFromGesture, { capture: true, passive: true });
+      });
+
+      async function playClip(clip) {
+        const ctx = ensureAudioContext();
+        if (!ctx) {
+          throw new Error("AudioContext is unavailable");
+        }
+        if (ctx.state === "suspended") {
+          await ctx.resume();
+        }
+        if (currentSource) {
+          try {
+            currentSource.stop();
+          } catch (error) {
+            // BufferSource can only be stopped once.
+          }
+        }
+        if (currentGain) {
+          try {
+            currentGain.disconnect();
+          } catch (error) {
+            // Gain may already be disconnected.
+          }
+        }
+        const buffer = await decodeClip(clip.file);
+        const source = ctx.createBufferSource();
+        const gain = ctx.createGain();
+        source.buffer = buffer;
+        gain.gain.value = 0.92;
+        source.connect(gain);
+        gain.connect(ctx.destination);
+        source.onended = () => {
+          if (currentSource === source) {
+            currentSource = null;
+            currentGain = null;
+          }
+          try {
+            gain.disconnect();
+          } catch (error) {
+            // Gain may already be disconnected.
+          }
+        };
+        currentSource = source;
+        currentGain = gain;
+        source.start(ctx.currentTime);
+      }
+
+      function visibleClips() {
+        const query = filterInput.value.trim().toLowerCase();
+        const event = eventSelect.value;
+        const clips = [...(manifest?.clips ?? []), ...(manifest?.plannedClips ?? [])];
+        return clips.filter((clip) => {
+          const haystack = `${clip.id} ${clip.event} ${clip.characterId} ${clip.speakerName ?? ""} ${clip.text} ${clip.file}`.toLowerCase();
+          return (!event || clip.event === event) && (!query || haystack.includes(query));
+        });
+      }
+
+      function render() {
+        const clips = visibleClips();
+        table.innerHTML = "";
+        for (const clip of clips) {
+          const row = document.createElement("tr");
+          const playCell = document.createElement("td");
+          const button = document.createElement("button");
+          button.type = "button";
+          button.textContent = "Play";
+          button.disabled = !clip.generated;
+          button.addEventListener("click", async () => {
+            button.disabled = true;
+            const originalText = button.textContent;
+            button.textContent = "Playing";
+            try {
+              await playClip(clip);
+            } catch (error) {
+              console.warn("voice preview failed", error);
+              button.textContent = "ERR";
+              setTimeout(() => {
+                button.textContent = originalText;
+                button.disabled = !clip.generated;
+              }, 900);
+              return;
+            }
+            setTimeout(() => {
+              button.textContent = originalText;
+              button.disabled = !clip.generated;
+            }, Math.max(500, Number(clip.durationSec ?? 1) * 1000));
+          });
+          playCell.append(button);
+
+          const eventCell = document.createElement("td");
+          eventCell.textContent = clip.event;
+          const charCell = document.createElement("td");
+          charCell.textContent = clip.characterId ?? "system";
+          const textCell = document.createElement("td");
+          textCell.textContent = clip.text;
+          const statusCell = document.createElement("td");
+          const status = document.createElement("span");
+          status.className = `status ${clip.generated ? "generated" : ""}`;
+          status.textContent = clip.generated ? `${clip.durationSec ?? "?"}s` : "未生成";
+          statusCell.append(status);
+          const fileCell = document.createElement("td");
+          fileCell.className = "mono";
+          fileCell.textContent = clip.file;
+
+          row.append(playCell, eventCell, charCell, textCell, statusCell, fileCell);
+          table.append(row);
+        }
+      }
+
+      async function loadManifest() {
+        const url = new URL(manifestUrl, window.location.href);
+        url.searchParams.set("t", String(Date.now()));
+        const response = await fetch(url);
+        manifest = await response.json();
+        document.getElementById("manifestStatus").textContent = manifest.status ?? "loaded";
+        document.getElementById("generatedCount").textContent = String(manifest.clips?.length ?? 0);
+        document.getElementById("plannedCount").textContent = String(manifest.plannedClips?.length ?? 0);
+        document.getElementById("versionText").textContent = manifest.version ?? "-";
+        const events = [...new Set([...(manifest.clips ?? []), ...(manifest.plannedClips ?? [])].map((clip) => clip.event))].sort();
+        eventSelect.innerHTML = '<option value="">すべてのイベント</option>';
+        for (const event of events) {
+          const option = document.createElement("option");
+          option.value = event;
+          option.textContent = event;
+          eventSelect.append(option);
+        }
+        render();
+      }
+
+      filterInput.addEventListener("input", render);
+      eventSelect.addEventListener("change", render);
+      reloadButton.addEventListener("click", loadManifest);
+      loadManifest().catch((error) => {
+        document.getElementById("manifestStatus").textContent = "failed";
+        console.error(error);
+      });
+    </script>
+  </body>
+</html>

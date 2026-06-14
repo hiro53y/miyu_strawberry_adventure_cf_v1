@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="みゆのいちご大冒険">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff8ff"/>
+      <stop offset="0.48" stop-color="#f4e9ff"/>
+      <stop offset="1" stop-color="#ffe3c2"/>
+    </linearGradient>
+    <linearGradient id="berry" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff7b82"/>
+      <stop offset="1" stop-color="#e8314c"/>
+    </linearGradient>
+    <linearGradient id="leaf" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#a7d86b"/>
+      <stop offset="1" stop-color="#5c9d43"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#bg)"/>
+  <circle cx="256" cy="268" r="174" fill="#fff" opacity="0.62"/>
+  <path fill="url(#leaf)" d="M246 126c-22-44 3-82 36-92 11 39-1 75-36 92Zm7 38c-45-12-67-47-55-82 35 14 59 40 55 82Zm28 2c7-46 39-71 75-66-9 37-32 63-75 66Z"/>
+  <path fill="url(#berry)" d="M256 154c96 0 157 65 157 153 0 105-111 167-157 184-46-17-157-79-157-184 0-88 61-153 157-153Z"/>
+  <path fill="#ff9da4" d="M147 285c0-59 43-96 102-104-53 34-84 87-76 156 4 35 21 73 45 107-44-27-71-70-71-159Z" opacity="0.46"/>
+  <g fill="#fff2b1">
+    <ellipse cx="207" cy="265" rx="10" ry="14"/>
+    <ellipse cx="258" cy="250" rx="9" ry="13"/>
+    <ellipse cx="309" cy="270" rx="10" ry="14"/>
+    <ellipse cx="227" cy="333" rx="9" ry="13"/>
+    <ellipse cx="285" cy="350" rx="10" ry="14"/>
+  </g>
+  <path fill="#5a4698" d="M158 106h196c28 0 50 22 50 50v12H108v-12c0-28 22-50 50-50Z" opacity="0.16"/>
+  <text x="256" y="118" text-anchor="middle" fill="#5a4698" font-family="Verdana, sans-serif" font-size="46" font-weight="700">Miyu</text>
+</svg>
